@@ -44,22 +44,31 @@ export default function Footer() {
                 </li>
                 <li>
                   <a
-                    className="flex items-center justify-center text-indigo-500 transition hover:text-indigo-400"
+                    className="flex items-center justify-center text-indigo-500 transition hover:text-indigo-400 mt-1"
                     href="https://voltr.gitbook.io/voltr-docs"
                     aria-label="Docs"
                   >
                     <svg
-                      className="h-8 w-8 fill-current"
-                      viewBox="0 0 32 32"
+                      className="h-5 w-5 fill-current"
+                      viewBox="0 0 18 18"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <path d="M23 8H9a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-1.708 3.791-.858.823a.251.251 0 0 0-.1.241V18.9a.251.251 0 0 0 .1.241l.838.823v.181h-4.215v-.181l.868-.843c.085-.085.085-.11.085-.241v-4.887l-2.41 6.131h-.329l-2.81-6.13V18.1a.567.567 0 0 0 .156.472l1.129 1.37v.181h-3.2v-.181l1.129-1.37a.547.547 0 0 0 .146-.472v-4.749a.416.416 0 0 0-.138-.351l-1-1.209v-.181H13.8l2.4 5.283 2.122-5.283h2.971l-.001.181Z" />
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M3 3.75V14.25C3 15.4926 4.00736 16.5 5.25 16.5H12.75C13.9926 16.5 15 15.4926 15 14.25V6.75C15 5.50736 13.9926 4.5 12.75 4.5H3.75C3.33579 4.5 3 4.16421 3 3.75ZM5.4375 9C5.4375 8.68934 5.68934 8.4375 6 8.4375H12C12.3107 8.4375 12.5625 8.68934 12.5625 9C12.5625 9.31066 12.3107 9.5625 12 9.5625H6C5.68934 9.5625 5.4375 9.31066 5.4375 9ZM5.4375 11.625C5.4375 11.3143 5.68934 11.0625 6 11.0625H10.125C10.4357 11.0625 10.6875 11.3143 10.6875 11.625C10.6875 11.9357 10.4357 12.1875 10.125 12.1875H6C5.68934 12.1875 5.4375 11.9357 5.4375 11.625Z"
+                        fill="current"
+                      ></path>
+                      <path
+                        d="M3.30659 3.06532C3.56795 3.18254 3.75 3.44501 3.75 3.75H12.75C13.009 3.75 13.2603 3.78281 13.5 3.84451V3.22953C13.5 2.31671 12.6915 1.61551 11.7879 1.74461L3.6897 2.90149C3.54534 2.92211 3.41453 2.98031 3.30659 3.06532Z"
+                        fill="current"
+                      ></path>
                     </svg>
                   </a>
                 </li>
                 <li>
                   <a
-                    className="flex items-center justify-center text-indigo-500 transition hover:text-indigo-400"
+                    className="flex items-center justify-center text-indigo-500 transition hover:text-indigo-400 -mt-0.5"
                     href="https://github.com/voltrxyz"
                     aria-label="Github"
                   >
