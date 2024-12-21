@@ -21,13 +21,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import {
-  calculateAmountIbToPt,
-  calculateAmountIb,
-  getBasePerIbCurr,
-} from "@/lib/Calculation";
 import * as smIdl from "@/client/idl/split_program.json";
-import { SPLIT_PROGRAM_ID } from "@/lib/Constants";
 import { SplitClient } from "@/client/split.client";
 import { createConnection } from "@/lib/Connection";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
@@ -240,39 +234,15 @@ export default function MarketClientPage({
         if (selectedTab === "swap") {
           if (idxPay === 0) {
             // Swap from IB to PT
-            output =
-              calculateAmountIbToPt(
-                currentTime,
-                new BN(marketAcc.endUnixTs, 16).toNumber(),
-                new BN(ammAcc.nPt, 16).toNumber(),
-                new BN(ammAcc.nIb, 16).toNumber(),
-                new BN(ammAcc.scalarRootNano, 16),
-                new BN(ammAcc.lastImpliedRateNano, 16).toNumber(),
-                inputAmountInBaseUnits
-              ) /
-              10 ** decimals;
+            output = 1;
           } else {
             // Swap from PT to IB
-            output =
-              calculateAmountIb(
-                currentTime,
-                new BN(marketAcc.endUnixTs, 16).toNumber(),
-                new BN(ammAcc.nPt, 16).toNumber(),
-                new BN(ammAcc.nIb, 16).toNumber(),
-                new BN(ammAcc.scalarRootNano, 16),
-                new BN(ammAcc.lastImpliedRateNano, 16).toNumber(),
-                inputAmountInBaseUnits,
-                true
-              ) /
-              10 ** decimals;
+            output = 1;
           }
           setOutputAmount(output.toString());
           setOutputAmount2(output.toString());
         } else {
-          const basePerIbCurrNano = getBasePerIbCurr(
-            currentTime,
-            new BN(marketAcc.startUnixTs, 16).toNumber()
-          );
+          const basePerIbCurrNano = 1;
           if (idxPay === 0) {
             // Mint PT + YT from IB
             output = +inputAmount * basePerIbCurrNano;
@@ -329,11 +299,7 @@ export default function MarketClientPage({
     try {
       const conn = createConnection();
 
-      const smc = new SplitClient(
-        conn,
-        smIdl as any,
-        new PublicKey(SPLIT_PROGRAM_ID)
-      );
+      const smc = new SplitClient(conn, smIdl as any, PublicKey.default);
 
       const user = wallet.publicKey;
 

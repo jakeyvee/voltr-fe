@@ -3,7 +3,6 @@ import MarketClientPage from "./Market";
 import { createConnection } from "@/lib/Connection";
 import * as smIdl from "@/client/idl/split_program.json";
 import { PublicKey } from "@solana/web3.js";
-import { SPLIT_PROGRAM_ID } from "@/lib/Constants";
 
 export default async function MarketPage({
   params,
@@ -13,7 +12,7 @@ export default async function MarketPage({
   const smc = new SplitClient(
     createConnection(),
     smIdl as any,
-    new PublicKey(SPLIT_PROGRAM_ID)
+    PublicKey.default
   );
 
   const marketAcc = await smc.fetchMarketAcc(new PublicKey(params.marketId));
