@@ -3,7 +3,7 @@ import Link from "next/link";
 function getMaturityInfo(unixTs: number) {
   const maturityDate = new Date(unixTs * 1000);
   const now = new Date();
-  const diffTime = maturityDate.getTime() - now.getTime();
+  const diffTime = now.getTime() - maturityDate.getTime();
   const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   const options: Intl.DateTimeFormatOptions = {
@@ -22,49 +22,19 @@ function getMaturityInfo(unixTs: number) {
 export default function MarketsTable() {
   const markets = [
     {
-      marketId: "A4foZXPmLcocrBftcLVZFcTbsderoQrSv9a6g3MwQSev",
+      marketId: "3ab3KVY9GbDbUUbRnYNSBDQqABTDup7HmdgADHGpB8Bq",
       asset: {
-        name: "JitoSOL",
-        fullName: "Jito Staked SOL",
-        icon: "https://storage.googleapis.com/token-metadata/JitoSOL-256.png",
+        name: "USDC Lending Optimizer",
+        fullName: "@voltrxyz",
+        icon: "https://drift-public.s3.eu-central-1.amazonaws.com/assets/icons/markets/usdc.svg",
       },
       maturity: {
-        unixTs: 1759814630,
+        unixTs: 1734557736,
       },
-      ammTvl: "$1,341.21",
+      ammTvl: 534103.2,
+      capacity: 1000000,
       pt: {
-        apy: "15.54%",
-        price: "$128.21",
-      },
-      yt: {
-        apy: "31.01%",
-        price: "$11.71",
-      },
-      lp: {
-        apy: "31.63%",
-      },
-    },
-    {
-      marketId: "8E8g93aDN1qD1XB4HoLQnJQAGmr45pnHrTUVkDG2aiRM",
-      asset: {
-        name: "CRT",
-        fullName: "Carrot",
-        icon: "https://shdw-drive.genesysgo.net/7G7ayDnjFoLcEUVkxQ2Jd4qquAHp5LiSBii7t81Y2E23/carrot.png",
-      },
-      maturity: {
-        unixTs: 1759813850,
-      },
-      ammTvl: "$2,567.11",
-      pt: {
-        apy: "21.75%",
-        price: "$0.8264",
-      },
-      yt: {
-        apy: "24.50%",
-        price: "$0.00747",
-      },
-      lp: {
-        apy: "25.10%",
+        apy: "37.54",
       },
     },
   ];
@@ -78,22 +48,19 @@ export default function MarketsTable() {
               <thead className="text-xs text-gray-700 uppercase bg-gray-800 dark:text-gray-400">
                 <tr>
                   <th scope="col" className="px-4 py-3">
-                    Asset
+                    Vault
                   </th>
                   <th scope="col" className="px-4 py-3">
-                    Maturity
+                    Age
                   </th>
                   <th scope="col" className="px-4 py-3">
-                    AMM TVL
+                    Vault TVL
                   </th>
                   <th scope="col" className="px-4 py-3">
-                    Fixed APY
+                    APY (7d)
                   </th>
                   <th scope="col" className="px-4 py-3">
-                    Long yield APY
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Pool APY
+                    Action
                   </th>
                 </tr>
               </thead>
@@ -119,60 +86,59 @@ export default function MarketsTable() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-white">{maturityInfo.date}</div>
-                        <div className="text-sm text-gray-400">
-                          {maturityInfo.daysLeft} days left
+                        <div className="text-white">
+                          {maturityInfo.daysLeft} days
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-white">{market.ammTvl}</td>
-                      <td className="px-4 py-3">
-                        <div className="bg-indigo-500/30 rounded-lg px-3 py-1.5">
-                          <Link href={`/market/${market.marketId}`}>
-                            <div className="flex items-center justify-between">
-                              <div className="text-indigo-500 font-ataero font-bold text-base">
-                                PT
+
+                      <td className="px-4 py-3 text-white">
+                        <span className="font-[300] text-[13px] leading-[16px] flex items-start flex-row">
+                          <div className="w-[196px] flex flex-col gap-3 pr-2">
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-center gap-1">
+                                <img
+                                  className="w-4 h-4"
+                                  width="18"
+                                  height="18"
+                                  alt="USDC icon"
+                                  src="https://drift-public.s3.eu-central-1.amazonaws.com/assets/icons/markets/usdc.svg"
+                                />
+                                <span className="typo-t5">
+                                  {(market.ammTvl / 1000).toFixed(2)}K
+                                </span>
                               </div>
-                              <div>
-                                <div className="text-white">
-                                  {market.pt.apy}
-                                </div>
-                                <div className="text-sm text-gray-400">
-                                  {market.pt.price}
-                                </div>
-                              </div>
+                              <span className="typo-b5 text-text-secondary">
+                                {(
+                                  (market.ammTvl / market.capacity) *
+                                  100
+                                ).toFixed(2) + "%"}
+                              </span>
                             </div>
-                          </Link>
-                        </div>
+                            <div className="w-full overflow-hidden rounded-full bg-gray-600 h-[6px]">
+                              <div
+                                className="h-full bg-indigo-700"
+                                style={{
+                                  width:
+                                    (market.ammTvl / market.capacity) * 100 +
+                                    "%",
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                        </span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="bg-cyan-500/30 rounded-lg px-3 py-1.5">
-                          <Link href={`/market/${market.marketId}`}>
-                            <div className="flex items-center justify-between">
-                              <div className="text-cyan-500 font-ataero font-bold text-base">
-                                YT
-                              </div>
-                              <div>
-                                <div className="text-white">
-                                  {market.yt.apy}
-                                </div>
-                                <div className="text-sm text-gray-400">
-                                  {market.yt.price}
-                                </div>
-                              </div>
-                            </div>
-                          </Link>
+                        <div className="text-green-300">
+                          {market.pt.apy + "%"}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-white">
                         <div className="bg-indigo-500/30 rounded-lg px-3 py-1.5 items-center">
-                          <Link href={`/market/${market.marketId}`}>
+                          <Link href={`/vault/${market.marketId}`}>
                             <div className="flex items-center justify-between flex flex-col">
-                              <div className="text-indigo-500 font-ataero font-bold text-base">
-                                LP
-                              </div>
                               <div>
-                                <div className="text-white">
-                                  {market.lp.apy}
+                                <div className="text-indigo-200 font-semibold hover:text-indigo-100">
+                                  View Vault
                                 </div>
                               </div>
                             </div>

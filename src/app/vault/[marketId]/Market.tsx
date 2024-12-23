@@ -1,99 +1,61 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Menu,
-  MenuButton,
-  Transition,
-  Tab,
-  TabList,
-  TabGroup,
-} from "@headlessui/react";
+import { Menu, MenuButton, TabGroup, TabList, Tab } from "@headlessui/react";
 import Image from "next/image";
 import { useWallet } from "@jup-ag/wallet-adapter";
 import { UnifiedWalletButton } from "@jup-ag/wallet-adapter";
 import { BN } from "@coral-xyz/anchor";
 import {
   ComputeBudgetProgram,
-  Keypair,
   PublicKey,
   TransactionConfirmationStrategy,
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import * as smIdl from "@/client/idl/split_program.json";
-import { SplitClient } from "@/client/split.client";
 import { createConnection } from "@/lib/Connection";
-import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import {
+  createAssociatedTokenAccountIdempotentInstruction,
+  getAssociatedTokenAddressSync,
+  TOKEN_2022_PROGRAM_ID,
+} from "@solana/spl-token";
 import { toast } from "react-toastify";
+import ChartCard from "./chart/chart-card";
+import VoltrClient from "@/client/voltr.client";
 
-// Constants
-const PRECISION = 1e9;
-const SECONDS_PER_YEAR = 31_536_000;
-
-// Interfaces
-interface MarketAccount {
-  nPtCirculate: string;
-  nIbVault: string;
-  startUnixTs: string;
-  endUnixTs: string;
-  basePerIbNanoFinal: string;
-  ibMint: string;
-  basePerIbNanoLast: string;
-}
-
-interface AmmAccount {
-  market: PublicKey;
-  nIb: string;
-  nPt: string;
-  nAsset: string;
-  lpSupply: string;
-  scalarRootNano: string;
-  rateAnchorNano: string;
-  feeRateRootNano: string;
-  lastImpliedRateNano: string;
-  lastUpdateTs: string;
-}
+// USDC for demo
+const vaultAssetMint = new PublicKey(
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+);
 
 // Market Data
 const market = {
-  A4foZXPmLcocrBftcLVZFcTbsderoQrSv9a6g3MwQSev: {
-    name: "JitoSOL",
-    fullName: "Jito Staked SOL",
-    decimals: 9,
-    icon: "https://storage.googleapis.com/token-metadata/JitoSOL-256.png",
-    mint: "22E2oN64PYazaKdK54WH1urjGJSTcznwRQqvPcpkiJUL",
-  },
-  "8E8g93aDN1qD1XB4HoLQnJQAGmr45pnHrTUVkDG2aiRM": {
-    name: "CRT",
-    fullName: "Carrot",
-    decimals: 9,
-    icon: "https://shdw-drive.genesysgo.net/7G7ayDnjFoLcEUVkxQ2Jd4qquAHp5LiSBii7t81Y2E23/carrot.png",
-    mint: "fAM1Fwf2ZutMTPRvXYnJLpWkb3FRoP7uQWyNCX2Uvfk",
+  "3ab3KVY9GbDbUUbRnYNSBDQqABTDup7HmdgADHGpB8Bq": {
+    name: "USDC",
+    fullName: "USD Coin",
+    decimals: 6,
+    icon: "https://drift-public.s3.eu-central-1.amazonaws.com/assets/icons/markets/usdc.svg",
+    mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   },
 };
-// React Component
+
 export default function MarketClientPage({
   params,
-  marketAcc,
-  ammAcc,
 }: {
   params: { marketId: string };
-  marketAcc: MarketAccount;
-  ammAcc: AmmAccount;
 }) {
   const wallet = useWallet();
-
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [selectedMode, setSelectedMode] = useState<"PT" | "YT" | "LP">("PT");
-  const [selectedTab, setSelectedTab] = useState<"swap" | "mintRedeem">("swap");
-  const [idxPay, setIdxPay] = useState<number>(0);
-  const [idxReceive, setIdxReceive] = useState<number>(1);
+  const [selectedTab, setSelectedTab] = useState<"deposit" | "redeem">(
+    "deposit"
+  );
   const [inputAmount, setInputAmount] = useState("");
-  const [inputAmount2, setInputAmount2] = useState("");
   const [outputAmount, setOutputAmount] = useState("");
-  const [outputAmount2, setOutputAmount2] = useState("");
-  const [allowedTokens, setAllowedTokens] = useState([
+  const conn = createConnection();
+  const vc = new VoltrClient(conn);
+
+  // Calculate tokens based on selected tab
+  const tokenPair = [
     {
       name: market[params.marketId as keyof typeof market].fullName,
       symbol: market[params.marketId as keyof typeof market].name,
@@ -102,489 +64,220 @@ export default function MarketClientPage({
       logoURI: market[params.marketId as keyof typeof market].icon,
     },
     {
-      name: `${selectedMode}-${
-        market[params.marketId as keyof typeof market].fullName
-      }`,
-      symbol: `${selectedMode}-${
-        market[params.marketId as keyof typeof market].name
-      }`,
+      name: `v${market[params.marketId as keyof typeof market].fullName}`,
+      symbol: `v${market[params.marketId as keyof typeof market].name}`,
       mint: market[params.marketId as keyof typeof market].mint,
-      decimals: market[params.marketId as keyof typeof market].decimals,
+      decimals: 9,
       logoURI: market[params.marketId as keyof typeof market].icon,
     },
-  ]);
+  ];
 
-  // State variable to track the last input changed
-  const [lastInputChanged, setLastInputChanged] = useState<
-    "input1" | "input2" | null
-  >(null);
+  const [inputToken, setInputToken] = useState(tokenPair[0]);
+  const [outputToken, setOutputToken] = useState(tokenPair[1]);
 
-  const handleSwitchClick = () => {
-    setIdxPay(idxReceive);
-    setIdxReceive(idxPay);
+  // Update the debounce utility with proper typing
+  const debounce = <F extends (...args: any[]) => any>(
+    func: F,
+    wait: number
+  ) => {
+    let timeout: NodeJS.Timeout;
+    const debouncedFn = (...args: Parameters<F>) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+
+    debouncedFn.clear = () => {
+      clearTimeout(timeout);
+    };
+
+    return debouncedFn;
   };
 
-  useEffect(() => {
-    if (selectedMode === "LP") {
-      setAllowedTokens([
-        {
-          name: `${selectedMode}-${
-            market[params.marketId as keyof typeof market].fullName
-          }`,
-          symbol: `${selectedMode}-${
-            market[params.marketId as keyof typeof market].name
-          }`,
-          mint: market[params.marketId as keyof typeof market].mint,
-          decimals: market[params.marketId as keyof typeof market].decimals,
-          logoURI: market[params.marketId as keyof typeof market].icon,
-        },
-        {
-          name: `PT-${market[params.marketId as keyof typeof market].fullName}`,
-          symbol: `PT-${market[params.marketId as keyof typeof market].name}`,
-          mint: market[params.marketId as keyof typeof market].mint,
-          decimals: market[params.marketId as keyof typeof market].decimals,
-          logoURI: market[params.marketId as keyof typeof market].icon,
-        },
-        {
-          name: `${market[params.marketId as keyof typeof market].fullName}`,
-          symbol: `${market[params.marketId as keyof typeof market].name}`,
-          mint: market[params.marketId as keyof typeof market].mint,
-          decimals: market[params.marketId as keyof typeof market].decimals,
-          logoURI: market[params.marketId as keyof typeof market].icon,
-        },
-      ]);
-    } else if (selectedTab === "mintRedeem") {
-      setAllowedTokens([
-        {
-          name: market[params.marketId as keyof typeof market].fullName,
-          symbol: market[params.marketId as keyof typeof market].name,
-          mint: market[params.marketId as keyof typeof market].mint,
-          decimals: market[params.marketId as keyof typeof market].decimals,
-          logoURI: market[params.marketId as keyof typeof market].icon,
-        },
-        {
-          name: `PT-${market[params.marketId as keyof typeof market].fullName}`,
-          symbol: `PT-${market[params.marketId as keyof typeof market].name}`,
-          mint: market[params.marketId as keyof typeof market].mint,
-          decimals: market[params.marketId as keyof typeof market].decimals,
-          logoURI: market[params.marketId as keyof typeof market].icon,
-        },
-        {
-          name: `YT-${market[params.marketId as keyof typeof market].fullName}`,
-          symbol: `YT-${market[params.marketId as keyof typeof market].name}`,
-          mint: market[params.marketId as keyof typeof market].mint,
-          decimals: market[params.marketId as keyof typeof market].decimals,
-          logoURI: market[params.marketId as keyof typeof market].icon,
-        },
-      ]);
-    } else {
-      setAllowedTokens([
-        {
-          name: market[params.marketId as keyof typeof market].fullName,
-          symbol: market[params.marketId as keyof typeof market].name,
-          mint: market[params.marketId as keyof typeof market].mint,
-          decimals: market[params.marketId as keyof typeof market].decimals,
-          logoURI: market[params.marketId as keyof typeof market].icon,
-        },
-        {
-          name: `${selectedMode}-${
-            market[params.marketId as keyof typeof market].fullName
-          }`,
-          symbol: `${selectedMode}-${
-            market[params.marketId as keyof typeof market].name
-          }`,
-          mint: market[params.marketId as keyof typeof market].mint,
-          decimals: market[params.marketId as keyof typeof market].decimals,
-          logoURI: market[params.marketId as keyof typeof market].icon,
-        },
-      ]);
-    }
-  }, [selectedMode, selectedTab, params.marketId]);
+  // Memoize the calculation functions
+  const debouncedCalculate = debounce(async (amount: string) => {
+    if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
+      try {
+        if (selectedTab === "deposit") {
+          const lpTokensAmount = await vc.calculateLpTokensForDeposit(
+            new BN(Number(amount) * 10 ** inputToken.decimals),
+            new PublicKey(params.marketId)
+          );
 
-  // useEffect for inputAmount changes (input1)
-  useEffect(() => {
-    if (lastInputChanged === "input1") {
-      if (selectedMode === "LP" && idxPay === 0 && inputAmount) {
-        // User is redeeming LP tokens to get PT and IB
-        const nPt = new BN(ammAcc.nPt, 16).toNumber();
-        const nIb = new BN(ammAcc.nIb, 16).toNumber();
-        const lpSupply = new BN(ammAcc.lpSupply, 16).toNumber();
-
-        const ratio = +inputAmount / lpSupply;
-        setOutputAmount((ratio * nPt).toString());
-        setOutputAmount2((ratio * nIb).toString());
-      } else if (selectedMode === "LP" && idxPay !== 0 && inputAmount) {
-        // User is providing PT and IB to get LP tokens (inputAmount is PT)
-        const nPt = new BN(ammAcc.nPt, 16).toNumber();
-        const nIb = new BN(ammAcc.nIb, 16).toNumber();
-        const lpSupply = new BN(ammAcc.lpSupply, 16).toNumber();
-
-        const ratio = +inputAmount / nPt;
-        setInputAmount2((ratio * nIb).toString());
-        setOutputAmount((ratio * lpSupply).toString());
-      } else if (selectedMode !== "LP" && +inputAmount) {
-        // Handle other modes (Swap and Mint/Redeem)
-        const currentTime = Date.now() / 1000;
-        const marketData = market[params.marketId as keyof typeof market];
-        const decimals = marketData.decimals;
-        const inputAmountInBaseUnits = +inputAmount * 10 ** decimals;
-
-        let output = 0;
-
-        if (selectedTab === "swap") {
-          if (idxPay === 0) {
-            // Swap from IB to PT
-            output = 1;
-          } else {
-            // Swap from PT to IB
-            output = 1;
-          }
-          setOutputAmount(output.toString());
-          setOutputAmount2(output.toString());
+          setOutputAmount(
+            (lpTokensAmount.toNumber() / 10 ** outputToken.decimals).toString()
+          );
         } else {
-          const basePerIbCurrNano = 1;
-          if (idxPay === 0) {
-            // Mint PT + YT from IB
-            output = +inputAmount * basePerIbCurrNano;
-          } else {
-            // Redeem IB from PT + YT
-            output = +inputAmount / basePerIbCurrNano;
-          }
-          setOutputAmount(output.toString());
-          setOutputAmount2(output.toString());
+          const assetTokensAmount = await vc.calculateAssetsForWithdraw(
+            new BN(Number(amount) * 10 ** inputToken.decimals),
+            new PublicKey(params.marketId)
+          );
+          setOutputAmount(
+            (
+              assetTokensAmount.toNumber() /
+              10 ** outputToken.decimals
+            ).toString()
+          );
         }
-      } else {
+      } catch (error) {
+        console.error("Calculation error:", error);
         setOutputAmount("");
-        setOutputAmount2("");
-        setInputAmount2("");
       }
+    } else {
+      setOutputAmount("");
     }
-  }, [
-    inputAmount,
-    lastInputChanged,
-    selectedMode,
-    selectedTab,
-    idxPay,
-    params.marketId,
-    ammAcc,
-    marketAcc,
-  ]);
+  }, 500); // 500ms debounce delay
 
-  // useEffect for inputAmount2 changes (input2)
   useEffect(() => {
-    if (lastInputChanged === "input2") {
-      if (selectedMode === "LP" && idxPay !== 0 && inputAmount2) {
-        // User is providing PT and IB to get LP tokens (inputAmount2 is IB)
-        const nPt = new BN(ammAcc.nPt, 16).toNumber();
-        const nIb = new BN(ammAcc.nIb, 16).toNumber();
-        const lpSupply = new BN(ammAcc.lpSupply, 16).toNumber();
+    debouncedCalculate(inputAmount);
 
-        const ratio = +inputAmount2 / nIb;
-        setInputAmount((ratio * nPt).toString());
-        setOutputAmount((ratio * lpSupply).toString());
-      } else {
-        setOutputAmount("");
-        setOutputAmount2("");
-        setInputAmount("");
-      }
-    }
-  }, [inputAmount2, lastInputChanged, selectedMode, idxPay, ammAcc]);
+    // Cleanup function
+    return () => {
+      debouncedCalculate.clear?.();
+    };
+  }, [inputAmount, inputToken]);
+
+  useEffect(() => {
+    setInputToken(selectedTab === "deposit" ? tokenPair[0] : tokenPair[1]);
+    setOutputToken(selectedTab === "deposit" ? tokenPair[1] : tokenPair[0]);
+  }, [selectedTab]);
 
   const handleButtonClick = async () => {
     if (!wallet || !wallet.connected || !wallet.publicKey) {
       console.error("Wallet not connected");
       return;
     }
+
     setIsButtonLoading(true);
     try {
-      const conn = createConnection();
-
-      const smc = new SplitClient(conn, smIdl as any, PublicKey.default);
-
       const user = wallet.publicKey;
-
-      // Get market data
-      const marketData = market[params.marketId as keyof typeof market];
       const marketPk = new PublicKey(params.marketId);
-      const tokenIbMint = new PublicKey(marketData.mint);
-      const tokenIbProgram = TOKEN_2022_PROGRAM_ID; // Replace with the correct program ID if different
-
-      const decimals = marketData.decimals;
-      const inputAmountBN = new BN(Number(inputAmount) * 10 ** decimals);
+      const tokenIbMint = new PublicKey(
+        market[params.marketId as keyof typeof market].mint
+      );
+      const inputAmountBN = new BN(
+        Number(inputAmount) * 10 ** inputToken.decimals
+      );
 
       const ixs = [];
-      const signers = [];
-      let msg = "";
+      const msg = selectedTab === "deposit" ? "deposited" : "redeemed";
 
-      // Determine the case based on user selections
-      if (selectedMode === "PT") {
-        if (selectedTab === "swap") {
-          msg = "swapped";
-          if (allowedTokens[idxPay].symbol.startsWith("PT-")) {
-            // Case 1: Purchase PT -> IB (Swap PT for IB)
-            const deltaPt = inputAmountBN;
-            ixs.push(
-              ...(await smc.swap(
-                { deltaPt, ptToIb: true },
-                {
-                  user,
-                  market: marketPk,
-                  tokenIbMint,
-                  tokenIbProgram,
-                }
-              ))
-            );
-          } else {
-            // Case 2: Purchase IB -> PT (Swap IB for PT)
-            const deltaPt = new BN(
-              Number(outputAmount) * 10 ** allowedTokens[idxReceive].decimals
-            );
-            ixs.push(
-              ...(await smc.swap(
-                { deltaPt, ptToIb: false },
-                {
-                  user,
-                  market: marketPk,
-                  tokenIbMint,
-                  tokenIbProgram,
-                }
-              ))
-            );
-          }
-        } else if (selectedTab === "mintRedeem") {
-          const tokenYtMintKp = Keypair.generate();
+      // Handle swap instruction based on direction
+      if (selectedTab === "deposit") {
+        // Token -> PT-Token
+        const vaultLpMint = vc.findVaultLpMint(marketPk);
+        ixs.push(
+          createAssociatedTokenAccountIdempotentInstruction(
+            user,
+            getAssociatedTokenAddressSync(vaultLpMint, user),
+            user,
+            vaultLpMint
+          )
+        );
 
-          if (allowedTokens[idxPay].symbol === marketData.name) {
-            msg = "minted PT + YT";
-            // Case 3: Mint PT + YT from IB
-            const ibInAmount = inputAmountBN;
-            signers.push(tokenYtMintKp);
-            ixs.push(
-              ...(await smc.mintPYT(
-                { ibInAmount },
-                {
-                  user,
-                  market: marketPk,
-                  tokenYtMint: tokenYtMintKp.publicKey,
-                  tokenIbMint,
-                  tokenIbProgram,
-                }
-              ))
-            );
-          } else {
-            // Case 4: Redeem IB from PT + YT
-            msg = "redeemed";
-            const ptYtInAmount = inputAmountBN;
-            ixs.push(
-              ...(await smc.redeemPYT(
-                { ptYtInAmount },
-                {
-                  user,
-                  market: marketPk,
-                  tokenYtMint: tokenYtMintKp.publicKey,
-                  tokenIbMint,
-                  tokenIbProgram,
-                }
-              ))
-            );
-          }
-        }
-      } else if (selectedMode === "LP") {
-        if (allowedTokens[idxPay].symbol.startsWith("LP-")) {
-          // Case 6: Withdraw LP -> PT + IB
-          msg = "withdrew LP";
-          const lpTokenAmount = inputAmountBN;
-          ixs.push(
-            ...(await smc.removeLiquidity(
-              { lpTokenAmount },
-              {
-                user,
-                market: marketPk,
-                tokenIbMint,
-                tokenIbProgram,
-              }
-            ))
-          );
-        } else {
-          // Case 5: Provide PT + IB -> LP
-          msg = "provided LP";
-          const lpTokenAmount = new BN(
-            Number(outputAmount) * 10 ** allowedTokens[idxReceive].decimals
-          );
-          ixs.push(
-            ...(await smc.addLiquidity(
-              { lpTokenAmount },
-              {
-                user,
-                market: marketPk,
-                tokenIbMint,
-                tokenIbProgram,
-              }
-            ))
-          );
-        }
+        ixs.push(
+          await vc.createDepositIx(inputAmountBN, {
+            userAuthority: user,
+            vault: marketPk,
+            vaultAssetMint: tokenIbMint,
+          })
+        );
+      } else {
+        // PT-Token -> Token
+        ixs.push(
+          createAssociatedTokenAccountIdempotentInstruction(
+            user,
+            getAssociatedTokenAddressSync(vaultAssetMint, user),
+            user,
+            vaultAssetMint
+          )
+        );
+
+        ixs.push(
+          await vc.createWithdrawIx(inputAmountBN, {
+            userAuthority: user,
+            vault: marketPk,
+            vaultAssetMint: tokenIbMint,
+          })
+        );
       }
 
       const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-        units: 400000, // or any other value up to 1,400,000
+        units: 400000,
       });
+      const { lastValidBlockHeight, blockhash } =
+        await conn.getLatestBlockhash();
 
-      const blockhash = (await conn.getLatestBlockhash()).blockhash;
       const messageV0 = new TransactionMessage({
         payerKey: wallet.publicKey,
         recentBlockhash: blockhash,
         instructions: [modifyComputeUnits, ...ixs],
       }).compileToV0Message();
+
       const transaction = new VersionedTransaction(messageV0);
-      transaction.sign(signers);
       const txSig = await wallet.sendTransaction(transaction, conn);
-      const { lastValidBlockHeight, lastBlockhash } = await conn
-        .getLatestBlockhash()
-        .then((res) => ({
-          lastValidBlockHeight: res.lastValidBlockHeight,
-          lastBlockhash: res.blockhash,
-        }));
 
       const strategy: TransactionConfirmationStrategy = {
         signature: txSig,
         lastValidBlockHeight,
-        blockhash: lastBlockhash,
+        blockhash: blockhash,
       };
+
       await conn.confirmTransaction(strategy, "confirmed");
       toast.success(`Successfully ${msg}!`);
     } catch (error) {
       console.error("Error:", error);
-      toast.error(`Error: ${error} !`);
+      toast.error(`Error: ${error}`);
     } finally {
       setIsButtonLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-15.5rem)]">
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-0 mb-36">
-        {/* Mode Selection */}
-        <div className="bg-gray-900 rounded-xl p-2 shadow-lg w-full max-w-md mb-4">
-          <div className="grid grid-cols-3 gap-2">
-            {["PT", "YT", "LP"].map((mode) => (
-              <button
-                key={mode}
-                className={`
-                  font-bold py-2 px-4 rounded-lg focus:outline-none
-                  ${
-                    selectedMode === mode
-                      ? mode === "PT"
-                        ? "bg-indigo-500 text-white"
-                        : mode === "YT"
-                        ? "bg-cyan-500 text-white"
-                        : "bg-indigo-500 text-white"
-                      : mode === "PT"
-                      ? "bg-indigo-500/30 text-indigo-500"
-                      : mode === "YT"
-                      ? "bg-cyan-500/30 text-cyan-500"
-                      : "bg-indigo-500/30 text-indigo-500"
-                  }
-                `}
-                onClick={() => setSelectedMode(mode as "PT" | "YT" | "LP")}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Swap/Mint-Redeem Tab */}
-        <div className="bg-gray-900 rounded-2xl p-4 shadow-lg w-full max-w-md mb-4">
-          <TabGroup
-            onChange={(index) =>
-              setSelectedTab(index === 0 ? "swap" : "mintRedeem")
-            }
-          >
-            <TabList className="flex rounded-full bg-indigo-700/20 p-1 font-bold">
-              {selectedMode !== "LP" ? (
-                <>
-                  <Tab
-                    className={({ selected }) =>
-                      `w-full rounded-full py-2 text-sm leading-5 transition-all ${
-                        selected
-                          ? "text-indigo-800 bg-white shadow"
-                          : "text-indigo-100 hover:bg-white/[0.12] hover:text-white"
-                      }`
-                    }
-                  >
-                    Swap
-                  </Tab>
-                  <Tab
-                    className={({ selected }) =>
-                      `w-full rounded-full py-2 text-sm leading-5 transition-all ${
-                        selected
-                          ? "text-indigo-800 bg-white shadow"
-                          : "text-indigo-100 hover:bg-white/[0.12] hover:text-white"
-                      }`
-                    }
-                  >
-                    Mint/Redeem
-                  </Tab>
-                </>
-              ) : (
+    <div className="min-h-[calc(100vh-15.5rem)] max-w-6xl mx-auto px-6">
+      <div className="grid grid-cols-12 gap-2 py-6 w-full">
+        <ChartCard />
+        <div className="flex flex-col col-span-full sm:col-span-4 z-0">
+          <div className="bg-gray-900 rounded-2xl p-4 shadow-lg w-full max-w-md mb-4">
+            {/* Tab Selection */}
+            <TabGroup
+              onChange={(index) =>
+                setSelectedTab(index === 0 ? "deposit" : "redeem")
+              }
+            >
+              <TabList className="flex rounded-full bg-indigo-700/20 p-1 font-bold">
                 <Tab
-                  className={`w-full rounded-full py-2 text-sm leading-5 transition-all text-indigo-800 bg-white shadow`}
+                  className={`w-full rounded-full py-2 text-sm leading-5 transition-all ${
+                    selectedTab === "deposit"
+                      ? "text-indigo-800 bg-white shadow"
+                      : "text-indigo-100 hover:bg-white/[0.12] hover:text-white"
+                  }`}
                 >
-                  Provide / Withdraw Liquidity
+                  Deposit
                 </Tab>
-              )}
-            </TabList>
-          </TabGroup>
+                <Tab
+                  className={`w-full rounded-full py-2 text-sm leading-5 transition-all ${
+                    selectedTab === "redeem"
+                      ? "text-indigo-800 bg-white shadow"
+                      : "text-indigo-100 hover:bg-white/[0.12] hover:text-white"
+                  }`}
+                >
+                  Redeem
+                </Tab>
+              </TabList>
+            </TabGroup>
 
-          {/* Input/Output Sections */}
-          <div className="flex-col relative">
-            {/* From Section */}
-            <div className="flex justify-between my-2">
-              <label
-                htmlFor="fromValue"
-                className="text-xs sm:text-sm font-medium"
-              >
-                User will be paying
-              </label>
-            </div>
-            <DropdownFull
-              selectedIdx={idxPay}
-              opposingIdx={idxReceive}
-              allowedTokens={allowedTokens}
-              setSelectedIdx={setIdxPay}
-              handleSwitchClick={handleSwitchClick}
-              amount={inputAmount}
-              setAmount={(value) => {
-                setInputAmount(value);
-                setLastInputChanged("input1");
-              }}
-              isInput={true}
-            />
-            {allowedTokens.length === 3 && idxPay === 1 && (
-              <div className="flex justify-center py-2 text-gray-300 text-lg">
-                +
-              </div>
-            )}
-            {allowedTokens.length === 3 && idxPay === 1 && (
-              <DropdownFull
-                selectedIdx={2}
-                opposingIdx={idxPay}
-                allowedTokens={allowedTokens}
-                setSelectedIdx={setIdxReceive}
-                handleSwitchClick={handleSwitchClick}
-                amount={selectedMode === "LP" ? inputAmount2 : inputAmount}
-                setAmount={(value) => {
-                  if (selectedMode === "LP") {
-                    setInputAmount2(value);
-                    setLastInputChanged("input2");
-                  } else {
-                    setInputAmount(value);
-                    setLastInputChanged("input1");
-                  }
-                }}
+            {/* Input Section */}
+            <div className="mt-4">
+              <label className="text-xs sm:text-sm font-medium">You pay</label>
+              <TokenInput
+                token={inputToken}
+                amount={inputAmount}
+                setAmount={setInputAmount}
                 isInput={true}
               />
-            )}
+            </div>
+
+            {/* Arrow Indicator */}
 
             {/* Swap Button */}
             <div className="relative flex justify-center my-2">
@@ -592,7 +285,11 @@ export default function MarketClientPage({
               <button
                 type="button"
                 className="group bg-gray-800 w-8 h-8 rounded-full cursor-pointer flex items-center justify-center border-[3px] border-[rgba(25,35,45,0.75)] text-white hover:border-gray-700 hover:shadow-lg"
-                onClick={handleSwitchClick}
+                onClick={() =>
+                  setSelectedTab(
+                    selectedTab === "deposit" ? "redeem" : "deposit"
+                  )
+                }
               >
                 <svg
                   width="21"
@@ -613,113 +310,82 @@ export default function MarketClientPage({
               </button>
             </div>
 
-            {/* To Section */}
-            <div className="flex justify-between my-2">
+            {/* Output Section */}
+            <div>
               <label className="text-xs sm:text-sm font-medium">
-                To receive
+                You receive
               </label>
-            </div>
-            <DropdownFull
-              selectedIdx={idxReceive}
-              opposingIdx={idxPay}
-              allowedTokens={allowedTokens}
-              setSelectedIdx={setIdxReceive}
-              handleSwitchClick={handleSwitchClick}
-              amount={outputAmount}
-              setAmount={() => {}}
-              isInput={false}
-            />
-            {allowedTokens.length === 3 && idxReceive === 1 && (
-              <div className="flex justify-center py-2 text-gray-300 text-lg">
-                +
-              </div>
-            )}
-            {allowedTokens.length === 3 && idxReceive === 1 && (
-              <DropdownFull
-                selectedIdx={2}
-                opposingIdx={idxPay}
-                allowedTokens={allowedTokens}
-                setSelectedIdx={setIdxReceive}
-                handleSwitchClick={handleSwitchClick}
-                amount={outputAmount2}
+              <TokenInput
+                token={outputToken}
+                amount={outputAmount}
                 setAmount={() => {}}
                 isInput={false}
               />
-            )}
+            </div>
           </div>
-        </div>
 
-        {/* Submit Button */}
-        <div className="w-full max-w-md">
-          {wallet && wallet.connected ? (
-            !isButtonLoading ? (
+          {/* Action Button */}
+          <div className="w-full max-w-md">
+            {wallet && wallet.connected ? (
               <button
-                onClick={() => handleButtonClick()}
+                onClick={handleButtonClick}
+                disabled={isButtonLoading}
                 className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
               >
-                {selectedMode === "LP"
-                  ? "Provide / Withdraw Liquidity"
-                  : selectedTab === "mintRedeem"
-                  ? "Mint / Redeem"
-                  : "Swap"}
+                {isButtonLoading ? (
+                  <div className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Processing...
+                  </div>
+                ) : selectedTab === "deposit" ? (
+                  "Deposit"
+                ) : (
+                  "Redeem"
+                )}
               </button>
             ) : (
-              <button
-                type="button"
-                className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
-                disabled
-              >
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Processing...
-              </button>
-            )
-          ) : (
-            <UnifiedWalletButton
-              buttonClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
-              currentUserClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
-            />
-          )}
+              <UnifiedWalletButton
+                buttonClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                currentUserClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// DropdownFull Component
-interface DropdownProps {
-  selectedIdx: number;
-  opposingIdx: number;
-  allowedTokens: any[];
-  setSelectedIdx: React.Dispatch<React.SetStateAction<number>>;
-  handleSwitchClick: () => void;
+// TokenInput Component
+interface TokenInputProps {
+  token: {
+    symbol: string;
+    logoURI: string;
+  };
   amount: string;
-  setAmount: React.Dispatch<React.SetStateAction<string>>;
+  setAmount: (value: string) => void;
   isInput: boolean;
 }
 
-const DropdownFull: React.FC<DropdownProps> = ({
-  selectedIdx,
-  opposingIdx,
-  allowedTokens,
-  setSelectedIdx,
-  handleSwitchClick,
+const TokenInput: React.FC<TokenInputProps> = ({
+  token,
   amount,
   setAmount,
   isInput,
@@ -735,18 +401,16 @@ const DropdownFull: React.FC<DropdownProps> = ({
               disabled
             >
               <span className="flex items-center">
-                {allowedTokens && (
-                  <div className="flex items-center gap-4">
-                    <Image
-                      width={16}
-                      height={16}
-                      alt="Coin image"
-                      src={allowedTokens[selectedIdx].logoURI}
-                      className="w-4 h-4 rounded-full"
-                    />
-                    <span>{allowedTokens[selectedIdx].symbol}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-4">
+                  <Image
+                    width={16}
+                    height={16}
+                    alt="Coin image"
+                    src={token.logoURI}
+                    className="w-4 h-4 rounded-full"
+                  />
+                  <span>{token.symbol}</span>
+                </div>
               </span>
             </MenuButton>
           </>
