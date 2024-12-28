@@ -45,7 +45,7 @@ export default function Footer() {
                 <li>
                   <a
                     className="flex items-center justify-center text-indigo-500 transition hover:text-indigo-400 mt-1"
-                    href="https://voltr.gitbook.io/voltr-docs"
+                    href="https://docs.voltr.xyz/"
                     aria-label="Docs"
                   >
                     <svg
@@ -69,7 +69,7 @@ export default function Footer() {
                 <li>
                   <a
                     className="flex items-center justify-center text-indigo-500 transition hover:text-indigo-400 -mt-0.5"
-                    href="https://github.com/voltrxyz"
+                    href="https://github.com/jakeyvee/voltr-monorepo"
                     aria-label="Github"
                   >
                     <svg
