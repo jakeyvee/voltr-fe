@@ -21,7 +21,7 @@ import {
 } from "@solana/spl-token";
 import { toast } from "react-toastify";
 import ChartCard from "./chart/chart-card";
-import VoltrClient from "@/client/voltr.client";
+import { VoltrClient } from "@voltr/sdk";
 
 // USDC for demo
 const vaultAssetMint = new PublicKey(
