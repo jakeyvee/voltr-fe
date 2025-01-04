@@ -220,7 +220,6 @@ export async function GET(request: Request) {
 
     // Get strategy identifier (drift, kamino, solend, or marginfi)
     const strategyPubkey = new PublicKey(strategy);
-    let strategyType: keyof typeof strategyHandlers;
 
     // Map strategy pubkey to handler
     const strategyMap = {
@@ -230,7 +229,7 @@ export async function GET(request: Request) {
       "5Mo2y7XRfAd1JLUeqZED4mcHTDznEMmdwBWscv1Nr13Q": "marginfi",
     } as const;
 
-    strategyType = strategyMap[
+    const strategyType = strategyMap[
       strategy as keyof typeof strategyMap
     ] as keyof typeof strategyHandlers;
 
