@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Logo from "./logo-words";
-import MobileMenu from "./mobile-menu";
 import { UnifiedWalletButton } from "@jup-ag/wallet-adapter";
 
 export default function Header() {
@@ -23,8 +22,6 @@ export default function Header() {
               </button>
             </li>
           </ul>
-
-          {/* <MobileMenu /> */}
         </div>
       </div>
     </header>
