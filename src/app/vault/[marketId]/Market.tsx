@@ -22,6 +22,7 @@ import {
 import { toast } from "react-toastify";
 import ChartCard from "./chart/chart-card";
 import { VoltrClient } from "@voltr/sdk";
+import { LP_TOKEN_DECIMALS } from "@/lib/Constants";
 
 // USDC for demo
 const vaultAssetMint = new PublicKey(
@@ -108,8 +109,8 @@ export default function MarketClientPage({
           );
         } else {
           const assetTokensAmount = await vc.calculateAssetsForWithdraw(
-            new BN(Number(amount) * 10 ** inputToken.decimals),
-            new PublicKey(params.marketId)
+            new PublicKey(params.marketId),
+            new BN(Number(amount) * 10 ** LP_TOKEN_DECIMALS) // LP TOKEN ALWAYS HAS 9 DECIMALS
           );
           setOutputAmount(
             (
