@@ -6,10 +6,8 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { createConnection } from "@/lib/Connection";
-import { usdcMarketsKeys } from "../withdraw-strategy/route";
 import { VoltrClient } from "@voltr/vault-sdk";
-
-const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+import { STRATEGY_MAP, USDC_MARKETS_KEYS, USDC_MINT } from "@/lib/Constants";
 
 // Updated types
 type RemainingAccount = {
@@ -34,18 +32,18 @@ const strategyHandlers = {
         vaultStrategyAuth.toBuffer(),
         new BN(0).toArrayLike(Buffer, "le", 2),
       ],
-      usdcMarketsKeys.drift.program
+      USDC_MARKETS_KEYS.drift.program
     );
     const [userStats] = PublicKey.findProgramAddressSync(
       [Buffer.from("user_stats"), vaultStrategyAuth.toBuffer()],
-      usdcMarketsKeys.drift.program
+      USDC_MARKETS_KEYS.drift.program
     );
     const oracle = new PublicKey(
       "En8hkHLkRe9d9DraYmBTrus518BvmVH448YcvmrFM6Ce"
     );
     const [spotMarket] = PublicKey.findProgramAddressSync(
       [Buffer.from("spot_market"), new BN(0).toArrayLike(Buffer, "le", 2)],
-      usdcMarketsKeys.drift.program
+      USDC_MARKETS_KEYS.drift.program
     );
 
     return {
@@ -53,12 +51,12 @@ const strategyHandlers = {
       additionalArgs: [0, 0],
       remainingAccounts: [
         {
-          pubkey: usdcMarketsKeys.drift.liquidityReserve.toString(),
+          pubkey: USDC_MARKETS_KEYS.drift.liquidityReserve.toString(),
           isSigner: false,
           isWritable: true,
         },
         {
-          pubkey: usdcMarketsKeys.drift.program.toString(),
+          pubkey: USDC_MARKETS_KEYS.drift.program.toString(),
           isSigner: false,
           isWritable: false,
         },
@@ -77,7 +75,7 @@ const strategyHandlers = {
     );
     const [lendingMarketAuthority] = PublicKey.findProgramAddressSync(
       [Buffer.from("lma"), lendingMarket.toBuffer()],
-      usdcMarketsKeys.kamino.program
+      USDC_MARKETS_KEYS.kamino.program
     );
     const reserve = new PublicKey(
       "9TD2TSv4pENb8VwfbVYg25jvym7HN6iuAR6pFNSrKjqQ"
@@ -88,7 +86,7 @@ const strategyHandlers = {
         lendingMarket.toBuffer(),
         USDC_MINT.toBuffer(),
       ],
-      usdcMarketsKeys.kamino.program
+      USDC_MARKETS_KEYS.kamino.program
     );
     const userDestinationCollateral = getAssociatedTokenAddressSync(
       reserveCollateralMint,
@@ -104,12 +102,12 @@ const strategyHandlers = {
       additionalArgs: null,
       remainingAccounts: [
         {
-          pubkey: usdcMarketsKeys.kamino.liquidityReserve.toString(),
+          pubkey: USDC_MARKETS_KEYS.kamino.liquidityReserve.toString(),
           isSigner: false,
           isWritable: true,
         },
         {
-          pubkey: usdcMarketsKeys.kamino.program.toString(),
+          pubkey: USDC_MARKETS_KEYS.kamino.program.toString(),
           isSigner: false,
           isWritable: false,
         },
@@ -166,7 +164,7 @@ const strategyHandlers = {
     );
     const [solendLendingMarketAuthority] = PublicKey.findProgramAddressSync(
       [solendLendingMarket.toBytes()],
-      usdcMarketsKeys.solend.program
+      USDC_MARKETS_KEYS.solend.program
     );
     const pythOracle = new PublicKey(
       "Dpw1EAVrSB1ibxiDQyTAW6Zip3J4Btk2x4SgApQCeFbX"
@@ -180,12 +178,12 @@ const strategyHandlers = {
       additionalArgs: null,
       remainingAccounts: [
         {
-          pubkey: usdcMarketsKeys.solend.liquidityReserve.toString(),
+          pubkey: USDC_MARKETS_KEYS.solend.liquidityReserve.toString(),
           isSigner: false,
           isWritable: true,
         },
         {
-          pubkey: usdcMarketsKeys.solend.program.toString(),
+          pubkey: USDC_MARKETS_KEYS.solend.program.toString(),
           isSigner: false,
           isWritable: false,
         },
@@ -241,12 +239,12 @@ const strategyHandlers = {
       additionalArgs: null,
       remainingAccounts: [
         {
-          pubkey: usdcMarketsKeys.marginfi.liquidityReserve.toString(),
+          pubkey: USDC_MARKETS_KEYS.marginfi.liquidityReserve.toString(),
           isSigner: false,
           isWritable: true,
         },
         {
-          pubkey: usdcMarketsKeys.marginfi.program.toString(),
+          pubkey: USDC_MARKETS_KEYS.marginfi.program.toString(),
           isSigner: false,
           isWritable: false,
         },
@@ -261,13 +259,6 @@ const strategyHandlers = {
     };
   },
 };
-
-const strategyMap = {
-  HtHYn3juNQe7B4xXe2mi9x5xcfUHZrsw3gKE78cQypys: "kamino",
-  GGf8eUHvTX3CLC3HubPpMxm8iqHKheR6ZEK1QAyozv5j: "drift",
-  "4i9kzGr1UkxBCCUkQUQ4vsF51fjdt2knKxrwM1h1NW4g": "solend",
-  "4JHtgXyMb9gFJ1hGd2sh645jrZcxurSG3QP7Le3aTMTx": "marginfi",
-} as const;
 
 export async function GET(request: Request) {
   try {
@@ -289,8 +280,8 @@ export async function GET(request: Request) {
       new PublicKey(strategy)
     );
 
-    const strategyType = strategyMap[
-      strategy as keyof typeof strategyMap
+    const strategyType = STRATEGY_MAP[
+      strategy as keyof typeof STRATEGY_MAP
     ] as keyof typeof strategyHandlers;
 
     if (!strategyType) {
