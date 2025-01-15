@@ -22,7 +22,7 @@ function getMaturityInfo(unixTs: number) {
 export default function MarketsTable() {
   const markets = [
     {
-      marketId: "3ab3KVY9GbDbUUbRnYNSBDQqABTDup7HmdgADHGpB8Bq",
+      marketId: "Ga27bYA5tP8xGSRfWuY8PC4q3yJKPktX54kDU85uwghX",
       asset: {
         name: "USDC Lending Optimizer",
         fullName: "@voltrxyz",

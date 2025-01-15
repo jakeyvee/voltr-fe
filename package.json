@@ -14,7 +14,7 @@
     "@jup-ag/wallet-adapter": "^0.2.1",
     "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.3",
-    "@voltr/sdk": "^0.1.0",
+    "@voltr/vault-sdk": "^0.1.1",
     "chart.js": "^4.4.7",
     "chartjs-adapter-moment": "^1.0.1",
     "chartjs-plugin-zoom": "^2.2.0",

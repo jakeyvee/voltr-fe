@@ -20,9 +20,9 @@ dependencies:
   '@solana/web3.js':
     specifier: ^1.95.3
     version: 1.98.0
-  '@voltr/sdk':
-    specifier: ^0.1.0
-    version: 0.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.7.2)
+  '@voltr/vault-sdk':
+    specifier: ^0.1.1
+    version: 0.1.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.7.2)
   chart.js:
     specifier: ^4.4.7
     version: 4.4.7
@@ -3771,8 +3771,8 @@ packages:
     resolution: {integrity: sha512-fEzPV3hSkSMltkw152tJKNARhOupqbH96MZWyRjNaYZOMIzbrTeQDG+MTc6Mr2pgzFQzFxAfmhGDNP5QK++2ZA==}
     dev: true
 
-  /@voltr/sdk@0.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.7.2):
-    resolution: {integrity: sha512-iLb0zc3ClZYJ9DBgMeuONSnZKa8r54MGj2LfN+4ZXXDx/O+ssjuuFPE+tcmWU0tL0yfHOLRgwWEPc4yynWG3Rg==}
+  /@voltr/vault-sdk@0.1.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.7.2):
+    resolution: {integrity: sha512-xh8bxPCwNpjVqEN32+Q40Xf08vdORAmQACDE6ru3T+9qrwNgraLcPEzvWeBNTE0FAMAZdNsYOxWbc2FSK0ZQww==}
     dependencies:
       '@coral-xyz/anchor': 0.30.1
       '@solana/spl-token': 0.4.9(@solana/web3.js@1.98.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.7.2)
@@ -7849,8 +7849,8 @@ packages:
         optional: true
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
-      '@noble/curves': 1.7.0
-      '@noble/hashes': 1.6.1
+      '@noble/curves': 1.8.0
+      '@noble/hashes': 1.7.0
       '@scure/bip32': 1.6.0
       '@scure/bip39': 1.5.0
       abitype: 1.0.7(typescript@5.7.2)(zod@3.22.4)
@@ -9693,8 +9693,8 @@ packages:
   /webauthn-p256@0.0.10:
     resolution: {integrity: sha512-EeYD+gmIT80YkSIDb2iWq0lq2zbHo1CxHlQTeJ+KkCILWpVy3zASH3ByD4bopzfk0uCwXxLqKGLqp2W4O28VFA==}
     dependencies:
-      '@noble/curves': 1.7.0
-      '@noble/hashes': 1.6.1
+      '@noble/curves': 1.8.0
+      '@noble/hashes': 1.7.0
     dev: false
 
   /webidl-conversions@3.0.1:

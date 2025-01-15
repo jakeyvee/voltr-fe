@@ -17,12 +17,12 @@ import { createConnection } from "@/lib/Connection";
 import {
   createAssociatedTokenAccountIdempotentInstruction,
   getAssociatedTokenAddressSync,
-  TOKEN_2022_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { toast } from "react-toastify";
 import ChartCard from "./chart/chart-card";
-import { VoltrClient } from "@voltr/sdk";
 import { LP_TOKEN_DECIMALS } from "@/lib/Constants";
+import { VoltrClient } from "@voltr/vault-sdk";
 
 // USDC for demo
 const vaultAssetMint = new PublicKey(
@@ -31,7 +31,7 @@ const vaultAssetMint = new PublicKey(
 
 // Market Data
 const market = {
-  "3ab3KVY9GbDbUUbRnYNSBDQqABTDup7HmdgADHGpB8Bq": {
+  Ga27bYA5tP8xGSRfWuY8PC4q3yJKPktX54kDU85uwghX: {
     name: "USDC",
     fullName: "USD Coin",
     decimals: 6,
@@ -180,6 +180,7 @@ export default function MarketClientPage({
             userAuthority: user,
             vault: marketPk,
             vaultAssetMint: tokenIbMint,
+            assetTokenProgram: TOKEN_PROGRAM_ID,
           })
         );
       } else {
@@ -198,6 +199,7 @@ export default function MarketClientPage({
             userAuthority: user,
             vault: marketPk,
             vaultAssetMint: tokenIbMint,
+            assetTokenProgram: TOKEN_PROGRAM_ID,
           })
         );
       }
