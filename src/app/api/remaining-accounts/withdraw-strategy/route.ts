@@ -5,7 +5,7 @@ import {
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { createConnection } from "@/lib/Connection";
+import { createConnection } from "@/lib/privateConnection";
 import { VoltrClient } from "@voltr/vault-sdk";
 import { STRATEGY_MAP, USDC_MARKETS_KEYS, USDC_MINT } from "@/lib/Constants";
 

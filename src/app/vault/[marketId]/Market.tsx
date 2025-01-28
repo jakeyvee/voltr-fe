@@ -13,7 +13,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { createConnection } from "@/lib/Connection";
+import { createConnection } from "@/lib/publicConnection";
 import {
   createAssociatedTokenAccountIdempotentInstruction,
   getAssociatedTokenAddressSync,
@@ -176,7 +176,7 @@ export default function MarketClientPage({
         );
 
         ixs.push(
-          await vc.createDepositIx(inputAmountBN, {
+          await vc.createDepositVaultIx(inputAmountBN, {
             userAuthority: user,
             vault: marketPk,
             vaultAssetMint: tokenIbMint,
@@ -195,7 +195,7 @@ export default function MarketClientPage({
         );
 
         ixs.push(
-          await vc.createWithdrawIx(inputAmountBN, {
+          await vc.createWithdrawVaultIx(inputAmountBN, {
             userAuthority: user,
             vault: marketPk,
             vaultAssetMint: tokenIbMint,
