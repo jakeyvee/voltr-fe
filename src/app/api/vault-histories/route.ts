@@ -46,6 +46,7 @@ async function updateVaultHistory(
     .from("vault_histories")
     .insert({
       vault_pk: vaultPk.toBase58(),
+      max_cap: vaultAccount.vaultConfiguration.maxCap.toNumber(),
       total_value: vaultAccount.asset.totalValue.toNumber(),
       total_lp: Number(vaultLpMintAccount.supply),
       updated_tx: signature,
