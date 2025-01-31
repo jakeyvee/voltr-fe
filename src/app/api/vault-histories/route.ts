@@ -5,6 +5,7 @@ import { getMint } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { VoltrClient } from "@voltr/vault-sdk";
 import { NextResponse } from "next/server";
+import { BN } from "@coral-xyz/anchor";
 
 interface Transaction {
   transaction: {
@@ -42,13 +43,21 @@ async function updateVaultHistory(
     getMint(connection, vaultLpMint, "confirmed"),
   ]);
 
+  const accumulatedLpFees = vaultAccount.feeState.accumulatedLpManagerFees.add(
+    vaultAccount.feeState.accumulatedLpAdminFees
+  );
+
+  const totalLp = accumulatedLpFees
+    .add(new BN(vaultLpMintAccount.supply.toString()))
+    .toNumber();
+
   const { error: insertError } = await supabaseAdmin
     .from("vault_histories")
     .insert({
       vault_pk: vaultPk.toBase58(),
       max_cap: vaultAccount.vaultConfiguration.maxCap.toNumber(),
       total_value: vaultAccount.asset.totalValue.toNumber(),
-      total_lp: Number(vaultLpMintAccount.supply),
+      total_lp: totalLp,
       updated_tx: signature,
     });
 
