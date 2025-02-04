@@ -1,7 +1,7 @@
-// Import Chart.js
-import { Chart, Tooltip } from "chart.js";
+"use client";
 
-import tailwindConfigFile from "./tailwind.config.js";
+import { Chart, Tooltip } from "chart.js";
+import tailwindConfigFile from "../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 const tailwindConfig = resolveConfig(tailwindConfigFile) as any;

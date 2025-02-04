@@ -2,9 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-
 import { chartColors } from "./chartjs-config";
-import "./chartjs-config";
 import {
   Chart,
   LineController,
@@ -17,10 +15,11 @@ import {
   ChartData,
 } from "chart.js";
 import "chartjs-adapter-moment";
-import zoomPlugin from "chartjs-plugin-zoom";
 
-const formatValue = (value: number): string => `${value.toFixed(2)}%`;
+const formatValue = (value: number): string =>
+  value > 1 ? `${value.toFixed(2)}%` : `${value.toPrecision(3)}%`;
 
+// Register Chart.js components
 Chart.register(
   LineController,
   LineElement,
@@ -28,8 +27,7 @@ Chart.register(
   PointElement,
   LinearScale,
   TimeScale,
-  Tooltip,
-  zoomPlugin
+  Tooltip
 );
 
 interface RealtimeChartProps {
@@ -38,22 +36,6 @@ interface RealtimeChartProps {
   height: number;
 }
 
-const hexToRGB = (h: string): string => {
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  if (h.length === 4) {
-    r = parseInt(`0x${h[1]}${h[1]}`);
-    g = parseInt(`0x${h[2]}${h[2]}`);
-    b = parseInt(`0x${h[3]}${h[3]}`);
-  } else if (h.length === 7) {
-    r = parseInt(`0x${h[1]}${h[2]}`);
-    g = parseInt(`0x${h[3]}${h[4]}`);
-    b = parseInt(`0x${h[5]}${h[6]}`);
-  }
-  return `${+r},${+g},${+b}`;
-};
-
 export default function RealtimeChart({
   data,
   width,
@@ -61,7 +43,6 @@ export default function RealtimeChart({
 }: RealtimeChartProps) {
   const [chart, setChart] = useState<Chart | null>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const chartValue = useRef<HTMLSpanElement>(null);
   const { theme } = useTheme();
   const {
     textColor,
@@ -72,9 +53,33 @@ export default function RealtimeChart({
     tooltipBorderColor,
   } = chartColors;
 
+  // Calculate min and max values from the data
+  const calculateRange = (chartData: ChartData) => {
+    let minValue = Infinity;
+    let maxValue = -Infinity;
+
+    chartData.datasets?.forEach((dataset) => {
+      const values = dataset.data as number[];
+      const dataMin = Math.min(...values);
+      const dataMax = Math.max(...values);
+
+      if (dataMin < minValue) minValue = dataMin;
+      if (dataMax > maxValue) maxValue = dataMax;
+    });
+
+    // Add 10% padding to min and max
+    const padding = (maxValue - minValue) * 0.1;
+    return {
+      min: minValue - padding,
+      max: maxValue + padding,
+    };
+  };
+
   useEffect(() => {
     const ctx = canvas.current;
     if (!ctx) return;
+
+    const range = calculateRange(data);
 
     const newChart = new Chart(ctx, {
       type: "line",
@@ -88,8 +93,8 @@ export default function RealtimeChart({
             border: {
               display: false,
             },
-            suggestedMin: 30,
-            suggestedMax: 50,
+            min: range.min,
+            max: range.max,
             ticks: {
               maxTicksLimit: 5,
               callback: (value) => formatValue(+value),
@@ -98,15 +103,14 @@ export default function RealtimeChart({
             grid: {
               color: gridColor,
             },
-          }, // Update the time scale configuration in the chart options
+          },
           x: {
             type: "time",
             time: {
-              parser: "HH:mm", // Changed from "hh:mm:ss"
-              unit: "hour", // Changed from "second"
-              tooltipFormat: "MMM DD, HH:mm", // Changed format to show hours
+              unit: "day",
+              tooltipFormat: "MMM D",
               displayFormats: {
-                hour: "HH:mm", // Changed to show hours and minutes
+                day: "MMM D",
               },
             },
             border: {
@@ -123,20 +127,6 @@ export default function RealtimeChart({
           },
         },
         plugins: {
-          zoom: {
-            zoom: {
-              wheel: {
-                enabled: true,
-              },
-              pinch: {
-                enabled: true,
-              },
-              drag: {
-                enabled: true,
-              },
-              mode: "xy",
-            },
-          },
           legend: {
             display: false,
           },
@@ -178,21 +168,8 @@ export default function RealtimeChart({
   }, [theme]);
 
   return (
-    <>
-      <div className="px-5 py-3">
-        <div className="flex items-start">
-          <div className="text-3xl font-bold text-green-200 mr-2 tabular-nums">
-            <span ref={chartValue}>37.54</span>%
-          </div>
-
-          <div className="text-xs font-medium px-1.5 rounded-full bg-indigo-500/20 text-indigo-300/80">
-            7d APY
-          </div>
-        </div>
-      </div>
-      <div className="">
-        <canvas ref={canvas} width={width} height={height}></canvas>
-      </div>
-    </>
+    <div className="">
+      <canvas ref={canvas} width={width} height={height}></canvas>
+    </div>
   );
 }

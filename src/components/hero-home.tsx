@@ -3,7 +3,7 @@
 export default function HeroHome() {
   return (
     <section>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 md:px-6">
         {/* Hero content */}
         <div className="pt-12 md:pt-20">
           {/* Section header */}
