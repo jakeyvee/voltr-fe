@@ -4,8 +4,8 @@ import logo from "@/../public/images/logo.svg";
 
 export default function Logo() {
   return (
-    <Link href="/" className="inline-flex shrink-0" aria-label="Cruip">
-      <Image src={logo} alt="Cruip Logo" width={48} height={48} />
+    <Link href="/" className="inline-flex shrink-0" aria-label="Voltr">
+      <Image src={logo} alt="Voltr Logo" width={48} height={48} />
     </Link>
   );
 }
