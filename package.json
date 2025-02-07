@@ -16,7 +16,7 @@
     "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.3",
     "@supabase/supabase-js": "^2.48.1",
-    "@voltr/vault-sdk": "^0.1.4",
+    "@voltr/vault-sdk": "^0.1.6",
     "chart.js": "^4.4.7",
     "chartjs-adapter-moment": "^1.0.1",
     "chartjs-plugin-zoom": "^2.2.0",

@@ -16,13 +16,13 @@ import {
   createAssociatedTokenAccountIdempotentInstruction,
   createCloseAccountInstruction,
   createSyncNativeInstruction,
+  getAccount,
   getAssociatedTokenAddressSync,
   NATIVE_MINT,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { toast } from "react-toastify";
 import ChartCard from "./chart/chart-card";
-import { LP_TOKEN_DECIMALS } from "@/lib/Constants";
 import { VoltrClient } from "@voltr/vault-sdk";
 import MetricCard from "./metric/Metric";
 import OrgCard from "./org/Org";
@@ -70,98 +70,58 @@ export interface VaultInformation {
 export default function MarketClientPage(vault: VaultInformation) {
   const wallet = useWallet();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<"deposit" | "redeem">(
+  const [selectedTab, setSelectedTab] = useState<"deposit" | "withdraw">(
     "deposit"
   );
   const [inputAmount, setInputAmount] = useState("");
-  const [outputAmount, setOutputAmount] = useState("");
+  const [userAssetAmount, setUserAssetAmount] = useState<number>(0);
   const conn = createConnection();
   const vc = new VoltrClient(conn);
+  const vaultPk = new PublicKey(vault.pubkey);
+  const [_listenerSubId, setListenerSubId] = useState<number>(-1);
 
-  // Calculate tokens based on selected tab
-  const tokenPair = [
-    {
-      symbol: vault.token.name,
-      mint: vault.token.mint,
-      decimals: vault.token.decimals,
-      logoURI: vault.token.icon,
-    },
-    {
-      symbol: `lp${vault.token.name}`,
-      mint: vault.token.mint,
-      decimals: 9,
-      logoURI: vault.token.icon,
-    },
-  ];
-
-  const [inputToken, setInputToken] = useState(tokenPair[0]);
-  const [outputToken, setOutputToken] = useState(tokenPair[1]);
-
-  // Update the debounce utility with proper typing
-  const debounce = <F extends (...args: any[]) => any>(
-    func: F,
-    wait: number
-  ) => {
-    let timeout: NodeJS.Timeout;
-    const debouncedFn = (...args: Parameters<F>) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
-    };
-
-    debouncedFn.clear = () => {
-      clearTimeout(timeout);
-    };
-
-    return debouncedFn;
+  const calculateAndSetUserAssetAmount = async (userLpAta: PublicKey) => {
+    const userLpAtaAcc = await getAccount(conn, userLpAta);
+    const userLpAmount = userLpAtaAcc?.amount;
+    const userAssetAmount = await vc.calculateAssetsForWithdraw(
+      vaultPk,
+      new BN(userLpAmount.toString())
+    );
+    setUserAssetAmount(userAssetAmount.toNumber());
   };
 
-  // Memoize the calculation functions
-  const debouncedCalculate = debounce(async (amount: string) => {
-    if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
-      try {
-        if (selectedTab === "deposit") {
-          const lpTokensAmount = await vc.calculateLpTokensForDeposit(
-            new BN(Number(amount) * 10 ** inputToken.decimals),
-            new PublicKey(vault.pubkey)
-          );
+  useEffect(() => {
+    const fetchUserLpAmount = async () => {
+      if (wallet.connected && wallet.publicKey) {
+        const { vaultLpMint } = vc.findVaultAddresses(vaultPk);
+        const userLpAta = getAssociatedTokenAddressSync(
+          vaultLpMint,
+          wallet.publicKey
+        );
+        await calculateAndSetUserAssetAmount(userLpAta);
 
-          setOutputAmount(
-            (lpTokensAmount.toNumber() / 10 ** outputToken.decimals).toString()
-          );
-        } else {
-          const assetTokensAmount = await vc.calculateAssetsForWithdraw(
-            new PublicKey(vault.pubkey),
-            new BN(Number(amount) * 10 ** LP_TOKEN_DECIMALS) // LP TOKEN ALWAYS HAS 9 DECIMALS
-          );
-          setOutputAmount(
-            (
-              assetTokensAmount.toNumber() /
-              10 ** outputToken.decimals
-            ).toString()
-          );
-        }
-      } catch (error) {
-        console.error("Calculation error:", error);
-        setOutputAmount("");
+        const subId = conn.onAccountChange(
+          userLpAta,
+          async (_accountInfo) => {
+            await calculateAndSetUserAssetAmount(userLpAta);
+          },
+          { commitment: "processed" }
+        );
+
+        setListenerSubId((prev) => {
+          if (prev > 0) conn.removeAccountChangeListener(prev);
+          return subId;
+        });
+      } else {
+        setUserAssetAmount(0);
+        setListenerSubId((prev) => {
+          if (prev > 0) conn.removeAccountChangeListener(prev);
+          return -1;
+        });
       }
-    } else {
-      setOutputAmount("");
-    }
-  }, 500); // 500ms debounce delay
-
-  useEffect(() => {
-    debouncedCalculate(inputAmount);
-
-    // Cleanup function
-    return () => {
-      debouncedCalculate.clear?.();
     };
-  }, [inputAmount, inputToken]);
-
-  useEffect(() => {
-    setInputToken(selectedTab === "deposit" ? tokenPair[0] : tokenPair[1]);
-    setOutputToken(selectedTab === "deposit" ? tokenPair[1] : tokenPair[0]);
-  }, [selectedTab]);
+    fetchUserLpAmount();
+  }, [wallet.connected && wallet.publicKey]);
 
   const handleButtonClick = async () => {
     if (!wallet || !wallet.connected || !wallet.publicKey) {
@@ -172,14 +132,13 @@ export default function MarketClientPage(vault: VaultInformation) {
     setIsButtonLoading(true);
     try {
       const user = wallet.publicKey;
-      const marketPk = new PublicKey(vault.pubkey);
       const assetMint = new PublicKey(vault.token.mint);
       const inputAmountBN = new BN(
-        Number(inputAmount) * 10 ** inputToken.decimals
+        Number(inputAmount) * 10 ** vault.token.decimals
       );
 
       const ixs = [];
-      const msg = selectedTab === "deposit" ? "deposited" : "redeemed";
+      const msg = selectedTab === "deposit" ? "deposited" : "withdrawed";
 
       // Handle swap instruction based on direction
       if (selectedTab === "deposit") {
@@ -204,7 +163,7 @@ export default function MarketClientPage(vault: VaultInformation) {
 
           ixs.push(createSyncNativeInstruction(assetAta));
         }
-        const vaultLpMint = vc.findVaultLpMint(marketPk);
+        const vaultLpMint = vc.findVaultLpMint(vaultPk);
         ixs.push(
           createAssociatedTokenAccountIdempotentInstruction(
             user,
@@ -217,7 +176,7 @@ export default function MarketClientPage(vault: VaultInformation) {
         ixs.push(
           await vc.createDepositVaultIx(inputAmountBN, {
             userAuthority: user,
-            vault: marketPk,
+            vault: vaultPk,
             vaultAssetMint: assetMint,
             assetTokenProgram: TOKEN_PROGRAM_ID,
           })
@@ -233,23 +192,31 @@ export default function MarketClientPage(vault: VaultInformation) {
         );
 
         ixs.push(
-          await vc.createWithdrawVaultIx(inputAmountBN, {
-            userAuthority: user,
-            vault: marketPk,
-            vaultAssetMint: assetMint,
-            assetTokenProgram: TOKEN_PROGRAM_ID,
-          })
+          await vc.createWithdrawVaultIx(
+            {
+              amount: inputAmountBN,
+              isAmountInLp: false,
+              isWithdrawAll:
+                inputAmountBN.toString() === userAssetAmount.toString(),
+            },
+            {
+              userAuthority: user,
+              vault: vaultPk,
+              vaultAssetMint: assetMint,
+              assetTokenProgram: TOKEN_PROGRAM_ID,
+            }
+          )
         );
+      }
 
-        if (assetMint.equals(NATIVE_MINT)) {
-          ixs.push(
-            createCloseAccountInstruction(
-              getAssociatedTokenAddressSync(assetMint, user),
-              user,
-              user
-            )
-          );
-        }
+      if (assetMint.equals(NATIVE_MINT)) {
+        ixs.push(
+          createCloseAccountInstruction(
+            getAssociatedTokenAddressSync(assetMint, user),
+            user,
+            user
+          )
+        );
       }
 
       const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
@@ -314,13 +281,14 @@ export default function MarketClientPage(vault: VaultInformation) {
             orgSocial={vault.org.social}
           />
           <SwapCard
+            userAssetAmount={userAssetAmount}
+            assetDecimals={vault.token.decimals}
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}
-            inputToken={inputToken}
-            outputToken={outputToken}
+            inputSymbol={vault.token.name}
+            inputLogoURI={vault.token.icon}
             inputAmount={inputAmount}
             setInputAmount={setInputAmount}
-            outputAmount={outputAmount}
             isButtonLoading={isButtonLoading}
             handleButtonClick={handleButtonClick}
             wallet={wallet}
