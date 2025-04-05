@@ -58,6 +58,16 @@ async function updateVaultHistory(
       max_cap: vaultAccount.vaultConfiguration.maxCap.toNumber(),
       total_value: vaultAccount.asset.totalValue.toNumber(),
       total_lp: totalLp,
+      withdrawal_waiting_period:
+        vaultAccount.vaultConfiguration.withdrawalWaitingPeriod.toNumber(),
+      performance_fee_bps:
+        vaultAccount.feeConfiguration.adminPerformanceFee +
+        vaultAccount.feeConfiguration.managerPerformanceFee,
+      management_fee_bps:
+        vaultAccount.feeConfiguration.adminManagementFee +
+        vaultAccount.feeConfiguration.managerManagementFee,
+      issuance_fee_bps: vaultAccount.feeConfiguration.issuanceFee,
+      redemption_fee_bps: vaultAccount.feeConfiguration.redemptionFee,
       updated_tx: signature,
     });
 
