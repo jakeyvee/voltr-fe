@@ -9,6 +9,7 @@ interface Allocation {
   orgName: string;
   strategyDescription: string;
   positionValue: number;
+  tokenName: string;
 }
 
 interface AllocationCardProps {
@@ -25,7 +26,7 @@ export default function AllocationsCard({
   allocations,
   vaultTotalValue,
 }: AllocationCardProps) {
-  const allocationDisplay: AllocationDisplay[] = [
+  const allocationUnfilteredDisplay: AllocationDisplay[] = [
     {
       name: "Vault Reserve",
       ratio:
@@ -37,10 +38,45 @@ export default function AllocationsCard({
         vaultTotalValue,
     },
     ...allocations.map((allocation) => ({
-      name: allocation.orgName + " " + allocation.strategyDescription,
+      name:
+        allocation.orgName +
+        " " +
+        allocation.strategyDescription +
+        ` (${allocation.tokenName})`,
       ratio: allocation.positionValue / vaultTotalValue,
     })),
   ];
+
+  // Sort all allocations by ratio (highest to lowest)
+  const sortedAllocationUnfilteredDisplay = allocationUnfilteredDisplay.sort(
+    (a, b) => b.ratio - a.ratio
+  );
+
+  // Separate allocations into significant (≥1%) and small (<1%) groups
+  const significantAllocations = sortedAllocationUnfilteredDisplay.filter(
+    (allocation) => allocation.ratio >= 0.01
+  );
+
+  const smallAllocations = sortedAllocationUnfilteredDisplay.filter(
+    (allocation) => allocation.ratio < 0.01
+  );
+
+  // Calculate the sum of all small allocations
+  const otherRatio = smallAllocations.reduce(
+    (sum, allocation) => sum + allocation.ratio,
+    0
+  );
+
+  // Create the final allocation display array
+  const allocationDisplay: AllocationDisplay[] = [...significantAllocations];
+
+  // Add the "Other" category if there are any small allocations
+  if (otherRatio > 0) {
+    allocationDisplay.push({
+      name: "Other",
+      ratio: otherRatio,
+    });
+  }
 
   const [allocationsState] = useState<AllocationDisplay[]>(allocationDisplay);
 

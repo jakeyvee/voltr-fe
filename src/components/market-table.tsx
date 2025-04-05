@@ -8,6 +8,7 @@ interface Vault {
   tvl: number;
   apy: number;
   capacity: number;
+  theme: string;
   org: {
     name: string;
     icon: string;
@@ -16,6 +17,7 @@ interface Vault {
     name: string;
     icon: string;
     decimals: number;
+    price: number;
   };
   allocations: {
     orgName: string;
@@ -46,10 +48,13 @@ export default async function MarketsTable() {
                     Vault
                   </th>
                   <th scope="col" className="px-4 py-3">
-                    Age
+                    Base Asset
                   </th>
                   <th scope="col" className="px-4 py-3">
-                    Vault TVL
+                    TVL
+                  </th>
+                  <th scope="col" className="px-4 py-3">
+                    Manager
                   </th>
                   <th scope="col" className="px-4 py-3">
                     Integrations
@@ -57,9 +62,7 @@ export default async function MarketsTable() {
                   <th scope="col" className="px-4 py-3">
                     7D APY
                   </th>
-                  <th scope="col" className="px-4 py-3">
-                    Action
-                  </th>
+                  <th scope="col" className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody>
@@ -67,70 +70,68 @@ export default async function MarketsTable() {
                 {vaults.map((vault, index) => {
                   return (
                     <tr key={index} className="border-t border-gray-700">
-                      <td className="px-4 py-3 flex items-center">
-                        <img
-                          src={vault.org.icon}
-                          alt={vault.org.name}
-                          className="w-10 h-10 mr-3 rounded-full"
-                        />
+                      <td className="px-4 py-3">
                         <div>
                           <div className="font-medium text-white">
                             {vault.name}
                           </div>
                           <div className="text-sm text-gray-400">
-                            by {vault.org.name}
+                            {vault.theme}
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-white">{vault.age} days</div>
+                        <div className="flex flex-row items-center">
+                          <img
+                            src={vault.asset.icon}
+                            alt={vault.asset.name}
+                            className="w-6 h-6 mr-1.5 rounded-full"
+                          />
+                          <div className="text-white">{vault.asset.name}</div>
+                        </div>
                       </td>
 
                       <td className="px-4 py-3 text-white">
-                        <span className="font-[300] text-[13px] leading-[16px] flex items-start flex-row">
-                          <div className="w-[196px] flex flex-col gap-3 pr-2">
-                            <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-center gap-1">
-                                <img
-                                  className="w-4 h-4"
-                                  width="18"
-                                  height="18"
-                                  alt={vault.asset.name}
-                                  src={vault.asset.icon}
-                                />
-                                <span className="typo-t5">
-                                  {vault.tvl /
-                                    Math.pow(10, vault.asset.decimals) >
-                                  1
-                                    ? (
-                                        vault.tvl /
-                                        Math.pow(10, vault.asset.decimals)
-                                      ).toFixed(2)
-                                    : (
-                                        vault.tvl /
-                                        Math.pow(10, vault.asset.decimals)
-                                      ).toPrecision(3)}
-                                </span>
-                              </div>
-                              <span className="typo-b5 text-text-secondary">
-                                {((vault.tvl / vault.capacity) * 100 > 1
-                                  ? (vault.tvl / vault.capacity).toFixed(2)
-                                  : (vault.tvl / vault.capacity).toPrecision(
-                                      3
-                                    )) + "%"}
-                              </span>
-                            </div>
-                            <div className="w-full overflow-hidden rounded-full bg-gray-600 h-[6px]">
-                              <div
-                                className="h-full bg-indigo-700"
-                                style={{
-                                  width:
-                                    (vault.tvl / vault.capacity) * 100 + "%",
-                                }}
-                              ></div>
-                            </div>
+                        <div className="flex flex-col">
+                          <div className="flex flex-row items-center">
+                            <img
+                              src={vault.asset.icon}
+                              alt={vault.asset.name}
+                              className="w-4 h-4 mr-1 rounded-full"
+                            />
+                            {vault.tvl / Math.pow(10, vault.asset.decimals) > 1
+                              ? (
+                                  vault.tvl / Math.pow(10, vault.asset.decimals)
+                                ).toFixed(2)
+                              : (
+                                  vault.tvl / Math.pow(10, vault.asset.decimals)
+                                ).toPrecision(3)}{" "}
                           </div>
-                        </span>
+                          <div>
+                            US$
+                            {(vault.asset.price * vault.tvl) /
+                              Math.pow(10, vault.asset.decimals) >
+                            1
+                              ? (
+                                  (vault.asset.price * vault.tvl) /
+                                  Math.pow(10, vault.asset.decimals)
+                                ).toFixed(2)
+                              : (
+                                  (vault.asset.price * vault.tvl) /
+                                  Math.pow(10, vault.asset.decimals)
+                                ).toPrecision(3)}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-row items-center">
+                          <img
+                            src={vault.org.icon}
+                            alt={vault.org.name}
+                            className="w-6 h-6 mr-1.5 rounded-full"
+                          />
+                          <div className="text-white">{vault.org.name}</div>
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center">
@@ -159,7 +160,7 @@ export default async function MarketsTable() {
                             <div className="flex items-center justify-between flex flex-col">
                               <div>
                                 <div className="text-indigo-200 font-semibold hover:text-indigo-100">
-                                  View
+                                  Deposit
                                 </div>
                               </div>
                             </div>

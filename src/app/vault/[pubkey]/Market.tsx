@@ -25,12 +25,11 @@ import { toast } from "react-toastify";
 import ChartCard from "./chart/chart-card";
 import { VoltrClient } from "@voltr/vault-sdk";
 import MetricCard from "./metric/Metric";
-import OrgCard from "./org/Org";
-import VaultCard from "./vault/Vault";
+import VaultCard, { FeeConfiguration } from "./vault/Vault";
 import AllocationsCard from "./allocation/allocations-card";
-import { ThirtyDaysDailyApy } from "./chart/RealTimeChartJs";
+import { DailyApy } from "./chart/RealTimeChartJs";
 import { Breadcrumb } from "./breadcrumb/Breadcrumb";
-import SwapCard from "./swap/SwapCard";
+import SwapCard, { RequestWithdrawal } from "./swap/SwapCard";
 
 export interface VaultInformation {
   pubkey: string;
@@ -38,6 +37,8 @@ export interface VaultInformation {
   description: string;
   externalUri: string;
   totalValue: number;
+  withdrawalWaitingPeriod: number;
+  feeConfiguration: FeeConfiguration;
   org: {
     name: string;
     description: string;
@@ -53,10 +54,10 @@ export interface VaultInformation {
     price: number;
   };
   apy: {
-    oneHour: number;
     oneDay: number;
     sevenDays: number;
     thirtyDays: number;
+    allTime: number;
   };
   allocations: {
     orgName: string;
@@ -64,7 +65,7 @@ export interface VaultInformation {
     tokenName: string;
     positionValue: number;
   }[];
-  thirtyDaysDailyApy: ThirtyDaysDailyApy;
+  dailyApy: DailyApy;
 }
 
 export default function MarketClientPage(vault: VaultInformation) {
@@ -75,13 +76,20 @@ export default function MarketClientPage(vault: VaultInformation) {
   );
   const [inputAmount, setInputAmount] = useState("");
   const [userAssetAmount, setUserAssetAmount] = useState<number>(0);
+  const [userAssetWalletAmount, setUserAssetWalletAmount] = useState<number>(0);
   const conn = createConnection();
   const vc = new VoltrClient(conn);
   const vaultPk = new PublicKey(vault.pubkey);
   const [_listenerSubId, setListenerSubId] = useState<number>(-1);
+  const [_withdrawReceiptListenerId, setWithdrawReceiptListenerId] =
+    useState<number>(-1);
+  const [_assetBalanceListenerId, setAssetBalanceListenerId] =
+    useState<number>(-1);
+  const [userWithdrawRequest, setUserWithdrawRequest] =
+    useState<RequestWithdrawal | null>(null);
 
   const calculateAndSetUserAssetAmount = async (userLpAta: PublicKey) => {
-    const userLpAtaAcc = await getAccount(conn, userLpAta);
+    const userLpAtaAcc = await getAccount(conn, userLpAta, "confirmed");
     const userLpAmount = userLpAtaAcc?.amount;
     const userAssetAmount = await vc.calculateAssetsForWithdraw(
       vaultPk,
@@ -91,6 +99,98 @@ export default function MarketClientPage(vault: VaultInformation) {
   };
 
   useEffect(() => {
+    const fetchRequestWithdrawVaultReceipt = async () => {
+      if (wallet.connected && wallet.publicKey) {
+        const walletPubkey = wallet.publicKey;
+        const requestWithdrawVaultReceipt = vc.findRequestWithdrawVaultReceipt(
+          vaultPk,
+          walletPubkey
+        );
+
+        const checkAndUpdateWithdrawRequest = async () => {
+          const requestWithdrawVaultReceiptInfo = await conn.getAccountInfo(
+            requestWithdrawVaultReceipt,
+            "confirmed"
+          );
+
+          if (requestWithdrawVaultReceiptInfo) {
+            const userWithdrawRequest = await vc.getPendingWithdrawalForUser(
+              vaultPk,
+              walletPubkey
+            );
+            setUserWithdrawRequest({
+              amountAtPresent:
+                userWithdrawRequest.amountAssetToWithdrawAtPresent,
+              withdrawableFromTs: userWithdrawRequest.withdrawableFromTs,
+            });
+          } else {
+            setUserWithdrawRequest(null);
+          }
+        };
+
+        await checkAndUpdateWithdrawRequest();
+
+        const subId = conn.onAccountChange(
+          requestWithdrawVaultReceipt,
+          async () => {
+            await checkAndUpdateWithdrawRequest();
+          },
+          { commitment: "confirmed" }
+        );
+
+        setWithdrawReceiptListenerId((prev) => {
+          if (prev > 0) conn.removeAccountChangeListener(prev);
+          return subId;
+        });
+      } else {
+        setUserWithdrawRequest(null);
+        setWithdrawReceiptListenerId((prev) => {
+          if (prev > 0) conn.removeAccountChangeListener(prev);
+          return -1;
+        });
+      }
+    };
+
+    const fetchUserAssetWalletBalance = async () => {
+      if (wallet.connected && wallet.publicKey) {
+        const userAssetAta = getAssociatedTokenAddressSync(
+          new PublicKey(vault.token.mint),
+          wallet.publicKey
+        );
+
+        const updateAssetBalance = async () => {
+          const userAssetAtaAcc = await getAccount(
+            conn,
+            userAssetAta,
+            "confirmed"
+          );
+          const userAssetAmount = userAssetAtaAcc?.amount;
+          setUserAssetWalletAmount(Number(userAssetAmount));
+        };
+
+        await updateAssetBalance();
+
+        const subId = conn.onAccountChange(
+          userAssetAta,
+          async () => {
+            await updateAssetBalance();
+          },
+          { commitment: "confirmed" }
+        );
+
+        setAssetBalanceListenerId((prev) => {
+          if (prev > 0) conn.removeAccountChangeListener(prev);
+          return subId;
+        });
+      } else {
+        setUserAssetWalletAmount(0);
+        setAssetBalanceListenerId((prev) => {
+          if (prev > 0) conn.removeAccountChangeListener(prev);
+          return -1;
+        });
+      }
+    };
+
     const fetchUserLpAmount = async () => {
       if (wallet.connected && wallet.publicKey) {
         const { vaultLpMint } = vc.findVaultAddresses(vaultPk);
@@ -105,7 +205,7 @@ export default function MarketClientPage(vault: VaultInformation) {
           async (_accountInfo) => {
             await calculateAndSetUserAssetAmount(userLpAta);
           },
-          { commitment: "processed" }
+          { commitment: "confirmed" }
         );
 
         setListenerSubId((prev) => {
@@ -120,7 +220,22 @@ export default function MarketClientPage(vault: VaultInformation) {
         });
       }
     };
+
+    fetchRequestWithdrawVaultReceipt();
+    fetchUserAssetWalletBalance();
     fetchUserLpAmount();
+
+    return () => {
+      [
+        _listenerSubId,
+        _withdrawReceiptListenerId,
+        _assetBalanceListenerId,
+      ].forEach((id) => {
+        if (id > 0) {
+          conn.removeAccountChangeListener(id);
+        }
+      });
+    };
   }, [wallet.connected && wallet.publicKey]);
 
   const handleButtonClick = async () => {
@@ -138,7 +253,14 @@ export default function MarketClientPage(vault: VaultInformation) {
       );
 
       const ixs = [];
-      const msg = selectedTab === "deposit" ? "deposited" : "withdrawed";
+      const msg =
+        selectedTab === "deposit"
+          ? "deposited"
+          : userWithdrawRequest === null
+          ? "requested withdrawal"
+          : userWithdrawRequest.withdrawableFromTs > Date.now() / 1000
+          ? "cancelled withdrawal"
+          : "withdrawn";
 
       // Handle swap instruction based on direction
       if (selectedTab === "deposit") {
@@ -175,48 +297,81 @@ export default function MarketClientPage(vault: VaultInformation) {
 
         ixs.push(
           await vc.createDepositVaultIx(inputAmountBN, {
-            userAuthority: user,
+            userTransferAuthority: user,
             vault: vaultPk,
             vaultAssetMint: assetMint,
             assetTokenProgram: TOKEN_PROGRAM_ID,
           })
         );
       } else {
-        ixs.push(
-          createAssociatedTokenAccountIdempotentInstruction(
-            user,
-            getAssociatedTokenAddressSync(assetMint, user),
-            user,
-            assetMint
-          )
-        );
+        if (userWithdrawRequest === null) {
+          const vaultLpMint = vc.findVaultLpMint(vaultPk);
+          const requestWithdrawVaultReceipt =
+            vc.findRequestWithdrawVaultReceipt(vaultPk, user);
+          ixs.push(
+            createAssociatedTokenAccountIdempotentInstruction(
+              user,
+              getAssociatedTokenAddressSync(
+                vaultLpMint,
+                requestWithdrawVaultReceipt,
+                true
+              ),
+              requestWithdrawVaultReceipt,
+              vaultLpMint
+            )
+          );
 
-        ixs.push(
-          await vc.createWithdrawVaultIx(
-            {
-              amount: inputAmountBN,
-              isAmountInLp: false,
-              isWithdrawAll:
-                inputAmountBN.toString() === userAssetAmount.toString(),
-            },
-            {
-              userAuthority: user,
+          ixs.push(
+            await vc.createRequestWithdrawVaultIx(
+              {
+                amount: inputAmountBN,
+                isAmountInLp: false,
+                isWithdrawAll:
+                  inputAmountBN.toString() === userAssetAmount.toString(),
+              },
+              {
+                payer: user,
+                userTransferAuthority: user,
+                vault: vaultPk,
+              }
+            )
+          );
+        } else if (userWithdrawRequest.withdrawableFromTs > Date.now() / 1000) {
+          ixs.push(
+            await vc.createCancelRequestWithdrawVaultIx({
+              userTransferAuthority: user,
+              vault: vaultPk,
+            })
+          );
+        } else {
+          ixs.push(
+            createAssociatedTokenAccountIdempotentInstruction(
+              user,
+              getAssociatedTokenAddressSync(assetMint, user),
+              user,
+              assetMint
+            )
+          );
+
+          ixs.push(
+            await vc.createWithdrawVaultIx({
+              userTransferAuthority: user,
               vault: vaultPk,
               vaultAssetMint: assetMint,
               assetTokenProgram: TOKEN_PROGRAM_ID,
-            }
-          )
-        );
-      }
+            })
+          );
+        }
 
-      if (assetMint.equals(NATIVE_MINT)) {
-        ixs.push(
-          createCloseAccountInstruction(
-            getAssociatedTokenAddressSync(assetMint, user),
-            user,
-            user
-          )
-        );
+        if (assetMint.equals(NATIVE_MINT)) {
+          ixs.push(
+            createCloseAccountInstruction(
+              getAssociatedTokenAddressSync(assetMint, user),
+              user,
+              user
+            )
+          );
+        }
       }
 
       const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
@@ -256,33 +411,36 @@ export default function MarketClientPage(vault: VaultInformation) {
       <div className="mt-6 grid grid-cols-12 gap-2 w-full">
         <div className="flex flex-col col-span-full gap-2 order-2 md:col-span-8 md:order-1">
           <MetricCard
-            realtimeApy={vault.apy.oneHour}
+            oneDayApy={vault.apy.oneDay}
             assetPrice={vault.token.price}
             totalLiquidity={vault.totalValue}
             tokenDecimals={vault.token.decimals}
+            tokenName={vault.token.name}
           />
           <AllocationsCard
             vaultTotalValue={vault.totalValue}
             allocations={vault.allocations}
           />
-          <ChartCard {...vault.thirtyDaysDailyApy} />
+          <ChartCard {...vault.dailyApy} />
         </div>
         <div className="flex flex-col col-span-full z-0 gap-2 order-1 md:col-span-4 md:order-2">
           <VaultCard
             vaultExternalUri={vault.externalUri}
             vaultDescription={vault.description}
             vaultAPY={vault.apy}
-          />
-          <OrgCard
             orgName={vault.org.name}
-            orgWeb={vault.org.web}
             orgDescription={vault.org.description}
             orgImage={vault.org.logo}
             orgSocial={vault.org.social}
+            orgWeb={vault.org.web}
+            feeConfiguration={vault.feeConfiguration}
           />
           <SwapCard
+            userAssetWalletAmount={userAssetWalletAmount}
             userAssetAmount={userAssetAmount}
             assetDecimals={vault.token.decimals}
+            withdrawalWaitingPeriod={vault.withdrawalWaitingPeriod}
+            userWithdrawRequest={userWithdrawRequest}
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}
             inputSymbol={vault.token.name}

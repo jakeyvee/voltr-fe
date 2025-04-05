@@ -3,7 +3,7 @@ import { chartAreaGradient } from "./chartjs-config";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfigFile from "../tailwind.config";
 
-export interface ThirtyDaysDailyApy {
+export interface DailyApy {
   dateLabels: string[];
   apyData: number[];
 }
@@ -29,7 +29,7 @@ const hexToRGB = (h: string): string => {
 export default function ChartCardComponent({
   dateLabels,
   apyData,
-}: ThirtyDaysDailyApy) {
+}: DailyApy) {
   // convert 2025-01-17 00:00:00+00 string to Date
   const dateLabelsDate = dateLabels.map((date) => new Date(date));
 

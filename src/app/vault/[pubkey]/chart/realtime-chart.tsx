@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { chartColors } from "./chartjs-config";
 import {
@@ -36,140 +36,144 @@ interface RealtimeChartProps {
   height: number;
 }
 
-export default function RealtimeChart({
-  data,
-  width,
-  height,
-}: RealtimeChartProps) {
-  const [chart, setChart] = useState<Chart | null>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const { theme } = useTheme();
-  const {
-    textColor,
-    gridColor,
-    tooltipTitleColor,
-    tooltipBodyColor,
-    tooltipBgColor,
-    tooltipBorderColor,
-  } = chartColors;
+export default React.memo(
+  function RealtimeChart({ data, width, height }: RealtimeChartProps) {
+    const [chart, setChart] = useState<Chart | null>(null);
+    const canvas = useRef<HTMLCanvasElement>(null);
+    const { theme } = useTheme();
+    const {
+      textColor,
+      gridColor,
+      tooltipTitleColor,
+      tooltipBodyColor,
+      tooltipBgColor,
+      tooltipBorderColor,
+    } = chartColors;
 
-  // Calculate min and max values from the data
-  const calculateRange = (chartData: ChartData) => {
-    let minValue = Infinity;
-    let maxValue = -Infinity;
+    // Calculate min and max values from the data
+    const calculateRange = (chartData: ChartData) => {
+      let minValue = Infinity;
+      let maxValue = -Infinity;
 
-    chartData.datasets?.forEach((dataset) => {
-      const values = dataset.data as number[];
-      const dataMin = Math.min(...values);
-      const dataMax = Math.max(...values);
+      chartData.datasets?.forEach((dataset) => {
+        const values = dataset.data as number[];
+        const dataMin = Math.min(...values);
+        const dataMax = Math.max(...values);
 
-      if (dataMin < minValue) minValue = dataMin;
-      if (dataMax > maxValue) maxValue = dataMax;
-    });
+        if (dataMin < minValue) minValue = dataMin;
+        if (dataMax > maxValue) maxValue = dataMax;
+      });
 
-    // Add 10% padding to min and max
-    const padding = (maxValue - minValue) * 0.1;
-    return {
-      min: minValue - padding,
-      max: maxValue + padding,
+      // Add 10% padding to min and max
+      const padding = (maxValue - minValue) * 0.1;
+      return {
+        min: minValue - padding,
+        max: maxValue + padding,
+      };
     };
-  };
 
-  useEffect(() => {
-    const ctx = canvas.current;
-    if (!ctx) return;
+    useEffect(() => {
+      const ctx = canvas.current;
+      if (!ctx) return;
 
-    const range = calculateRange(data);
+      const range = calculateRange(data);
 
-    const newChart = new Chart(ctx, {
-      type: "line",
-      data: data,
-      options: {
-        layout: {
-          padding: 20,
-        },
-        scales: {
-          y: {
-            border: {
-              display: false,
-            },
-            min: range.min,
-            max: range.max,
-            ticks: {
-              maxTicksLimit: 5,
-              callback: (value) => formatValue(+value),
-              color: textColor,
-            },
-            grid: {
-              color: gridColor,
-            },
+      const newChart = new Chart(ctx, {
+        type: "line",
+        data: data,
+        options: {
+          layout: {
+            padding: 20,
           },
-          x: {
-            type: "time",
-            time: {
-              unit: "day",
-              tooltipFormat: "MMM D",
-              displayFormats: {
-                day: "MMM D",
+          scales: {
+            y: {
+              border: {
+                display: false,
+              },
+              min: range.min,
+              max: range.max,
+              ticks: {
+                maxTicksLimit: 5,
+                callback: (value) => formatValue(+value),
+                color: textColor,
+              },
+              grid: {
+                color: gridColor,
               },
             },
-            border: {
+            x: {
+              type: "time",
+              time: {
+                unit: "day",
+                tooltipFormat: "MMM D",
+                displayFormats: {
+                  day: "MMM D",
+                },
+              },
+              border: {
+                display: false,
+              },
+              grid: {
+                display: false,
+              },
+              ticks: {
+                autoSkipPadding: 48,
+                maxRotation: 0,
+                color: textColor,
+              },
+            },
+          },
+          plugins: {
+            legend: {
               display: false,
             },
-            grid: {
-              display: false,
-            },
-            ticks: {
-              autoSkipPadding: 48,
-              maxRotation: 0,
-              color: textColor,
+            tooltip: {
+              titleFont: {
+                weight: 600,
+              },
+              callbacks: {
+                label: (context) => formatValue(context.parsed.y),
+              },
+              titleColor: tooltipTitleColor,
+              bodyColor: tooltipBodyColor,
+              backgroundColor: tooltipBgColor,
+              borderColor: tooltipBorderColor,
             },
           },
-        },
-        plugins: {
-          legend: {
-            display: false,
+          interaction: {
+            intersect: false,
+            mode: "nearest",
           },
-          tooltip: {
-            titleFont: {
-              weight: 600,
-            },
-            callbacks: {
-              label: (context) => formatValue(context.parsed.y),
-            },
-            titleColor: tooltipTitleColor,
-            bodyColor: tooltipBodyColor,
-            backgroundColor: tooltipBgColor,
-            borderColor: tooltipBorderColor,
+          animation: {
+            duration: 1500, // Animation duration in milliseconds
+            easing: "easeOutQuart", // Easing function for smooth animation
           },
+          maintainAspectRatio: false,
         },
-        interaction: {
-          intersect: false,
-          mode: "nearest",
-        },
-        animation: false,
-        maintainAspectRatio: false,
-      },
-    });
-    setChart(newChart);
-    return () => newChart.destroy();
-  }, [data]);
+      });
+      setChart(newChart);
+      return () => newChart.destroy();
+    }, [data]);
 
-  useEffect(() => {
-    if (!chart) return;
-    chart.options.scales!.x!.ticks!.color = textColor;
-    chart.options.scales!.y!.ticks!.color = textColor;
-    chart.options.scales!.y!.grid!.color = gridColor;
-    chart.options.plugins!.tooltip!.titleColor = tooltipTitleColor;
-    chart.options.plugins!.tooltip!.bodyColor = tooltipBodyColor;
-    chart.options.plugins!.tooltip!.backgroundColor = tooltipBgColor;
-    chart.options.plugins!.tooltip!.borderColor = tooltipBorderColor;
-    chart.update("none");
-  }, [theme]);
+    useEffect(() => {
+      if (!chart) return;
+      chart.options.scales!.x!.ticks!.color = textColor;
+      chart.options.scales!.y!.ticks!.color = textColor;
+      chart.options.scales!.y!.grid!.color = gridColor;
+      chart.options.plugins!.tooltip!.titleColor = tooltipTitleColor;
+      chart.options.plugins!.tooltip!.bodyColor = tooltipBodyColor;
+      chart.options.plugins!.tooltip!.backgroundColor = tooltipBgColor;
+      chart.options.plugins!.tooltip!.borderColor = tooltipBorderColor;
+      chart.update("none");
+    }, [theme]);
 
-  return (
-    <div className="">
-      <canvas ref={canvas} width={width} height={height}></canvas>
-    </div>
-  );
-}
+    return (
+      <div className="">
+        <canvas ref={canvas} width={width} height={height}></canvas>
+      </div>
+    );
+  },
+  (prevProps, nextProps) => {
+    return JSON.stringify(prevProps.data) === JSON.stringify(nextProps.data);
+  }
+);

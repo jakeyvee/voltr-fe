@@ -12,7 +12,7 @@ export default function HeroHome() {
               className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl"
               data-aos="fade-up"
             >
-              Maximise your yield with Voltr
+              Start earning with confidence
             </h1>
             <div className="mx-auto max-w-3xl">
               <p
@@ -20,9 +20,9 @@ export default function HeroHome() {
                 data-aos="fade-up"
                 data-aos-delay={200}
               >
-                Tap on high-yield generating vaults with sophisticated
-                strategies made easy and accessible for you. Withdraw anytime
-                with no lockup.
+                Voltr opens access to transparent, high-yield generating vaults
+                secured by institutional-grade security. Deposit your assets and
+                access yields across Solana.
               </p>
             </div>
           </div>
