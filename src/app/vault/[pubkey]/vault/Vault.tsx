@@ -205,28 +205,28 @@ export default function VaultCard({
             {/* Fees Tab - Fee information */}
             <TabPanel>
               <div className="grow py-3 px-5 space-y-2">
-                <div className="space-y-3">
+                <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-300">Performance Fee</span>
-                    <span className="font-medium text-gray-100">
+                    <span className="text-gray-100">
                       {(feeConfiguration.performanceFee / 10_000) * 100}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-300">Management Fee</span>
-                    <span className="font-medium text-gray-100">
+                    <span className="text-gray-100">
                       {(feeConfiguration.managementFee / 10_000) * 100}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-300">Issuance Fee</span>
-                    <span className="font-medium text-gray-100">
+                    <span className="text-gray-100">
                       {(feeConfiguration.issuanceFee / 10_000) * 100}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-300">Redemption Fee</span>
-                    <span className="font-medium text-gray-100">
+                    <span className="text-gray-100">
                       {(feeConfiguration.redemptionFee / 10_000) * 100}%
                     </span>
                   </div>
