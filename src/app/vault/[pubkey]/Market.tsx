@@ -68,7 +68,12 @@ export interface VaultInformation {
   dailyApy: DailyApy;
 }
 
-export default function MarketClientPage(vault: VaultInformation) {
+export default function MarketClientPage(initialVault: VaultInformation) {
+  const { vaultData: vault, isLoading: _isRefreshing } = useRefreshVaultData(
+    initialVault,
+    initialVault.pubkey
+  );
+
   const wallet = useWallet();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"deposit" | "withdraw">(
@@ -455,4 +460,52 @@ export default function MarketClientPage(vault: VaultInformation) {
       </div>
     </div>
   );
+}
+
+function useRefreshVaultData(initialData: VaultInformation, pubkey: string) {
+  const [vaultData, setVaultData] = useState<VaultInformation>(initialData);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Update state when initialData changes (e.g., when the server sends new data)
+    setVaultData(initialData);
+  }, [initialData]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchFreshData = async () => {
+      try {
+        setIsLoading(true);
+        const baseUrl =
+          process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
+        const res = await fetch(
+          `${baseUrl}/api/vault/${pubkey}?_=${Date.now()}`
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch fresh data");
+
+        const { vault } = await res.json();
+
+        if (isMounted) {
+          setVaultData(vault);
+        }
+      } catch (error) {
+        console.error("Error fetching fresh vault data:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    // Fetch fresh data once the component is mounted
+    fetchFreshData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pubkey]);
+
+  return { vaultData, isLoading };
 }
