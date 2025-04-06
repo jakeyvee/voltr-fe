@@ -6,9 +6,9 @@ import { Suspense } from "react";
 
 // Create a function to get vault info for a specific pubkey
 async function fetchVaultInfo(pubkey: string) {
-  console.log(`Fetching vault data for ${pubkey}`);
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const res = await fetch(`${baseUrl}/api/vault/${pubkey}`, {
+    cache: "force-cache",
     next: { revalidate: 300 }, // 5 minutes (300 seconds)
   });
 
@@ -71,8 +71,10 @@ export default async function MarketPage({
   params: { pubkey: string };
 }) {
   try {
-    // Try to get cached data first
-    const cachedVault = await getVaultInfo(params.pubkey);
+    const cachedVaultPromise = getVaultInfo(params.pubkey);
+    const freshVaultPromise = getFreshVaultInfo(params.pubkey);
+
+    const cachedVault = await cachedVaultPromise;
 
     // If we have cached data, show it immediately
     if (cachedVault) {
@@ -80,7 +82,7 @@ export default async function MarketPage({
     }
 
     // If no cached data exists, wait for fresh data
-    const freshVault = await getFreshVaultInfo(params.pubkey);
+    const freshVault = await freshVaultPromise;
     return <MarketClientPage {...freshVault} />;
   } catch (error) {
     // In case of error, show the loading state then try with suspense
