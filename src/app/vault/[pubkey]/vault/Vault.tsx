@@ -43,10 +43,10 @@ export default function VaultCard({
       <div className="flex flex-col h-full">
         <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
           <div className="relative mt-2">
-            <TabList className="flex border-b border-slate-700/60 relative">
+            <TabList className="flex border-b border-slate-700/60 w-full justify-between">
               <Tab
                 className={({ selected }) =>
-                  `text-sm font-medium inline-block py-3 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
+                  `w-1/3 text-sm font-medium inline-block py-3 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
                     selected
                       ? "border-t-0 border-b-indigo-500 text-indigo-400"
                       : "border-y-0 text-gray-400 hover:text-gray-300"
@@ -57,7 +57,7 @@ export default function VaultCard({
               </Tab>
               <Tab
                 className={({ selected }) =>
-                  `text-sm font-medium inline-block py-2 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
+                  `w-1/3 text-sm font-medium inline-block py-2 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
                     selected
                       ? "border-t-0 border-b-indigo-500 text-indigo-400"
                       : "border-y-0 text-gray-400 hover:text-gray-300"
@@ -68,7 +68,7 @@ export default function VaultCard({
               </Tab>
               <Tab
                 className={({ selected }) =>
-                  `text-sm font-medium inline-block py-2 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
+                  `w-1/3 text-sm font-medium inline-block py-2 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
                     selected
                       ? "border-t-0 border-b-indigo-500 text-indigo-400"
                       : "border-y-0 text-gray-400 hover:text-gray-300"
@@ -83,13 +83,13 @@ export default function VaultCard({
           <TabPanels>
             <TabPanel>
               <div className="flex flex-col space-y-3 px-5 py-3">
-                <div className="flex flex-col space-y-1">
+                <div className="flex flex-col space-y-2">
                   <div>{vaultDescription}</div>
-                  <div className="w-full flex justify-end">
+                  <div className="w-full flex justify-start">
                     <Link
                       href={vaultExternalUri}
                       target="_blank"
-                      className="text-xs font-medium text-indigo-500 hover:text-indigo-400"
+                      className="font-medium text-indigo-500 hover:text-indigo-400"
                     >
                       Learn more →
                     </Link>
@@ -204,29 +204,29 @@ export default function VaultCard({
             </TabPanel>
             {/* Fees Tab - Fee information */}
             <TabPanel>
-              <div className="grow py-3 px-5 space-y-2">
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center">
+              <div className="grow pt-3 pb-4 px-5 space-y-2">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center border-b border-slate-700/40 pb-2">
                     <span className="text-gray-300">Performance Fee</span>
-                    <span className="text-gray-100">
+                    <span className="text-gray-100 font-medium">
                       {(feeConfiguration.performanceFee / 10_000) * 100}%
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center border-b border-slate-700/40 pb-2">
                     <span className="text-gray-300">Management Fee</span>
-                    <span className="text-gray-100">
+                    <span className="text-gray-100 font-medium">
                       {(feeConfiguration.managementFee / 10_000) * 100}%
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center border-b border-slate-700/40 pb-2">
                     <span className="text-gray-300">Issuance Fee</span>
-                    <span className="text-gray-100">
+                    <span className="text-gray-100 font-medium">
                       {(feeConfiguration.issuanceFee / 10_000) * 100}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-300">Redemption Fee</span>
-                    <span className="text-gray-100">
+                    <span className="text-gray-100 font-medium">
                       {(feeConfiguration.redemptionFee / 10_000) * 100}%
                     </span>
                   </div>
