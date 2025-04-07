@@ -53,7 +53,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
             autoComplete="off"
             data-lpignore="true"
             placeholder="0.00"
-            className="h-full w-full bg-transparent text-right disabled:cursor-not-allowed disabled:text-gray-500 dark:text-white text-xl outline-none font-semibold"
+            className="h-full w-full bg-transparent text-right disabled:cursor-not-allowed disabled:text-gray-500 text-white text-xl outline-none font-semibold"
             type="text"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
