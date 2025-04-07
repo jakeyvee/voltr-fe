@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const revalidate = 0;
 interface Vault {
   pubkey: string;
   name: string;
