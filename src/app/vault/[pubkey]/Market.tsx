@@ -27,7 +27,7 @@ import { VoltrClient } from "@voltr/vault-sdk";
 import MetricCard from "./metric/Metric";
 import VaultCard, { FeeConfiguration } from "./vault/Vault";
 import AllocationsCard from "./allocation/allocations-card";
-import { DailyApy } from "./chart/RealTimeChartJs";
+import { DailyStats } from "./chart/RealTimeChartJs";
 import { Breadcrumb } from "./breadcrumb/Breadcrumb";
 import SwapCard, { RequestWithdrawal } from "./swap/SwapCard";
 
@@ -65,7 +65,7 @@ export interface VaultInformation {
     tokenName: string;
     positionValue: number;
   }[];
-  dailyApy: DailyApy;
+  dailyStats: DailyStats;
 }
 
 export default function MarketClientPage(initialVault: VaultInformation) {
@@ -426,7 +426,15 @@ export default function MarketClientPage(initialVault: VaultInformation) {
             vaultTotalValue={vault.totalValue}
             allocations={vault.allocations}
           />
-          <ChartCard {...vault.dailyApy} />
+          <ChartCard
+            dateLabels={vault.dailyStats.dateLabels}
+            apyData={vault.dailyStats.apyData}
+            tvlData={vault.dailyStats.tvlData.map(
+              (tvl) => tvl / Math.pow(10, vault.token.decimals)
+            )}
+            lpData={vault.dailyStats.lpData}
+            tokenName={vault.token.name}
+          />
         </div>
         <div className="flex flex-col col-span-full z-0 gap-2 order-1 md:col-span-4 md:order-2">
           <VaultCard

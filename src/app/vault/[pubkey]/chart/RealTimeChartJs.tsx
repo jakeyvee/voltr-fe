@@ -3,9 +3,19 @@ import { chartAreaGradient } from "./chartjs-config";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfigFile from "../tailwind.config";
 
-export interface DailyApy {
+export interface DailyStats {
   dateLabels: string[];
   apyData: number[];
+  tvlData: number[];
+  lpData: number[];
+  tokenName: string;
+}
+
+interface DailyData {
+  dateLabels: string[];
+  data: number[];
+  stat: "APY" | "TVL" | "SHARE";
+  tokenName: string;
 }
 
 const tailwindConfig = resolveConfig(tailwindConfigFile) as any;
@@ -28,8 +38,10 @@ const hexToRGB = (h: string): string => {
 
 export default function ChartCardComponent({
   dateLabels,
-  apyData,
-}: DailyApy) {
+  data,
+  stat,
+  tokenName,
+}: DailyData) {
   // convert 2025-01-17 00:00:00+00 string to Date
   const dateLabelsDate = dateLabels.map((date) => new Date(date));
 
@@ -37,7 +49,7 @@ export default function ChartCardComponent({
     labels: dateLabelsDate,
     datasets: [
       {
-        data: apyData,
+        data: data,
         fill: true,
         backgroundColor: function (context: any) {
           const chart = context.chart;
@@ -72,5 +84,13 @@ export default function ChartCardComponent({
     ],
   };
 
-  return <RealtimeChart data={chartData} width={595} height={256} />;
+  return (
+    <RealtimeChart
+      data={chartData}
+      width={595}
+      height={256}
+      stat={stat}
+      tokenName={tokenName}
+    />
+  );
 }

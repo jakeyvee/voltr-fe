@@ -15,9 +15,7 @@ import {
   ChartData,
 } from "chart.js";
 import "chartjs-adapter-moment";
-
-const formatValue = (value: number): string =>
-  value > 1 ? `${value.toFixed(2)}%` : `${value.toPrecision(3)}%`;
+import { formatNumber } from "@/lib/format";
 
 // Register Chart.js components
 Chart.register(
@@ -34,10 +32,18 @@ interface RealtimeChartProps {
   data: ChartData;
   width: number;
   height: number;
+  stat: "APY" | "TVL" | "SHARE";
+  tokenName: string;
 }
 
 export default React.memo(
-  function RealtimeChart({ data, width, height }: RealtimeChartProps) {
+  function RealtimeChart({
+    data,
+    width,
+    height,
+    stat,
+    tokenName,
+  }: RealtimeChartProps) {
     const [chart, setChart] = useState<Chart | null>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
     const { theme } = useTheme();
@@ -72,6 +78,18 @@ export default React.memo(
       };
     };
 
+    const formatTick = (value: number) => {
+      if (stat === "APY") return formatNumber(value) + "%";
+      if (stat === "TVL") return formatNumber(value);
+      if (stat === "SHARE") return value.toPrecision(5);
+    };
+
+    const formatLabel = (value: number) => {
+      if (stat === "APY") return formatNumber(value) + "%";
+      if (stat === "TVL") return formatNumber(value) + " " + tokenName;
+      if (stat === "SHARE") return value.toPrecision(5) + " " + tokenName;
+    };
+
     useEffect(() => {
       const ctx = canvas.current;
       if (!ctx) return;
@@ -94,7 +112,7 @@ export default React.memo(
               max: range.max,
               ticks: {
                 maxTicksLimit: 5,
-                callback: (value) => formatValue(+value),
+                callback: (value) => formatTick(+value),
                 color: textColor,
               },
               grid: {
@@ -132,7 +150,7 @@ export default React.memo(
                 weight: 600,
               },
               callbacks: {
-                label: (context) => formatValue(context.parsed.y),
+                label: (context) => formatLabel(context.parsed.y),
               },
               titleColor: tooltipTitleColor,
               bodyColor: tooltipBodyColor,

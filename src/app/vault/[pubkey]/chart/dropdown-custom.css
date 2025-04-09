@@ -1,0 +1,39 @@
+/* Custom styling for the dropdown to match dark theme */
+.stats-dropdown-menu {
+  min-width: 80px;
+  padding: 4px 0;
+  background-color: rgb(17 24 39) !important;
+  box-shadow: none !important;
+  border-radius: 0.25rem !important;
+  border: none !important;
+  --tw-ring-color: rgb(199 210 254 / 0.2) !important;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
+    var(--tw-ring-offset-width) var(--tw-ring-offset-color) !important;
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
+    calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color) !important;
+  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color) !important;
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+}
+
+.stats-dropdown-item {
+  padding: 0.25rem 0.5rem !important;
+  color: rgba(224, 231, 255, 0.7) !important;
+  cursor: pointer;
+}
+
+.stats-dropdown-item:hover {
+  background-color: rgba(165, 180, 252, 0.3) !important;
+  color: white !important;
+}
+
+.stats-dropdown-item.rc-menu-item-selected {
+  background-color: rgba(165, 180, 252, 0.2) !important;
+  color: white !important;
+}
+
+/* Remove default rc-menu focus outline */
+.rc-menu-item:focus-visible {
+  outline: none !important;
+}

@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/format";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 interface Vault {
@@ -98,27 +99,16 @@ export default async function MarketsTable() {
                               alt={vault.asset.name}
                               className="w-4 h-4 mr-1 rounded-full"
                             />
-                            {vault.tvl / Math.pow(10, vault.asset.decimals) > 1
-                              ? (
-                                  vault.tvl / Math.pow(10, vault.asset.decimals)
-                                ).toFixed(2)
-                              : (
-                                  vault.tvl / Math.pow(10, vault.asset.decimals)
-                                ).toPrecision(3)}{" "}
+                            {formatNumber(
+                              vault.tvl / Math.pow(10, vault.asset.decimals)
+                            )}
                           </div>
                           <div>
                             US$
-                            {(vault.asset.price * vault.tvl) /
-                              Math.pow(10, vault.asset.decimals) >
-                            1
-                              ? (
-                                  (vault.asset.price * vault.tvl) /
-                                  Math.pow(10, vault.asset.decimals)
-                                ).toFixed(2)
-                              : (
-                                  (vault.asset.price * vault.tvl) /
-                                  Math.pow(10, vault.asset.decimals)
-                                ).toPrecision(3)}
+                            {formatNumber(
+                              (vault.asset.price * vault.tvl) /
+                                Math.pow(10, vault.asset.decimals)
+                            )}
                           </div>
                         </div>
                       </td>
@@ -148,9 +138,7 @@ export default async function MarketsTable() {
                       </td>
                       <td className="px-4 py-3 w-28">
                         <div className="text-green-300">
-                          {(vault.apy > 1
-                            ? vault.apy.toFixed(2)
-                            : vault.apy.toPrecision(3)) + "%"}
+                          {formatNumber(vault.apy)}%
                         </div>
                       </td>
                       <td className="px-4 py-3 w-32 text-white">
@@ -188,10 +176,10 @@ export default async function MarketsTable() {
                     <div className="text-sm text-gray-400">{vault.theme}</div>
                   </div>
                   <div className="text-green-300 text-lg font-medium">
-                    {(vault.apy > 1
-                      ? vault.apy.toFixed(2)
-                      : vault.apy.toPrecision(3)) + "%"}{" "}
-                    <span className="text-xs text-gray-400 font-normal -ml-0.5">APY</span>
+                    {formatNumber(vault.apy)}%
+                    <span className="text-xs text-gray-400 font-normal -ml-0.5">
+                      APY
+                    </span>
                   </div>
                 </div>
 
@@ -223,17 +211,10 @@ export default async function MarketsTable() {
                       </div>
                       <div className="text-gray-100">
                         US${" "}
-                        {(vault.asset.price * vault.tvl) /
-                          Math.pow(10, vault.asset.decimals) >
-                        1
-                          ? (
-                              (vault.asset.price * vault.tvl) /
-                              Math.pow(10, vault.asset.decimals)
-                            ).toFixed(2)
-                          : (
-                              (vault.asset.price * vault.tvl) /
-                              Math.pow(10, vault.asset.decimals)
-                            ).toPrecision(3)}
+                        {formatNumber(
+                          (vault.asset.price * vault.tvl) /
+                            Math.pow(10, vault.asset.decimals)
+                        )}
                       </div>
                     </div>
 

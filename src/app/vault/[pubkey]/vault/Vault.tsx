@@ -2,6 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/react";
+import { formatNumber } from "@/lib/format";
 
 export interface FeeConfiguration {
   performanceFee: number;
@@ -102,10 +103,7 @@ export default function VaultCard({
                         7D APY
                       </h2>
                       <div className="font-medium text-gray-100">
-                        {vaultAPY.sevenDays > 1
-                          ? vaultAPY.sevenDays.toFixed(2)
-                          : vaultAPY.sevenDays.toPrecision(3)}
-                        %
+                        {formatNumber(vaultAPY.sevenDays)}%
                       </div>
                     </div>
                     <div className="col-span-4 flex flex-col items-center justify-center py-2 space-y-0.5 border-r border-slate-700/60">
@@ -113,10 +111,7 @@ export default function VaultCard({
                         30D APY
                       </h2>
                       <div className="font-medium text-gray-100">
-                        {vaultAPY.thirtyDays > 1
-                          ? vaultAPY.thirtyDays.toFixed(2)
-                          : vaultAPY.thirtyDays.toPrecision(3)}
-                        %
+                        {formatNumber(vaultAPY.thirtyDays)}%
                       </div>
                     </div>
                     <div className="col-span-4 flex flex-col items-center justify-center py-2 space-y-0.5">
@@ -124,10 +119,7 @@ export default function VaultCard({
                         All-Time APY
                       </h2>
                       <div className="font-medium text-gray-100">
-                        {vaultAPY.allTime > 1
-                          ? vaultAPY.allTime.toFixed(2)
-                          : vaultAPY.allTime.toPrecision(3)}
-                        %
+                        {formatNumber(vaultAPY.allTime)}%
                       </div>
                     </div>
                   </div>

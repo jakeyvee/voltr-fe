@@ -8,6 +8,7 @@ import {
   CheckCircleIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
+import { formatNumber, formatTime } from "@/lib/format";
 
 interface TokenInputProps {
   symbol: string;
@@ -105,23 +106,6 @@ const SwapCard: React.FC<SwapCardProps> = ({
 }) => {
   const [timeRemaining, setTimeRemaining] = useState<string>("");
 
-  // Function to format countdown time
-  const formatCountdown = (timeLeft: number): string => {
-    if (timeLeft <= 0) return "0s";
-
-    const hours = Math.floor(timeLeft / 3600000);
-    const minutes = Math.floor((timeLeft % 3600000) / 60000);
-    const seconds = Math.floor((timeLeft % 60000) / 1000);
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m ${seconds}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds}s`;
-    } else {
-      return `${seconds}s`;
-    }
-  };
-
   // Update countdown timer every second
   useEffect(() => {
     if (!userWithdrawRequest) return;
@@ -130,7 +114,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
       const withdrawTime = userWithdrawRequest.withdrawableFromTs * 1000; // Convert to milliseconds
       const now = Date.now();
       const timeLeft = Math.max(0, withdrawTime - now);
-      setTimeRemaining(formatCountdown(timeLeft));
+      setTimeRemaining(formatTime(timeLeft));
     };
 
     // Update immediately
@@ -142,17 +126,6 @@ const SwapCard: React.FC<SwapCardProps> = ({
     // Clean up interval
     return () => clearInterval(intervalId);
   }, [userWithdrawRequest]);
-
-  // Format the withdrawal amount
-  const formattedRequestAmount = userWithdrawRequest
-    ? userWithdrawRequest.amountAtPresent / Math.pow(10, assetDecimals) > 1
-      ? (
-          userWithdrawRequest.amountAtPresent / Math.pow(10, assetDecimals)
-        ).toFixed(2)
-      : (
-          userWithdrawRequest.amountAtPresent / Math.pow(10, assetDecimals)
-        ).toPrecision(3)
-    : "0";
 
   return (
     <div className="bg-gray-900 rounded-xl shadow-sm">
@@ -221,7 +194,8 @@ const SwapCard: React.FC<SwapCardProps> = ({
                     <div className="text-sm text-indigo-300 flex justify-between">
                       <div>Amount: </div>
                       <div>
-                        {formattedRequestAmount} {inputSymbol}
+                        {formatNumber(userWithdrawRequest.amountAtPresent)}
+                        {inputSymbol}
                       </div>
                     </div>
                     <div className="text-sm text-indigo-300 flex justify-between">
@@ -327,9 +301,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
                     <div className="space-y-0.5">
                       <div className="text-sm text-indigo-300 flex justify-between">
                         <div>Waiting period: </div>
-                        <div>
-                          {formatCountdown(withdrawalWaitingPeriod * 1000)}
-                        </div>
+                        <div>{formatTime(withdrawalWaitingPeriod * 1000)}</div>
                       </div>
                     </div>
                   </div>
