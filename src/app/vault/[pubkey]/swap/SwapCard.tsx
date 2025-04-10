@@ -301,7 +301,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
                     <div className="space-y-0.5">
                       <div className="text-sm text-indigo-300 flex justify-between">
                         <div>Waiting period: </div>
-                        <div>{formatTime(withdrawalWaitingPeriod * 1000)}</div>
+                        <div>{formatTime(withdrawalWaitingPeriod)}</div>
                       </div>
                     </div>
                   </div>
