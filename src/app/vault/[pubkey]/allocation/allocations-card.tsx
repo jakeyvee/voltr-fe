@@ -54,11 +54,11 @@ export default function AllocationsCard({
 
   // Separate allocations into significant (≥1%) and small (<1%) groups
   const significantAllocations = sortedAllocationUnfilteredDisplay.filter(
-    (allocation) => allocation.ratio >= 0.01
+    (allocation) => allocation.ratio >= 0.0099
   );
 
   const smallAllocations = sortedAllocationUnfilteredDisplay.filter(
-    (allocation) => allocation.ratio < 0.01
+    (allocation) => allocation.ratio < 0.0099
   );
 
   // Calculate the sum of all small allocations
@@ -71,7 +71,7 @@ export default function AllocationsCard({
   const allocationDisplay: AllocationDisplay[] = [...significantAllocations];
 
   // Add the "Other" category if there are any small allocations
-  if (otherRatio > 0) {
+  if (otherRatio >= 0.0099) {
     allocationDisplay.push({
       name: "Other",
       ratio: otherRatio,
@@ -86,7 +86,9 @@ export default function AllocationsCard({
     tailwindConfig.theme.colors.teal[500],
     tailwindConfig.theme.colors.pink[500],
     tailwindConfig.theme.colors.orange[500],
+    tailwindConfig.theme.colors.sky[500],
     tailwindConfig.theme.colors.yellow[500],
+    tailwindConfig.theme.colors.fuchsia[500],
     tailwindConfig.theme.colors.green[500],
     tailwindConfig.theme.colors.red[500],
     tailwindConfig.theme.colors.blue[500],
@@ -99,7 +101,9 @@ export default function AllocationsCard({
     tailwindConfig.theme.colors.teal[600],
     tailwindConfig.theme.colors.pink[600],
     tailwindConfig.theme.colors.orange[600],
+    tailwindConfig.theme.colors.sky[600],
     tailwindConfig.theme.colors.yellow[600],
+    tailwindConfig.theme.colors.fuchsia[600],
     tailwindConfig.theme.colors.green[600],
     tailwindConfig.theme.colors.red[600],
     tailwindConfig.theme.colors.blue[600],
