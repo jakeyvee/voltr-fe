@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import MarketClientPage, { VaultInformation } from "./Market";
 
 const getVaultInfo = async (pubkey: string) => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/vault/${pubkey}`, {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${baseUrl}/vault/${pubkey}`, {
     next: { revalidate: 300 }, // 5 minutes (300 seconds)
   });
 

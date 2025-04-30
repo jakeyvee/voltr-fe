@@ -26,8 +26,8 @@ interface Vault {
 }
 
 const getVaultsInfo = async () => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/vaults`, { cache: "no-store" });
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${baseUrl}/vaults`, { cache: "no-store" });
   if (!res.ok) notFound();
   const { vaults }: { vaults: Vault[] } = await res.json();
   return vaults;

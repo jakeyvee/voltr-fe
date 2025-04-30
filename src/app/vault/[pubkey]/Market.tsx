@@ -485,10 +485,9 @@ function useRefreshVaultData(initialData: VaultInformation, pubkey: string) {
     const fetchFreshData = async () => {
       try {
         setIsLoading(true);
-        const baseUrl =
-          process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(
-          `${baseUrl}/api/vault/${pubkey}?_=${Date.now()}`
+          `${baseUrl}/vault/${pubkey}?_=${Date.now()}`
         );
 
         if (!res.ok) throw new Error("Failed to fetch fresh data");
