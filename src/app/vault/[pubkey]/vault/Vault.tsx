@@ -2,7 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/react";
-import { formatNumber } from "@/lib/format";
+import { InformationCircleIcon } from "@heroicons/react/24/solid";
 
 export interface FeeConfiguration {
   performanceFee: number;
@@ -10,32 +10,34 @@ export interface FeeConfiguration {
   issuanceFee: number;
   redemptionFee: number;
 }
+
+export interface Integration {
+  adaptorPk: string;
+  feature: string;
+  whitelisted: boolean;
+}
 export interface VaultCardProp {
   vaultDescription: string;
   vaultExternalUri: string;
-  vaultAPY: {
-    sevenDays: number;
-    thirtyDays: number;
-    allTime: number;
-  };
   orgName: string;
   orgDescription: string;
   orgImage: string;
   orgSocial: string;
   orgWeb: string;
   feeConfiguration: FeeConfiguration;
+  integrations: Integration[];
 }
 
 export default function VaultCard({
   vaultExternalUri,
   vaultDescription,
-  vaultAPY,
   orgName,
   orgDescription,
   orgImage,
   orgSocial,
   orgWeb,
   feeConfiguration,
+  integrations,
 }: VaultCardProp) {
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -86,7 +88,7 @@ export default function VaultCard({
               <div className="flex flex-col space-y-3 px-5 py-3">
                 <div className="flex flex-col space-y-2">
                   <div>{vaultDescription}</div>
-                  <div className="w-full flex justify-start">
+                  <div className="w-full flex justify-start mb-2">
                     <Link
                       href={vaultExternalUri}
                       target="_blank"
@@ -95,31 +97,23 @@ export default function VaultCard({
                       Learn more →
                     </Link>
                   </div>
-                </div>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div className="w-full grid grid-cols-12">
-                    <div className="col-span-4 flex flex-col items-center justify-center py-2 space-y-0.5 border-r border-slate-700/60">
-                      <h2 className="text-xs font-medium text-gray-500">
-                        7D APY
-                      </h2>
-                      <div className="font-medium text-gray-100">
-                        {formatNumber(vaultAPY.sevenDays)}%
-                      </div>
-                    </div>
-                    <div className="col-span-4 flex flex-col items-center justify-center py-2 space-y-0.5 border-r border-slate-700/60">
-                      <h2 className="text-xs font-medium text-gray-500">
-                        30D APY
-                      </h2>
-                      <div className="font-medium text-gray-100">
-                        {formatNumber(vaultAPY.thirtyDays)}%
-                      </div>
-                    </div>
-                    <div className="col-span-4 flex flex-col items-center justify-center py-2 space-y-0.5">
-                      <h2 className="text-xs font-medium text-gray-500">
-                        All-Time APY
-                      </h2>
-                      <div className="font-medium text-gray-100">
-                        {formatNumber(vaultAPY.allTime)}%
+                  <div className="p-4 bg-emerald-900/30 rounded-lg border border-emerald-500/30">
+                    <div className="flex items-start gap-3">
+                      <InformationCircleIcon className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <div className="space-y-2 w-full">
+                        <h3 className="font-medium text-indigo-200">
+                          This vault can interact with
+                        </h3>
+                        <div className="space-y-0.5">
+                          {integrations.map((integration) => (
+                            <div
+                              key={integration.adaptorPk}
+                              className="text-sm text-indigo-300 flex justify-between"
+                            >
+                              • {integration.feature}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>

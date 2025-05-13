@@ -25,7 +25,7 @@ import { toast } from "react-toastify";
 import ChartCard from "./chart/chart-card";
 import { VoltrClient } from "@voltr/vault-sdk";
 import MetricCard from "./metric/Metric";
-import VaultCard, { FeeConfiguration } from "./vault/Vault";
+import VaultCard, { FeeConfiguration, Integration } from "./vault/Vault";
 import AllocationsCard from "./allocation/allocations-card";
 import { DailyStats } from "./chart/RealTimeChartJs";
 import { Breadcrumb } from "./breadcrumb/Breadcrumb";
@@ -66,6 +66,7 @@ export interface VaultInformation {
     positionValue: number;
   }[];
   dailyStats: DailyStats;
+  integrations: Integration[];
 }
 
 export default function MarketClientPage(initialVault: VaultInformation) {
@@ -416,7 +417,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
       <div className="mt-6 grid grid-cols-12 gap-2 w-full">
         <div className="flex flex-col col-span-full gap-2 order-2 md:col-span-8 md:order-1">
           <MetricCard
-            oneDayApy={vault.apy.oneDay}
+            vaultApy={vault.apy}
             assetPrice={vault.token.price}
             totalLiquidity={vault.totalValue}
             tokenDecimals={vault.token.decimals}
@@ -440,13 +441,13 @@ export default function MarketClientPage(initialVault: VaultInformation) {
           <VaultCard
             vaultExternalUri={vault.externalUri}
             vaultDescription={vault.description}
-            vaultAPY={vault.apy}
             orgName={vault.org.name}
             orgDescription={vault.org.description}
             orgImage={vault.org.logo}
             orgSocial={vault.org.social}
             orgWeb={vault.org.web}
             feeConfiguration={vault.feeConfiguration}
+            integrations={vault.integrations}
           />
           <SwapCard
             userAssetWalletAmount={userAssetWalletAmount}
@@ -486,9 +487,7 @@ function useRefreshVaultData(initialData: VaultInformation, pubkey: string) {
       try {
         setIsLoading(true);
         const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(
-          `${baseUrl}/vault/${pubkey}?_=${Date.now()}`
-        );
+        const res = await fetch(`${baseUrl}/vault/${pubkey}?_=${Date.now()}`);
 
         if (!res.ok) throw new Error("Failed to fetch fresh data");
 

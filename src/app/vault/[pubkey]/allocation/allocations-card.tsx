@@ -42,7 +42,7 @@ export default function AllocationsCard({
         allocation.orgName +
         " " +
         allocation.strategyDescription +
-        ` (${allocation.tokenName})`,
+        (allocation.tokenName ? ` (${allocation.tokenName})` : ""),
       ratio: allocation.positionValue / vaultTotalValue,
     })),
   ];
