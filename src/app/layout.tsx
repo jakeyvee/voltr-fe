@@ -59,9 +59,30 @@ const atAero = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Voltr - DeFi Vaults for Maximum Yield",
+  title: "Start earning with confidence",
   description:
-    "Voltr is a decentralised and permissionless protocol for anyone to launch their own yield-generating vaults.",
+    "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and access yields across Solana.",
+  openGraph: {
+    title: "Start earning with confidence",
+    description:
+      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and access yields across Solana.",
+    images: [
+      {
+        url: "/images/logo.png",
+        width: 256,
+        height: 256,
+        alt: "Voltr logo",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Start earning with confidence",
+    description:
+      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and access yields across Solana.",
+    images: ["/images/logo.png"],
+  },
 };
 
 export default function RootLayout({
