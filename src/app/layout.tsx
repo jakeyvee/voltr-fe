@@ -61,11 +61,11 @@ const atAero = localFont({
 export const metadata: Metadata = {
   title: "Start earning with confidence",
   description:
-    "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and access yields across Solana.",
+    "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
   openGraph: {
     title: "Start earning with confidence",
     description:
-      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and access yields across Solana.",
+      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
     images: [
       {
         url: "/images/logo.png",
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Start earning with confidence",
     description:
-      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and access yields across Solana.",
+      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
     images: ["/images/logo.png"],
   },
 };

@@ -22,7 +22,7 @@ export default function HeroHome() {
               >
                 Voltr opens access to transparent, high-yield generating vaults
                 secured by institutional-grade security. Deposit your assets and
-                access yields across Solana.
+                earn yield across Solana.
               </p>
             </div>
           </div>
