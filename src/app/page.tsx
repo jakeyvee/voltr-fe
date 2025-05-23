@@ -1,4 +1,5 @@
 import Hero from "@/components/hero-home";
+import { ArrowUpRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
 export default function Home() {
@@ -100,7 +101,7 @@ export default function Home() {
                 </svg>
               </div>
               <div className="bg-indigo-700 inline-flex rounded-[26px] h-[28px] px-[6px] items-center ml-[13px] mt-[11px]">
-                <span className="font-ataero text-sm mx-1 leading-[7px] text-indigo-300">
+                <span className="font-ataero text-sm mx-1 leading-[7px]">
                   For Users
                 </span>
               </div>
@@ -153,7 +154,7 @@ export default function Home() {
                 href="https://tally.so/r/mVyajN"
                 className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
               >
-                Get private beta access
+                Get private beta access <ArrowUpRightIcon className="w-2.5 h-2.5 ml-1 stroke-white stroke-2" />
               </Link>
             </div>
           </div>
@@ -511,7 +512,7 @@ export default function Home() {
                 </svg>
               </div>
               <div className="bg-blue-700 inline-flex rounded-[26px] h-[28px] px-[6px] items-center ml-[13px] mt-[11px]">
-                <span className="font-ataero text-sm mx-1 leading-[7px] text-indigo-300">
+                <span className="font-ataero text-sm mx-1 leading-[7px]">
                   For Vault Managers
                 </span>
               </div>
@@ -563,7 +564,7 @@ export default function Home() {
                 href="https://docs.voltr.xyz"
                 className="btn w-full bg-gradient-to-t from-blue-600 to-blue-500 text-white shadow-inner hover:bg-gradient-to-b"
               >
-                Launch a vault
+                Launch a vault <ArrowUpRightIcon className="w-2.5 h-2.5 ml-1 stroke-white stroke-2" />
               </Link>
             </div>
           </div>
