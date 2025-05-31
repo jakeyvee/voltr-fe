@@ -12,7 +12,7 @@ export const Breadcrumb = ({ name, token }: BreadcrumbProps) => {
   return (
     <div className="flex items-center gap-2">
       <Link
-        href="/"
+        href="/vaults"
         className="bg-gray-900 shadow-sm rounded-lg flex flex-col p-1.5"
       >
         <svg
