@@ -12,13 +12,14 @@ export default function Terms() {
             </p>
 
             <p>
-              Welcome to the Terms of Service (these "Terms") for the
+              Welcome to the Terms of Service (these &quot;Terms&quot;) for the
               website-hosted user interface located at https://voltr.xyz (the
-              "Site"), operated by Voltr (the "Site Operator," "we," "us," or
-              "our") and each of its successors and assigns. The Site and any
-              content, tools, documentation, features and functionality offered
-              on or through the Site are collectively referred to as the
-              "Services".
+              &quot;Site&quot;), operated by Voltr (the &quot;Site
+              Operator,&quot; &quot;we,&quot; &quot;us,&quot; or
+              &quot;our&quot;) and each of its successors and assigns. The Site
+              and any content, tools, documentation, features and functionality
+              offered on or through the Site are collectively referred to as the
+              &quot;Services&quot;.
             </p>
 
             <p>
@@ -29,13 +30,13 @@ export default function Terms() {
             </p>
 
             <p>
-              For purposes of these Terms, "User," "you" and "your" means you as
-              a user of the Services. If you use the Services on behalf of a
-              company or other entity then "User" and "you" includes you and
-              that entity, and you represent and warrant that (a) you are an
-              authorized representative of the entity with the authority to bind
-              the entity, and (b) you agree to these Terms on the entity's
-              behalf.
+              For purposes of these Terms, &quot;User,&quot; &quot;you&quot; and
+              &quot;your&quot; means you as a user of the Services. If you use
+              the Services on behalf of a company or other entity then
+              &quot;User&quot; and &quot;you&quot; includes you and that entity,
+              and you represent and warrant that (a) you are an authorized
+              representative of the entity with the authority to bind the
+              entity, and (b) you agree to these Terms on the entity&apos;s behalf.
             </p>
 
             <div className="bg-yellow-900/20 border border-yellow-500/30 p-4 rounded-lg my-6 !text-yellow-300">
@@ -76,8 +77,8 @@ export default function Terms() {
               </li>
               <li>
                 Tokens that exist and have been or may be made available by
-                third parties known as "vault managers" in connection with vault
-                strategies;
+                third parties known as &quot;vault managers&quot; in connection
+                with vault strategies;
               </li>
               <li>
                 The implied or express fair market prices of tokens and vault
@@ -131,10 +132,10 @@ export default function Terms() {
               independently available from other sources.
             </p>
             <p>
-              By combining publicly available information with the User's
+              By combining publicly available information with the User&apos;s
               interactions with the Site, the Site can draft standard
               transaction messages compatible with vault strategies which are
-              designed to accomplish the User's operational goals as expressed
+              designed to accomplish the User&apos;s operational goals as expressed
               through the interactions. If the User so wishes, the User may
               broadcast such messages to Solana in order to initiate token
               transactions.
@@ -142,11 +143,11 @@ export default function Terms() {
             <p>
               All draft transaction messages are delivered by the Site via API
               to a compatible third-party Solana wallet application or device
-              selected by the User after pressing the "Connect Wallet" button on
-              the Site. The User must personally review and authorize all
-              transaction messages that the User wishes to send to Solana; this
-              requires the User to sign the relevant transaction message with a
-              private cryptographic key inaccessible to the Site.
+              selected by the User after pressing the &quot;Connect Wallet&quot;
+              button on the Site. The User must personally review and authorize
+              all transaction messages that the User wishes to send to Solana;
+              this requires the User to sign the relevant transaction message
+              with a private cryptographic key inaccessible to the Site.
             </p>
             <p>
               <strong>
@@ -167,33 +168,35 @@ export default function Terms() {
             <h3>1.4 Defined Terms</h3>
             <ul>
               <li>
-                <strong>"Voltr Protocol"</strong> means the smart contract
-                infrastructure system deployed on Solana for yield vault
-                management
+                <strong>&quot;Voltr Protocol&quot;</strong> means the smart
+                contract infrastructure system deployed on Solana for yield
+                vault management
               </li>
               <li>
-                <strong>"Vault"</strong> or <strong>"Vaults"</strong> means
-                individual smart contracts deployed by third-party vault
-                managers that implement yield generation strategies
+                <strong>&quot;Vault&quot;</strong> or{" "}
+                <strong>&quot;Vaults&quot;</strong> means individual smart
+                contracts deployed by third-party vault managers that implement
+                yield generation strategies
               </li>
               <li>
-                <strong>"Vault Manager"</strong> means third-party entities or
-                individuals who deploy and manage individual vault strategies
+                <strong>&quot;Vault Manager&quot;</strong> means third-party
+                entities or individuals who deploy and manage individual vault
+                strategies
               </li>
               <li>
-                <strong>"LP Tokens"</strong> means liquidity provider tokens
-                issued by vaults representing proportional claims on vault
-                assets
+                <strong>&quot;LP Tokens&quot;</strong> means liquidity provider
+                tokens issued by vaults representing proportional claims on
+                vault assets
               </li>
               <li>
-                <strong>"Site"</strong> means the website, web pages, web
-                applications and information and software available at or
+                <strong>&quot;Site&quot;</strong> means the website, web pages,
+                web applications and information and software available at or
                 accessible through the URL https://app.voltr.finance or any
                 sub-URL of such URL
               </li>
               <li>
-                <strong>"Solana"</strong> means the canonical blockchain and
-                virtual machine environment of the Solana mainnet
+                <strong>&quot;Solana&quot;</strong> means the canonical
+                blockchain and virtual machine environment of the Solana mainnet
               </li>
             </ul>
 
@@ -211,26 +214,27 @@ export default function Terms() {
               </strong>
             </p>
             <p>
-              A <strong>"U.S. Person"</strong> is (a) a United States citizen;
-              (b) a United States resident; (c) any entity, including but not
-              limited to, a corporation, partnership, or limited liability
-              company created or organized in the United States or under the
-              laws of the United States (including any of its states); or (d) a
-              trust or estate formed under the laws of the United States
-              (including any of its states).
+              A <strong>&quot;U.S. Person&quot;</strong> is (a) a United States
+              citizen; (b) a United States resident; (c) any entity, including
+              but not limited to, a corporation, partnership, or limited
+              liability company created or organized in the United States or
+              under the laws of the United States (including any of its states);
+              or (d) a trust or estate formed under the laws of the United
+              States (including any of its states).
             </p>
             <p>
-              A <strong>"Prohibited Person"</strong> is any person or entity
-              that is:
+              A <strong>&quot;Prohibited Person&quot;</strong> is any person or
+              entity that is:
             </p>
             <ol>
               <li>
                 Located in, incorporated or otherwise established in, or
                 resident of, any country or territory that is the subject of
                 sanctions or embargoes imposed by the Office of Foreign Assets
-                Control ("OFAC") of the U.S. Treasury Department; the Office of
-                Financial Sanctions ("OFSI") of HM Treasury of the United
-                Kingdom; the European Union; or the United Nations.
+                Control (&quot;OFAC&quot;) of the U.S. Treasury Department; the
+                Office of Financial Sanctions (&quot;OFSI&quot;) of HM Treasury
+                of the United Kingdom; the European Union; or the United
+                Nations.
               </li>
               <li>
                 An individual or entity, or acting on behalf of an individual or
@@ -245,12 +249,12 @@ export default function Terms() {
                 sanctions program.
               </li>
               <li>
-                Located in the following{" "}
-                <strong>"Prohibited Localities"</strong>: Myanmar (Burma), Côte
-                D'Ivoire (Ivory Coast), Cuba, Crimea and Sevastopol, Democratic
-                Republic of Congo, Iran, Iraq, Libya, Mali, Nicaragua,
-                Democratic People's Republic of Korea (North Korea), Somalia,
-                Sudan, Syria, Yemen, Zimbabwe.
+                Located in the following
+                <strong>&quot;Prohibited Localities&quot;</strong>: Myanmar
+                (Burma), Côte D&apos;Ivoire (Ivory Coast), Cuba, Crimea and
+                Sevastopol, Democratic Republic of Congo, Iran, Iraq, Libya,
+                Mali, Nicaragua, Democratic People&apos;s Republic of Korea (North
+                Korea), Somalia, Sudan, Syria, Yemen, Zimbabwe.
               </li>
             </ol>
             <p>
@@ -293,12 +297,12 @@ export default function Terms() {
               description, or token symbol with specific smart contracts
               deployed to Solana. In making such associations, the Site relies
               upon third-party resources which may not be accurate or may not
-              conform to a given User's expectations. Multiple smart contracts
+              conform to a given User&apos;s expectations. Multiple smart contracts
               can utilize the same token name or vault strategy name as one
               another. Users must not rely on the name, symbol or branding of a
               vault or token on the Site, but instead must examine the specific
               smart contract associated with the name, symbol or branding and
-              confirm that the vault or token accords with User's expectations.
+              confirm that the vault or token accords with User&apos;s expectations.
             </p>
             <h3>3.3 User Responsibility for Accounts & Security</h3>
             <p>
@@ -332,16 +336,16 @@ export default function Terms() {
               Even if the Site currently displays a particular vault or
               strategy, the Site may discontinue tracking and publishing
               information about that vault or strategy at any time, in the Site
-              Operator's sole and absolute discretion.
+              Operator&apos;s sole and absolute discretion.
             </p>
             <h3>3.6 Site Operator May Deny or Limit Access</h3>
             <p>
               The Site Operator reserves the right to terminate or limit any
-              person's access to or use of the Site at any time, with or without
-              notice, as determined in the Site Operator's sole and absolute
+              person&apos;s access to or use of the Site at any time, with or without
+              notice, as determined in the Site Operator&apos;s sole and absolute
               discretion. Such terminations and limitations may be based on any
               factor or combination of factors, including but not limited to a
-              User's identity, blockchain address, IP address, region of
+              User&apos;s identity, blockchain address, IP address, region of
               citizenship or residence or current location, or suspicion that
               User has engaged or intends to engage in any prohibited activity.
             </p>
@@ -446,7 +450,7 @@ export default function Terms() {
             </p>
             <h3>5.3 Compliance with Law</h3>
             <p>
-              User's agreement to these Terms and use of the Site does not
+              User&apos;s agreement to these Terms and use of the Site does not
               constitute, and would not reasonably be expected to result in a
               breach, default, contravention or violation of any law applicable
               to User, or contract or agreement to which User is a party or by
@@ -546,12 +550,12 @@ export default function Terms() {
 
             <h3>6.3 Disclaimer of Warranties</h3>
             <p>
-              THE SITE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. TO
-              THE FULLEST EXTENT PERMITTED BY LAW, SITE OPERATOR DISCLAIMS ALL
-              WARRANTIES, EXPRESS OR IMPLIED, INCLUDING ANY REPRESENTATIONS OR
-              WARRANTIES OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY, USAGE,
-              SECURITY, UPTIME, RELIABILITY, SUITABILITY OR FITNESS FOR ANY
-              PARTICULAR PURPOSE.
+              THE SITE IS PROVIDED ON AN &quot;AS IS&quot; AND &quot;AS
+              AVAILABLE&quot; BASIS. TO THE FULLEST EXTENT PERMITTED BY LAW,
+              SITE OPERATOR DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED,
+              INCLUDING ANY REPRESENTATIONS OR WARRANTIES OF TITLE,
+              NON-INFRINGEMENT, MERCHANTABILITY, USAGE, SECURITY, UPTIME,
+              RELIABILITY, SUITABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE.
             </p>
 
             <h3>6.4 No Professional Advice</h3>
@@ -597,14 +601,14 @@ export default function Terms() {
               harmless Site Operator (and each of its officers, directors,
               members, employees, agents and affiliates) from any claim, demand,
               action, damage, loss, cost or expense, including without
-              limitation reasonable attorneys' fees, arising out or relating to:
+              limitation reasonable attorneys&apos; fees, arising out or relating to:
             </p>
             <ol>
-              <li>User's use of, or conduct in connection with, the Site;</li>
-              <li>User's violation of these Terms;</li>
-              <li>User's participation in any vault strategies;</li>
+              <li>User&apos;s use of, or conduct in connection with, the Site;</li>
+              <li>User&apos;s violation of these Terms;</li>
+              <li>User&apos;s participation in any vault strategies;</li>
               <li>
-                User's violation of any rights of any other person or entity;
+                User&apos;s violation of any rights of any other person or entity;
               </li>
               <li>
                 Any losses or damages suffered in connection with vault
@@ -693,7 +697,7 @@ export default function Terms() {
             <h3>9.5 Assignment</h3>
             <p>
               Users may not assign any rights or delegate any obligations under
-              these Terms without Site Operator's prior written consent. Site
+              these Terms without Site Operator&apos;s prior written consent. Site
               Operator may freely assign its rights and obligations under these
               Terms.
             </p>
