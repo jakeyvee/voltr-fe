@@ -35,7 +35,7 @@ export async function GET(
 
     let sharePrice = (data as any).share_price;
     let totalValue = (data as any).total_value;
-    let interpolated = (data as any).is_interpolated;
+    const interpolated = (data as any).is_interpolated;
 
     if (!interpolated) {
       const connection = createConnection();
