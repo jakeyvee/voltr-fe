@@ -29,8 +29,8 @@ export async function GET(
       );
     }
 
-    let sharePrice = (data as any).share_price;
-    let totalValue = (data as any).total_value;
+    const sharePrice = (data as any).share_price;
+    const totalValue = (data as any).total_value;
 
     return NextResponse.json({
       success: true,
