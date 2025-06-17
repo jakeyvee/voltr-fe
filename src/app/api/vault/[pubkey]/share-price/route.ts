@@ -1,7 +1,4 @@
-import { createConnection } from "@/lib/publicConnection";
 import { supabaseAdmin } from "@/lib/supabase";
-import { PublicKey } from "@solana/web3.js";
-import { VoltrClient } from "@voltr/vault-sdk";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function GET(
@@ -10,9 +7,8 @@ export async function GET(
 ) {
   try {
     const unixTs = request.nextUrl.searchParams.get("ts");
-    const pUtcSeconds = unixTs
-      ? parseInt(unixTs)
-      : Math.floor(Date.now() / 1000);
+    const utcSecondsNow = Math.floor(Date.now() / 1000);
+    const pUtcSeconds = unixTs ? parseInt(unixTs) : utcSecondsNow;
 
     const { data, error } = await supabaseAdmin
       .rpc("get_interpolated_share_price", {
@@ -35,17 +31,7 @@ export async function GET(
 
     let sharePrice = (data as any).share_price;
     let totalValue = (data as any).total_value;
-    const interpolated = (data as any).is_interpolated;
 
-    if (!interpolated) {
-      const connection = createConnection();
-      const vc = new VoltrClient(connection);
-
-      const vaultAccount = await vc.fetchVaultAccount(new PublicKey(pubkey));
-      const multiplier = vaultAccount.asset.totalValue.toNumber() / totalValue;
-      totalValue = vaultAccount.asset.totalValue.toNumber();
-      sharePrice = sharePrice * multiplier;
-    }
     return NextResponse.json({
       success: true,
       data: {
