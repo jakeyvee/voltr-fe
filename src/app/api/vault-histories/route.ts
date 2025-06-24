@@ -58,6 +58,7 @@ async function updateVaultHistory(
       max_cap: vaultAccount.vaultConfiguration.maxCap.toNumber(),
       total_value: vaultAccount.asset.totalValue.toNumber(),
       total_lp: totalLp,
+      unharvested_lp: accumulatedLpFees.toNumber(),
       withdrawal_waiting_period:
         vaultAccount.vaultConfiguration.withdrawalWaitingPeriod.toNumber(),
       performance_fee_bps:
