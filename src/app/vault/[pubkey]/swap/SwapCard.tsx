@@ -114,7 +114,8 @@ const SwapCard: React.FC<SwapCardProps> = ({
       const withdrawTime = userWithdrawRequest.withdrawableFromTs * 1000; // Convert to milliseconds
       const now = Date.now();
       const timeLeft = Math.max(0, withdrawTime - now);
-      setTimeRemaining(formatTime(timeLeft));
+      const timeLeftSeconds = Math.ceil(timeLeft / 1000);
+      setTimeRemaining(formatTime(timeLeftSeconds));
     };
 
     // Update immediately
@@ -194,7 +195,10 @@ const SwapCard: React.FC<SwapCardProps> = ({
                     <div className="text-sm text-indigo-300 flex justify-between">
                       <div>Amount: </div>
                       <div>
-                        {formatNumber(userWithdrawRequest.amountAtPresent)}
+                        {formatNumber(
+                          userWithdrawRequest.amountAtPresent /
+                            Math.pow(10, assetDecimals)
+                        )}
                         {inputSymbol}
                       </div>
                     </div>
