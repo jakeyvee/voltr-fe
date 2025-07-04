@@ -3,7 +3,14 @@ import { NextResponse } from "next/server";
 
 export const revalidate = 0;
 
-export async function GET(request: Request) {
+export async function GET(request: Request, response: Response) {
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "GET");
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  
   try {
     const { data: vaults, error } = await supabaseAdmin
       .rpc("get_vaults_information")
