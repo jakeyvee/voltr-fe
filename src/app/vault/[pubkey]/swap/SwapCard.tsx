@@ -86,6 +86,7 @@ interface SwapCardProps {
   isButtonLoading: boolean;
   handleButtonClick: () => void;
   wallet: any; // Replace with proper wallet type from @jup-ag/wallet-adapter
+  supportsDirectWithdrawal: boolean;
 }
 
 const SwapCard: React.FC<SwapCardProps> = ({
@@ -103,6 +104,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
   isButtonLoading,
   handleButtonClick,
   wallet,
+  supportsDirectWithdrawal,
 }) => {
   const [timeRemaining, setTimeRemaining] = useState<string>("");
 
@@ -294,7 +296,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
               />
             </div>
 
-            {selectedTab === "withdraw" && (
+            {selectedTab === "withdraw" && !supportsDirectWithdrawal && (
               <div className="p-4 bg-indigo-900/30 rounded-lg border border-indigo-500/30">
                 <div className="flex items-start gap-3">
                   <InformationCircleIcon className="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" />
@@ -344,6 +346,8 @@ const SwapCard: React.FC<SwapCardProps> = ({
                     </div>
                   ) : selectedTab === "deposit" ? (
                     "Deposit"
+                  ) : supportsDirectWithdrawal ? (
+                    "Instant Withdraw"
                   ) : (
                     "Request Withdraw"
                   )}

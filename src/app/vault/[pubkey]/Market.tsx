@@ -10,6 +10,7 @@ import {
   TransactionConfirmationStrategy,
   TransactionMessage,
   VersionedTransaction,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import { createConnection } from "@/lib/publicConnection";
 import {
@@ -30,6 +31,8 @@ import AllocationsCard from "./allocation/allocations-card";
 import { DailyStats } from "./chart/RealTimeChartJs";
 import { Breadcrumb } from "./breadcrumb/Breadcrumb";
 import SwapCard, { RequestWithdrawal } from "./swap/SwapCard";
+import { DirectWithdrawalService } from "@/lib/directWithdrawalService";
+import { getAddressLookupTableAccounts } from "@/lib/addressLookupUtils";
 
 export interface VaultInformation {
   pubkey: string;
@@ -83,9 +86,14 @@ export default function MarketClientPage(initialVault: VaultInformation) {
   const [inputAmount, setInputAmount] = useState("");
   const [userAssetAmount, setUserAssetAmount] = useState<number>(0);
   const [userAssetWalletAmount, setUserAssetWalletAmount] = useState<number>(0);
+
   const conn = createConnection();
   const vc = new VoltrClient(conn);
   const vaultPk = new PublicKey(vault.pubkey);
+  const directWithdrawalService = new DirectWithdrawalService(conn);
+  const supportsDirectWithdrawal =
+    directWithdrawalService.supportsDirectWithdrawal(vault.pubkey);
+
   const [_listenerSubId, setListenerSubId] = useState<number>(-1);
   const [_withdrawReceiptListenerId, setWithdrawReceiptListenerId] =
     useState<number>(-1);
@@ -257,11 +265,15 @@ export default function MarketClientPage(initialVault: VaultInformation) {
       const inputAmountBN = new BN(
         Number(inputAmount) * 10 ** vault.token.decimals
       );
+      let computeUnits = 400000;
 
-      const ixs = [];
+      const ixs: TransactionInstruction[] = [];
+      const luts: PublicKey[] = [];
       const msg =
         selectedTab === "deposit"
           ? "deposited"
+          : supportsDirectWithdrawal
+          ? "instant withdrawn"
           : userWithdrawRequest === null
           ? "requested withdrawal"
           : userWithdrawRequest.withdrawableFromTs > Date.now() / 1000
@@ -310,7 +322,55 @@ export default function MarketClientPage(initialVault: VaultInformation) {
           })
         );
       } else {
-        if (userWithdrawRequest === null) {
+        if (supportsDirectWithdrawal && directWithdrawalService) {
+          computeUnits = 800000;
+
+          const user = wallet.publicKey;
+          const assetMint = new PublicKey(vault.token.mint);
+          const vaultLpMint = vc.findVaultLpMint(vaultPk);
+          const requestWithdrawVaultReceipt =
+            vc.findRequestWithdrawVaultReceipt(vaultPk, user);
+          ixs.push(
+            createAssociatedTokenAccountIdempotentInstruction(
+              user,
+              getAssociatedTokenAddressSync(
+                vaultLpMint,
+                requestWithdrawVaultReceipt,
+                true
+              ),
+              requestWithdrawVaultReceipt,
+              vaultLpMint
+            )
+          );
+
+          ixs.push(
+            await vc.createRequestWithdrawVaultIx(
+              {
+                amount: inputAmountBN,
+                isAmountInLp: false,
+                isWithdrawAll:
+                  inputAmountBN.toString() === userAssetAmount.toString(),
+              },
+              {
+                payer: user,
+                userTransferAuthority: user,
+                vault: vaultPk,
+              }
+            )
+          );
+
+          // Create direct withdrawal instructions
+          const { instructions, lookupTableAddresses } =
+            await directWithdrawalService.createDirectWithdrawalInstructions(
+              vault.pubkey,
+              user,
+              assetMint,
+              TOKEN_PROGRAM_ID
+            );
+
+          ixs.push(...instructions);
+          luts.push(...lookupTableAddresses);
+        } else if (userWithdrawRequest === null) {
           const vaultLpMint = vc.findVaultLpMint(vaultPk);
           const requestWithdrawVaultReceipt =
             vc.findRequestWithdrawVaultReceipt(vaultPk, user);
@@ -381,16 +441,21 @@ export default function MarketClientPage(initialVault: VaultInformation) {
       }
 
       const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-        units: 400000,
+        units: computeUnits,
       });
       const { lastValidBlockHeight, blockhash } =
         await conn.getLatestBlockhash();
+
+      const lookupTableAccounts = await getAddressLookupTableAccounts(
+        luts,
+        conn
+      );
 
       const messageV0 = new TransactionMessage({
         payerKey: wallet.publicKey,
         recentBlockhash: blockhash,
         instructions: [modifyComputeUnits, ...ixs],
-      }).compileToV0Message();
+      }).compileToV0Message(lookupTableAccounts);
 
       const transaction = new VersionedTransaction(messageV0);
       const txSig = await wallet.sendTransaction(transaction, conn);
@@ -464,6 +529,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
             isButtonLoading={isButtonLoading}
             handleButtonClick={handleButtonClick}
             wallet={wallet}
+            supportsDirectWithdrawal={supportsDirectWithdrawal}
           />
         </div>
       </div>
