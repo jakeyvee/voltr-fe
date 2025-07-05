@@ -126,25 +126,6 @@ export class DirectWithdrawalService {
       vault,
       kvault
     );
-
-    // Setup strategy asset account
-    const vaultStrategyAssetAta = getAssociatedTokenAddressSync(
-      assetMint,
-      vaultStrategyAuth,
-      true,
-      assetTokenProgram
-    );
-
-    const createStrategyAssetAtaIx =
-      createAssociatedTokenAccountIdempotentInstruction(
-        userPublicKey,
-        vaultStrategyAssetAta,
-        vaultStrategyAuth,
-        assetMint,
-        assetTokenProgram
-      );
-    instructions.push(createStrategyAssetAtaIx);
-
     // Get Kamino-specific accounts
     const kaminoAccounts = await getKaminoVaultWithdrawAccounts(kvault);
 
@@ -155,16 +136,6 @@ export class DirectWithdrawalService {
       true,
       TOKEN_PROGRAM_ID
     );
-
-    const createStrategySharesAtaIx =
-      createAssociatedTokenAccountIdempotentInstruction(
-        userPublicKey,
-        vaultStrategySharesAta,
-        vaultStrategyAuth,
-        kaminoAccounts.sharesMint,
-        TOKEN_PROGRAM_ID
-      );
-    instructions.push(createStrategySharesAtaIx);
 
     // Build remaining accounts for Kamino
     const remainingAccounts = await buildKaminoDirectWithdrawRemainingAccounts(
