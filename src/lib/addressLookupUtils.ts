@@ -23,3 +23,23 @@ export const getAddressLookupTableAccounts = async (
     return acc;
   }, new Array<AddressLookupTableAccount>());
 };
+
+export const getWritableAccountKeys = async (
+  keys: PublicKey[],
+  writableIndexes: number[][],
+  connection: Connection
+) => {
+  const addressLookupTableAccounts = await getAddressLookupTableAccounts(
+    keys,
+    connection
+  );
+
+  const writableAccountKeys = addressLookupTableAccounts.map((account, i) => {
+    const addresses = account.state.addresses;
+    const indexes = writableIndexes[i];
+
+    return indexes.map((index) => addresses[index].toBase58());
+  });
+
+  return writableAccountKeys;
+};

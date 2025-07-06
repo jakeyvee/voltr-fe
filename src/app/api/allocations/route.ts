@@ -1,7 +1,9 @@
+import { getWritableAccountKeys } from "@/lib/addressLookupUtils";
+import { PROTOCOL_STATE_PUBKEY } from "@/lib/Constants";
 import { createConnection } from "@/lib/privateConnection";
 import { supabaseAdmin } from "@/lib/supabase";
 import { validateAuthHeader } from "@/lib/validate";
-import { PublicKey } from "@solana/web3.js";
+import { MessageAddressTableLookup, PublicKey } from "@solana/web3.js";
 import { VoltrClient } from "@voltr/vault-sdk";
 import { NextResponse } from "next/server";
 
@@ -9,6 +11,7 @@ interface Transaction {
   transaction: {
     message: {
       accountKeys: string[];
+      addressTableLookups: MessageAddressTableLookup[];
     };
     signatures: string[];
   };
@@ -64,13 +67,32 @@ export async function POST(req: Request) {
           return;
         }
 
-        const allocations = await fetchAllocationsByAccountKeys(
-          tx.transaction.message.accountKeys
-        );
-
         // Initialize connection and client once per transaction
         const connection = createConnection();
         const voltrClient = new VoltrClient(connection);
+
+        let accountsKeys: string[] = [];
+        accountsKeys.push(...tx.transaction.message.accountKeys);
+
+        if (
+          !accountsKeys.includes(PROTOCOL_STATE_PUBKEY.toBase58()) &&
+          tx.transaction.message.addressTableLookups &&
+          tx.transaction.message.addressTableLookups.length > 0
+        ) {
+          const writableAccountKeys = await getWritableAccountKeys(
+            tx.transaction.message.addressTableLookups.map(
+              (addressTableLookup) =>
+                new PublicKey(addressTableLookup.accountKey)
+            ),
+            tx.transaction.message.addressTableLookups.map(
+              (addressTableLookup) => addressTableLookup.writableIndexes
+            ),
+            connection
+          );
+          accountsKeys.push(...writableAccountKeys.flat());
+        }
+
+        const allocations = await fetchAllocationsByAccountKeys(accountsKeys);
 
         // Update histories for each allocation
         await Promise.all(

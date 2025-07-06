@@ -2,15 +2,22 @@ import { createConnection } from "@/lib/publicConnection";
 import { supabaseAdmin } from "@/lib/supabase";
 import { validateAuthHeader } from "@/lib/validate";
 import { getMint } from "@solana/spl-token";
-import { Connection, PublicKey } from "@solana/web3.js";
+import {
+  Connection,
+  MessageAddressTableLookup,
+  PublicKey,
+} from "@solana/web3.js";
 import { VoltrClient } from "@voltr/vault-sdk";
 import { NextResponse } from "next/server";
 import { BN } from "@coral-xyz/anchor";
+import { getWritableAccountKeys } from "@/lib/addressLookupUtils";
+import { PROTOCOL_STATE_PUBKEY } from "@/lib/Constants";
 
-interface Transaction {
+export interface Transaction {
   transaction: {
     message: {
       accountKeys: string[];
+      addressTableLookups: MessageAddressTableLookup[];
     };
     signatures: string[];
   };
@@ -92,13 +99,32 @@ export async function POST(req: Request) {
           return;
         }
 
-        const vaults = await fetchVaultsByAccountKeys(
-          tx.transaction.message.accountKeys
-        );
-
         // Initialize connection and client once per transaction
         const connection = createConnection();
         const vc = new VoltrClient(connection);
+
+        let accountsKeys: string[] = [];
+        accountsKeys.push(...tx.transaction.message.accountKeys);
+
+        if (
+          !accountsKeys.includes(PROTOCOL_STATE_PUBKEY.toBase58()) &&
+          tx.transaction.message.addressTableLookups &&
+          tx.transaction.message.addressTableLookups.length > 0
+        ) {
+          const writableAccountKeys = await getWritableAccountKeys(
+            tx.transaction.message.addressTableLookups.map(
+              (addressTableLookup) =>
+                new PublicKey(addressTableLookup.accountKey)
+            ),
+            tx.transaction.message.addressTableLookups.map(
+              (addressTableLookup) => addressTableLookup.writableIndexes
+            ),
+            connection
+          );
+          accountsKeys.push(...writableAccountKeys.flat());
+        }
+
+        const vaults = await fetchVaultsByAccountKeys(accountsKeys);
 
         // Update histories for each vault
         await Promise.all(

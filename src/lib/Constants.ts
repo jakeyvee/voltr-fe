@@ -2,6 +2,10 @@ import { PublicKey } from "@solana/web3.js";
 
 export const LP_TOKEN_DECIMALS = 9;
 
+export const PROTOCOL_STATE_PUBKEY = new PublicKey(
+  "4sycXz9Xwevedo6eiXR8QEhY8yrQrkNS4G1deY9tAD2Y"
+);
+
 // TODO: store below in a db or json file
 export const USDC_MINT = new PublicKey(
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
