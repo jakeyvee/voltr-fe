@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import HoldersChart from "./allocations-chart";
 import tailwindConfigFile from "../tailwind.config";
 import resolveConfig from "tailwindcss/resolveConfig";
@@ -26,59 +26,63 @@ export default function AllocationsCard({
   allocations,
   vaultTotalValue,
 }: AllocationCardProps) {
-  const allocationUnfilteredDisplay: AllocationDisplay[] = [
-    {
-      name: "Vault Reserve",
-      ratio:
-        (vaultTotalValue -
-          allocations.reduce(
-            (acc, allocation) => acc + allocation.positionValue,
-            0
-          )) /
-        vaultTotalValue,
-    },
-    ...allocations.map((allocation) => ({
-      name:
-        allocation.orgName +
-        " " +
-        allocation.strategyDescription +
-        (allocation.tokenName ? ` (${allocation.tokenName})` : ""),
-      ratio: allocation.positionValue / vaultTotalValue,
-    })),
-  ];
+  const allocationDisplay = useMemo(() => {
+    const allocationUnfilteredDisplay: AllocationDisplay[] = [
+      {
+        name: "Vault Reserve",
+        ratio:
+          (vaultTotalValue -
+            allocations.reduce(
+              (acc, allocation) => acc + allocation.positionValue,
+              0
+            )) /
+          vaultTotalValue,
+      },
+      ...allocations.map((allocation) => ({
+        name:
+          allocation.orgName +
+          " " +
+          allocation.strategyDescription +
+          (allocation.tokenName ? ` (${allocation.tokenName})` : ""),
+        ratio: allocation.positionValue / vaultTotalValue,
+      })),
+    ];
 
-  // Sort all allocations by ratio (highest to lowest)
-  const sortedAllocationUnfilteredDisplay = allocationUnfilteredDisplay.sort(
-    (a, b) => b.ratio - a.ratio
-  );
+    // Sort all allocations by ratio (highest to lowest)
+    const sortedAllocationUnfilteredDisplay = allocationUnfilteredDisplay.sort(
+      (a, b) => b.ratio - a.ratio
+    );
 
-  // Separate allocations into significant (≥1%) and small (<1%) groups
-  const significantAllocations = sortedAllocationUnfilteredDisplay.filter(
-    (allocation) => allocation.ratio >= 0.0099
-  );
+    // Separate allocations into significant (≥1%) and small (<1%) groups
+    const significantAllocations = sortedAllocationUnfilteredDisplay.filter(
+      (allocation) => allocation.ratio >= 0.0099
+    );
 
-  const smallAllocations = sortedAllocationUnfilteredDisplay.filter(
-    (allocation) => allocation.ratio < 0.0099
-  );
+    const smallAllocations = sortedAllocationUnfilteredDisplay.filter(
+      (allocation) => allocation.ratio < 0.0099
+    );
 
-  // Calculate the sum of all small allocations
-  const otherRatio = smallAllocations.reduce(
-    (sum, allocation) => sum + allocation.ratio,
-    0
-  );
+    // Calculate the sum of all small allocations
+    const otherRatio = smallAllocations.reduce(
+      (sum, allocation) => sum + allocation.ratio,
+      0
+    );
 
-  // Create the final allocation display array
-  const allocationDisplay: AllocationDisplay[] = [...significantAllocations];
+    // Create the final allocation display array
+    const finalAllocationDisplay: AllocationDisplay[] = [
+      ...significantAllocations,
+    ];
 
-  // Add the "Other" category if there are any small allocations
-  if (otherRatio >= 0.0099) {
-    allocationDisplay.push({
-      name: "Other",
-      ratio: otherRatio,
-    });
-  }
+    // Add the "Other" category if there are any small allocations
+    if (otherRatio >= 0.0099) {
+      finalAllocationDisplay.push({
+        name: "Other",
+        ratio: otherRatio,
+      });
+    }
 
-  const [allocationsState] = useState<AllocationDisplay[]>(allocationDisplay);
+    return finalAllocationDisplay;
+  }, [allocations, vaultTotalValue]); // Dependencies ensure it recalculates when props change
 
   const colors = [
     tailwindConfig.theme.colors.violet[500],
@@ -112,22 +116,22 @@ export default function AllocationsCard({
 
   const chartData = useMemo(
     () => ({
-      labels: allocationsState.map((allocation) => allocation.name),
+      labels: allocationDisplay.map((allocation) => allocation.name),
       datasets: [
         {
           label: "% owned",
-          data: allocationsState.map((allocation) => allocation.ratio * 100),
-          backgroundColor: allocationsState.map(
+          data: allocationDisplay.map((allocation) => allocation.ratio * 100),
+          backgroundColor: allocationDisplay.map(
             (_allocation, idx) => colors[idx]
           ),
-          hoverBackgroundColor: allocationsState.map(
+          hoverBackgroundColor: allocationDisplay.map(
             (_allocation, idx) => hoverColors[idx]
           ),
           borderWidth: 0,
         },
       ],
     }),
-    [allocationsState]
+    [allocationDisplay]
   );
 
   return (
@@ -146,8 +150,8 @@ export default function AllocationsCard({
         {/* Legend section */}
         <div className="w-full md:w-1/2 md:pl-4">
           <ul className="space-y-1">
-            {allocationsState.length > 0 &&
-              allocationsState.map((allocation, idx) => (
+            {allocationDisplay.length > 0 &&
+              allocationDisplay.map((allocation, idx) => (
                 <li className="flex px-2" key={idx}>
                   <div
                     className="w-2 h-2 rounded-full shrink-0 my-2 mr-3"
