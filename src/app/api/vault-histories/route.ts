@@ -103,7 +103,7 @@ export async function POST(req: Request) {
         const connection = createConnection();
         const vc = new VoltrClient(connection);
 
-        let accountsKeys: string[] = [];
+        const accountsKeys: string[] = [];
         accountsKeys.push(...tx.transaction.message.accountKeys);
 
         if (
