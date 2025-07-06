@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ChartCardComponent, { DailyStats } from "./RealTimeChartJs";
 import Dropdown from "rc-dropdown";
 import Menu, { Item as MenuItem } from "rc-menu";
@@ -12,8 +12,9 @@ export default function ChartCard({
   lpData,
   tokenName,
 }: DailyStats) {
-  const shareData = lpData.map(
-    (lp, index) => tvlData[index] / (lp / Math.pow(10, 9))
+  const shareData = useMemo(
+    () => lpData.map((lp, index) => tvlData[index] / (lp / Math.pow(10, 9))),
+    [lpData, tvlData]
   );
   const [period, setPeriod] = useState<"7D" | "30D" | "ALL">("7D");
   const [stats, setStats] = useState<"APY" | "TVL" | "SHARE">("APY");
