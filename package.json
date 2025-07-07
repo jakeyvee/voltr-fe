@@ -19,7 +19,7 @@
     "@solana/web3.js": "^1.95.3",
     "@supabase/supabase-js": "^2.48.1",
     "@kamino-finance/klend-sdk": "^6.0.3",
-    "@voltr/vault-sdk": "^1.0.10",
+    "@voltr/vault-sdk": "^1.0.11",
     "bn.js": "^5.2.2",
     "chart.js": "^4.4.7",
     "chartjs-adapter-moment": "^1.0.1",
