@@ -88,7 +88,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
   const [userAssetWalletAmount, setUserAssetWalletAmount] = useState<number>(0);
 
   const conn = createConnection();
-  const vc = new VoltrClient(conn);
+  const vc = new VoltrClient(conn, undefined, { commitment: "confirmed" });
   const vaultPk = new PublicKey(vault.pubkey);
   const directWithdrawalService = new DirectWithdrawalService(conn);
   const supportsDirectWithdrawal =

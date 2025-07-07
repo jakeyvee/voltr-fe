@@ -36,8 +36,8 @@ importers:
         specifier: ^2.48.1
         version: 2.50.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@voltr/vault-sdk':
-        specifier: ^1.0.5
-        version: 1.0.9(bufferutil@4.0.9)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@5.0.10)
+        specifier: ^1.0.10
+        version: 1.0.10(bufferutil@4.0.9)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@5.0.10)
       bn.js:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1606,8 +1606,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@voltr/vault-sdk@1.0.9':
-    resolution: {integrity: sha512-RQRD+OG0UWNswNB2WZws1v8+hqWQH7v6F8AWRFy5REtslrtZdTfgJMSePsrtJp6ju+CTQfS4wj9dQKihFLpT9w==}
+  '@voltr/vault-sdk@1.0.10':
+    resolution: {integrity: sha512-l7/Fs93ovFBCJz5wuzd+l2nFpSnFEmaP2mTqP31DUgyM8MeRIQbZnDMo5bAhhZpnWfbvPayR4Znqw4HjdjekUw==}
 
   '@wallet-standard/app@1.1.0':
     resolution: {integrity: sha512-3CijvrO9utx598kjr45hTbbeeykQrQfKmSnxeWOgU25TOEpvcipD/bYDQWIqUv1Oc6KK4YStokSMu/FBNecGUQ==}
@@ -7163,7 +7163,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.10.1':
     optional: true
 
-  '@voltr/vault-sdk@1.0.9(bufferutil@4.0.9)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@5.0.10)':
+  '@voltr/vault-sdk@1.0.10(bufferutil@4.0.9)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@coral-xyz/anchor': 0.31.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
       '@solana/spl-token': 0.4.13(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)(utf-8-validate@5.0.10)

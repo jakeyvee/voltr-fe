@@ -188,7 +188,9 @@ export class DirectWithdrawalService {
         userPublicKey
       );
 
-      const accountInfo = await this.connection.getAccountInfo(userLpAta);
+      const accountInfo = await this.connection.getAccountInfo(userLpAta, {
+        commitment: "confirmed",
+      });
       return accountInfo !== null;
     } catch (error) {
       console.error("Error checking direct withdrawal capability:", error);
