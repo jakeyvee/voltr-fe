@@ -69,7 +69,9 @@ export async function POST(req: Request) {
 
         // Initialize connection and client once per transaction
         const connection = createConnection();
-        const voltrClient = new VoltrClient(connection);
+        const voltrClient = new VoltrClient(connection, undefined, {
+          commitment: "confirmed",
+        });
 
         const accountsKeys: string[] = [];
         accountsKeys.push(...tx.transaction.message.accountKeys);
