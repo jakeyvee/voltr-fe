@@ -73,10 +73,11 @@ export interface VaultInformation {
 }
 
 export default function MarketClientPage(initialVault: VaultInformation) {
-  const { vaultData: vault, isLoading: _isRefreshing } = useRefreshVaultData(
-    initialVault,
-    initialVault.pubkey
-  );
+  const {
+    vaultData: vault,
+    isLoading: _isRefreshing,
+    refreshVaultData,
+  } = useRefreshVaultData(initialVault, initialVault.pubkey);
 
   const wallet = useWallet();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
@@ -99,6 +100,8 @@ export default function MarketClientPage(initialVault: VaultInformation) {
     useState<number>(-1);
   const [_assetBalanceListenerId, setAssetBalanceListenerId] =
     useState<number>(-1);
+  const [_vaultAccountListenerId, setVaultAccountListenerId] =
+    useState<number>(-1);
   const [userWithdrawRequest, setUserWithdrawRequest] =
     useState<RequestWithdrawal | null>(null);
 
@@ -113,6 +116,22 @@ export default function MarketClientPage(initialVault: VaultInformation) {
   };
 
   useEffect(() => {
+    const setupVaultAccountListener = async () => {
+      // Set up listener for vault account changes
+      const vaultAccountChangeListener = conn.onAccountChange(
+        vaultPk,
+        async (_accountInfo) => {
+          await refreshVaultData();
+        },
+        { commitment: "finalized" }
+      );
+
+      setVaultAccountListenerId((prev) => {
+        if (prev > 0) conn.removeAccountChangeListener(prev);
+        return vaultAccountChangeListener;
+      });
+    };
+
     const fetchRequestWithdrawVaultReceipt = async () => {
       if (wallet.connected && wallet.publicKey) {
         const walletPubkey = wallet.publicKey;
@@ -235,6 +254,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
       }
     };
 
+    setupVaultAccountListener();
     fetchRequestWithdrawVaultReceipt();
     fetchUserAssetWalletBalance();
     fetchUserLpAmount();
@@ -244,6 +264,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
         _listenerSubId,
         _withdrawReceiptListenerId,
         _assetBalanceListenerId,
+        _vaultAccountListenerId,
       ].forEach((id) => {
         if (id > 0) {
           conn.removeAccountChangeListener(id);
@@ -541,43 +562,32 @@ function useRefreshVaultData(initialData: VaultInformation, pubkey: string) {
   const [vaultData, setVaultData] = useState<VaultInformation>(initialData);
   const [isLoading, setIsLoading] = useState(false);
 
+  const refreshVaultData = async () => {
+    try {
+      setIsLoading(true);
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const res = await fetch(`${baseUrl}/vault/${pubkey}?_=${Date.now()}`);
+
+      if (!res.ok) throw new Error("Failed to fetch fresh data");
+
+      const { vault } = await res.json();
+      setVaultData(vault);
+    } catch (error) {
+      console.error("Error fetching fresh vault data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Update state when initialData changes (e.g., when the server sends new data)
     setVaultData(initialData);
   }, [initialData]);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchFreshData = async () => {
-      try {
-        setIsLoading(true);
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${baseUrl}/vault/${pubkey}?_=${Date.now()}`);
-
-        if (!res.ok) throw new Error("Failed to fetch fresh data");
-
-        const { vault } = await res.json();
-
-        if (isMounted) {
-          setVaultData(vault);
-        }
-      } catch (error) {
-        console.error("Error fetching fresh vault data:", error);
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
     // Fetch fresh data once the component is mounted
-    fetchFreshData();
-
-    return () => {
-      isMounted = false;
-    };
+    refreshVaultData();
   }, [pubkey]);
 
-  return { vaultData, isLoading };
+  return { vaultData, isLoading, refreshVaultData };
 }
