@@ -345,9 +345,16 @@ export default function MarketClientPage(initialVault: VaultInformation) {
       } else {
         if (supportsDirectWithdrawal && directWithdrawalService) {
           computeUnits = 800000;
+          
+          ixs.push(
+            createAssociatedTokenAccountIdempotentInstruction(
+              user,
+              getAssociatedTokenAddressSync(assetMint, user),
+              user,
+              assetMint
+            )
+          );
 
-          const user = wallet.publicKey;
-          const assetMint = new PublicKey(vault.token.mint);
           const vaultLpMint = vc.findVaultLpMint(vaultPk);
           const requestWithdrawVaultReceipt =
             vc.findRequestWithdrawVaultReceipt(vaultPk, user);
