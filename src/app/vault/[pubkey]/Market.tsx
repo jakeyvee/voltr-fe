@@ -345,15 +345,6 @@ export default function MarketClientPage(initialVault: VaultInformation) {
       } else {
         if (supportsDirectWithdrawal && directWithdrawalService) {
           computeUnits = 800000;
-          
-          ixs.push(
-            createAssociatedTokenAccountIdempotentInstruction(
-              user,
-              getAssociatedTokenAddressSync(assetMint, user),
-              user,
-              assetMint
-            )
-          );
 
           const vaultLpMint = vc.findVaultLpMint(vaultPk);
           const requestWithdrawVaultReceipt =
