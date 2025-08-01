@@ -1,18 +1,49 @@
 import { PublicKey } from "@solana/web3.js";
 
-// Define vault types that support direct withdrawal
-export enum VaultType {
-  STANDARD = "standard",
-  ELEND = "elend",
-}
-
 // Configuration for vaults that support direct withdrawal
 export interface DirectWithdrawalVaultConfig {
-  type: VaultType;
-  adaptorProgramId: PublicKey;
-  kvaultAddress: PublicKey;
   lookUpTable: PublicKey;
+  strategies: StrategyConfig[];
 }
+export interface StrategyConfig {
+  address: PublicKey;
+  adaptorProgramId: PublicKey;
+}
+
+export interface StrategyConfigDrift extends StrategyConfig {
+  marketIndex: number;
+}
+
+const KAMINO_VAULT_TURBO_STRATEGY = {
+  address: new PublicKey("A3hTCWdnfV6uiQLxRmnv17EpiEtmc93v1AGQnWy44Mup"),
+  adaptorProgramId: new PublicKey(
+    "to6Eti9CsC5FGkAtqiPphvKD2hiQiLsS8zWiDBqBPKR"
+  ),
+};
+
+export const DRIFT_SPOT_STATE = new PublicKey(
+  "5zpq7DvB6UdFFvpmBPspGPNfUGoBRRCE2HHg5u3gxcsN"
+);
+
+export const DRIFT_LUT = new PublicKey(
+  "Fpys8GRa5RBWfyeN7AaDUwFGD1zkDCA4z3t4CJLV8dfL"
+);
+
+const DRIFT_MAIN_USDC_STRATEGY: StrategyConfigDrift = {
+  address: new PublicKey("GXWqPpjQpdz7KZw9p7f5PX2eGxHAhvpNXiviFkAB8zXg"),
+  adaptorProgramId: new PublicKey(
+    "EBN93eXs5fHGBABuajQqdsKRkCgaqtJa8vEFD6vKXiP"
+  ),
+  marketIndex: 0,
+};
+
+const DRIFT_JLP_USDC_STRATEGY: StrategyConfigDrift = {
+  address: new PublicKey("TMoWTkuPJHArEeohUTWy3RYoMgfWqeCpzjPTLeGVYP9"),
+  adaptorProgramId: new PublicKey(
+    "EBN93eXs5fHGBABuajQqdsKRkCgaqtJa8vEFD6vKXiP"
+  ),
+  marketIndex: 34,
+};
 
 // Map of vault addresses to their direct withdrawal configuration
 export const DIRECT_WITHDRAWAL_VAULTS: Record<
@@ -20,16 +51,12 @@ export const DIRECT_WITHDRAWAL_VAULTS: Record<
   DirectWithdrawalVaultConfig
 > = {
   "8oUwteX3SJELMGDPTEuLqz1WSd58yMdkQ6s4hKwB42nJ": {
-    type: VaultType.ELEND,
-    adaptorProgramId: new PublicKey(
-      "to6Eti9CsC5FGkAtqiPphvKD2hiQiLsS8zWiDBqBPKR"
-    ),
-    kvaultAddress: new PublicKey(
-      "A3hTCWdnfV6uiQLxRmnv17EpiEtmc93v1AGQnWy44Mup"
-    ),
-    lookUpTable: new PublicKey(
-      "5UCZAkmBCfrU7qDzKZ5UiBL9JupUFftW2xMt2Eex6xop"
-    ),
+    lookUpTable: new PublicKey("5UCZAkmBCfrU7qDzKZ5UiBL9JupUFftW2xMt2Eex6xop"),
+    strategies: [
+      KAMINO_VAULT_TURBO_STRATEGY,
+      DRIFT_MAIN_USDC_STRATEGY,
+      DRIFT_JLP_USDC_STRATEGY,
+    ],
   },
 };
 

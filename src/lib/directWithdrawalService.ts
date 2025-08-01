@@ -8,15 +8,21 @@ import {
   NATIVE_MINT,
 } from "@solana/spl-token";
 import {
-  DIRECT_WITHDRAWAL_VAULTS,
-  VaultType,
+  StrategyConfigDrift,
+  StrategyConfig,
   getDirectWithdrawalConfig,
   supportsDirectWithdrawal,
+  DRIFT_LUT,
 } from "./DirectWithdrawalConstants";
 import {
   getKaminoVaultWithdrawAccounts,
   buildKaminoDirectWithdrawRemainingAccounts,
 } from "./kaminoUtils";
+import { BN } from "@coral-xyz/anchor";
+import {
+  buildDriftDirectWithdrawRemainingAccounts,
+  getDriftEarnWithdrawAccounts,
+} from "./driftUtils";
 
 export interface DirectWithdrawalInstructions {
   instructions: TransactionInstruction[];
@@ -43,6 +49,8 @@ export class DirectWithdrawalService {
    * Create instructions for direct withdrawal from a vault
    */
   public async createDirectWithdrawalInstructions(
+    inputAmountBN: BN,
+    isWithdrawAll: boolean,
     vaultAddress: string,
     userPublicKey: PublicKey,
     assetMint: PublicKey,
@@ -78,20 +86,94 @@ export class DirectWithdrawalService {
       );
     instructions.push(createUserAssetAtaIx);
 
-    // Create vault-specific direct withdrawal instruction
-    switch (config.type) {
-      case VaultType.ELEND:
+    const strategiesInitReceipts = config.strategies.map((strategy) =>
+      this.voltrClient.findStrategyInitReceipt(vault, strategy.address)
+    );
+
+    const strategyValuesArray = await Promise.all(
+      strategiesInitReceipts.map(
+        async (receipt) =>
+          await this.voltrClient
+            .fetchStrategyInitReceiptAccount(receipt)
+            .then((account) => {
+              return {
+                address: receipt.toBase58(),
+                positionValue: account.positionValue,
+              };
+            })
+      )
+    );
+
+    const strategyValues = new Map(
+      strategyValuesArray.map((item) => [item.address, item.positionValue])
+    );
+
+    const configStrategies = config.strategies.sort((a, b) => {
+      const aValue = strategyValues.get(
+        this.voltrClient.findStrategyInitReceipt(vault, a.address).toBase58()
+      );
+      const bValue = strategyValues.get(
+        this.voltrClient.findStrategyInitReceipt(vault, b.address).toBase58()
+      );
+      return bValue!.sub(aValue!).toNumber();
+    });
+
+    let leftOverAmount = inputAmountBN;
+
+    for (const strategy of configStrategies) {
+      const currentInputAmount = leftOverAmount.gt(
+        strategyValues.get(
+          this.voltrClient
+            .findStrategyInitReceipt(vault, strategy.address)
+            .toBase58()
+        )!
+      )
+        ? strategyValues.get(
+            this.voltrClient
+              .findStrategyInitReceipt(vault, strategy.address)
+              .toBase58()
+          )!
+        : leftOverAmount;
+
+      leftOverAmount = leftOverAmount.sub(currentInputAmount);
+
+      // Check if strategy is a Drift strategy
+      if ("marketIndex" in strategy) {
+        // Handle Drift strategy
+        const driftStrategy = strategy as StrategyConfigDrift;
+        await this.addDriftDirectWithdrawalInstruction(
+          instructions,
+          lookupTableAddresses,
+          vault,
+          driftStrategy.address,
+          userPublicKey,
+          assetMint,
+          assetTokenProgram,
+          driftStrategy.adaptorProgramId,
+          driftStrategy.marketIndex,
+          currentInputAmount,
+          isWithdrawAll && leftOverAmount.isZero()
+        );
+      } else {
+        // Handle regular strategy
+        const regularStrategy = strategy as StrategyConfig;
         await this.addKaminoDirectWithdrawalInstruction(
           instructions,
           lookupTableAddresses,
           vault,
+          regularStrategy.address,
           userPublicKey,
           assetMint,
-          assetTokenProgram
+          assetTokenProgram,
+          regularStrategy.adaptorProgramId,
+          currentInputAmount,
+          isWithdrawAll && leftOverAmount.isZero()
         );
+      }
+
+      if (leftOverAmount.isZero()) {
         break;
-      default:
-        throw new Error(`Unsupported vault type: ${config.type}`);
+      }
     }
 
     // Handle native SOL unwrapping if needed
@@ -111,17 +193,141 @@ export class DirectWithdrawalService {
   }
 
   /**
+   * Add Drift-specific direct withdrawal instruction
+   */
+  private async addDriftDirectWithdrawalInstruction(
+    instructions: TransactionInstruction[],
+    lookupTableAddresses: PublicKey[],
+    vault: PublicKey,
+    strategy: PublicKey,
+    userPublicKey: PublicKey,
+    assetMint: PublicKey,
+    assetTokenProgram: PublicKey,
+    adaptorProgramId: PublicKey,
+    marketIndex: number,
+    inputAmountBN: BN,
+    isWithdrawAll: boolean
+  ): Promise<void> {
+    const vaultLpMint = this.voltrClient.findVaultLpMint(vault);
+
+    const requestWithdrawVaultReceipt =
+      this.voltrClient.findRequestWithdrawVaultReceipt(vault, userPublicKey);
+    instructions.push(
+      createAssociatedTokenAccountIdempotentInstruction(
+        userPublicKey,
+        getAssociatedTokenAddressSync(
+          vaultLpMint,
+          requestWithdrawVaultReceipt,
+          true
+        ),
+        requestWithdrawVaultReceipt,
+        vaultLpMint
+      )
+    );
+
+    instructions.push(
+      await this.voltrClient.createRequestWithdrawVaultIx(
+        {
+          amount: inputAmountBN,
+          isAmountInLp: false,
+          isWithdrawAll,
+        },
+        {
+          payer: userPublicKey,
+          userTransferAuthority: userPublicKey,
+          vault,
+        }
+      )
+    );
+
+    const { vaultStrategyAuth } = this.voltrClient.findVaultStrategyAddresses(
+      vault,
+      strategy
+    );
+
+    // Get Kamino-specific accounts
+    const driftAccounts = await getDriftEarnWithdrawAccounts(
+      0,
+      vaultStrategyAuth
+    );
+
+    // Build remaining accounts for Kamino
+    const remainingAccounts = await buildDriftDirectWithdrawRemainingAccounts(
+      this.connection,
+      vaultStrategyAuth,
+      strategy,
+      driftAccounts.driftSigner,
+      driftAccounts.userStats,
+      driftAccounts.user,
+      marketIndex
+    );
+
+    // Create the direct withdraw instruction
+    const directWithdrawIx =
+      await this.voltrClient.createDirectWithdrawStrategyIx(
+        {}, // args
+        {
+          user: userPublicKey,
+          vault,
+          vaultAssetMint: assetMint,
+          assetTokenProgram,
+          strategy,
+          remainingAccounts,
+          adaptorProgram: adaptorProgramId,
+        }
+      );
+
+    lookupTableAddresses.push(DRIFT_LUT);
+    instructions.push(directWithdrawIx);
+  }
+
+  /**
    * Add Kamino-specific direct withdrawal instruction
    */
   private async addKaminoDirectWithdrawalInstruction(
     instructions: TransactionInstruction[],
     lookupTableAddresses: PublicKey[],
     vault: PublicKey,
+    kvault: PublicKey,
     userPublicKey: PublicKey,
     assetMint: PublicKey,
-    assetTokenProgram: PublicKey
+    assetTokenProgram: PublicKey,
+    adaptorProgramId: PublicKey,
+    inputAmountBN: BN,
+    isWithdrawAll: boolean
   ): Promise<void> {
-    const kvault = DIRECT_WITHDRAWAL_VAULTS[vault.toBase58()].kvaultAddress;
+    const vaultLpMint = this.voltrClient.findVaultLpMint(vault);
+
+    const requestWithdrawVaultReceipt =
+      this.voltrClient.findRequestWithdrawVaultReceipt(vault, userPublicKey);
+    instructions.push(
+      createAssociatedTokenAccountIdempotentInstruction(
+        userPublicKey,
+        getAssociatedTokenAddressSync(
+          vaultLpMint,
+          requestWithdrawVaultReceipt,
+          true
+        ),
+        requestWithdrawVaultReceipt,
+        vaultLpMint
+      )
+    );
+
+    instructions.push(
+      await this.voltrClient.createRequestWithdrawVaultIx(
+        {
+          amount: inputAmountBN,
+          isAmountInLp: false,
+          isWithdrawAll,
+        },
+        {
+          payer: userPublicKey,
+          userTransferAuthority: userPublicKey,
+          vault,
+        }
+      )
+    );
+
     const { vaultStrategyAuth } = this.voltrClient.findVaultStrategyAddresses(
       vault,
       kvault
@@ -160,8 +366,7 @@ export class DirectWithdrawalService {
           assetTokenProgram,
           strategy: kvault,
           remainingAccounts,
-          adaptorProgram:
-            DIRECT_WITHDRAWAL_VAULTS[vault.toBase58()].adaptorProgramId,
+          adaptorProgram: adaptorProgramId,
         }
       );
 

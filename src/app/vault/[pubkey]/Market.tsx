@@ -123,7 +123,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
         async (_accountInfo) => {
           await refreshVaultData();
         },
-        { commitment: "finalized" }
+        "finalized"
       );
 
       setVaultAccountListenerId((prev) => {
@@ -168,7 +168,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
           async () => {
             await checkAndUpdateWithdrawRequest();
           },
-          { commitment: "confirmed" }
+          "confirmed"
         );
 
         setWithdrawReceiptListenerId((prev) => {
@@ -208,7 +208,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
           async () => {
             await updateAssetBalance();
           },
-          { commitment: "confirmed" }
+          "confirmed"
         );
 
         setAssetBalanceListenerId((prev) => {
@@ -238,7 +238,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
           async (_accountInfo) => {
             await calculateAndSetUserAssetAmount(userLpAta);
           },
-          { commitment: "confirmed" }
+          "confirmed"
         );
 
         setListenerSubId((prev) => {
@@ -346,41 +346,11 @@ export default function MarketClientPage(initialVault: VaultInformation) {
         if (supportsDirectWithdrawal && directWithdrawalService) {
           computeUnits = 800000;
 
-          const vaultLpMint = vc.findVaultLpMint(vaultPk);
-          const requestWithdrawVaultReceipt =
-            vc.findRequestWithdrawVaultReceipt(vaultPk, user);
-          ixs.push(
-            createAssociatedTokenAccountIdempotentInstruction(
-              user,
-              getAssociatedTokenAddressSync(
-                vaultLpMint,
-                requestWithdrawVaultReceipt,
-                true
-              ),
-              requestWithdrawVaultReceipt,
-              vaultLpMint
-            )
-          );
-
-          ixs.push(
-            await vc.createRequestWithdrawVaultIx(
-              {
-                amount: inputAmountBN,
-                isAmountInLp: false,
-                isWithdrawAll:
-                  inputAmountBN.toString() === userAssetAmount.toString(),
-              },
-              {
-                payer: user,
-                userTransferAuthority: user,
-                vault: vaultPk,
-              }
-            )
-          );
-
           // Create direct withdrawal instructions
           const { instructions, lookupTableAddresses } =
             await directWithdrawalService.createDirectWithdrawalInstructions(
+              inputAmountBN,
+              inputAmountBN.toString() === userAssetAmount.toString(),
               vault.pubkey,
               user,
               assetMint,
