@@ -1,6 +1,9 @@
 import { PublicKey } from "@solana/web3.js";
 
 // Configuration for vaults that support direct withdrawal
+
+type StrategyType = "drift" | "kamino" | "jupiter";
+
 export interface DirectWithdrawalVaultConfig {
   lookUpTable: PublicKey;
   strategies: StrategyConfig[];
@@ -8,17 +11,34 @@ export interface DirectWithdrawalVaultConfig {
 export interface StrategyConfig {
   address: PublicKey;
   adaptorProgramId: PublicKey;
+  type: StrategyType;
 }
 
 export interface StrategyConfigDrift extends StrategyConfig {
   marketIndex: number;
 }
 
-const KAMINO_VAULT_TURBO_STRATEGY = {
+export const JUPITER_LEND_PROGRAM_ID =
+  "jup3YeL8QhtSx1e253b2FDvsMNC87fDrgQZivbrndc9";
+export const JUPITER_LIQUIDITY_PROGRAM_ID =
+  "jupeiUmn818Jg1ekPURTpr4mFo29p46vygyykFJ3wZC";
+export const JUPITER_REWARDS_RATE_PROGRAM_ID =
+  "jup7TthsMgcR9Y3L277b8Eo9uboVSmu1utkuXHNUKar";
+
+const JUPITER_LEND_USDC_STRATEGY: StrategyConfig = {
+  address: new PublicKey("2vVYHYM8VYnvZqQWpTJSj8o8DBf1wM8pVs3bsTgYZiqJ"),
+  adaptorProgramId: new PublicKey(
+    "EW35URAx3LiM13fFK3QxAXfGemHso9HWPixrv7YDY4AM"
+  ),
+  type: "jupiter",
+};
+
+const KAMINO_VAULT_TURBO_STRATEGY: StrategyConfig = {
   address: new PublicKey("A3hTCWdnfV6uiQLxRmnv17EpiEtmc93v1AGQnWy44Mup"),
   adaptorProgramId: new PublicKey(
     "to6Eti9CsC5FGkAtqiPphvKD2hiQiLsS8zWiDBqBPKR"
   ),
+  type: "kamino",
 };
 
 export const DRIFT_SPOT_STATE = new PublicKey(
@@ -35,6 +55,7 @@ const DRIFT_MAIN_USDC_STRATEGY: StrategyConfigDrift = {
     "EBN93eXs5fHGBABuajQqdsKRkCgaqtJa8vEFD6vKXiP"
   ),
   marketIndex: 0,
+  type: "drift",
 };
 
 const DRIFT_JLP_USDC_STRATEGY: StrategyConfigDrift = {
@@ -43,6 +64,7 @@ const DRIFT_JLP_USDC_STRATEGY: StrategyConfigDrift = {
     "EBN93eXs5fHGBABuajQqdsKRkCgaqtJa8vEFD6vKXiP"
   ),
   marketIndex: 34,
+  type: "drift",
 };
 
 // Map of vault addresses to their direct withdrawal configuration
@@ -56,6 +78,7 @@ export const DIRECT_WITHDRAWAL_VAULTS: Record<
       KAMINO_VAULT_TURBO_STRATEGY,
       DRIFT_MAIN_USDC_STRATEGY,
       DRIFT_JLP_USDC_STRATEGY,
+      JUPITER_LEND_USDC_STRATEGY,
     ],
   },
 };

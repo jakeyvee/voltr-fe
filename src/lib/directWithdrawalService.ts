@@ -23,6 +23,10 @@ import {
   buildDriftDirectWithdrawRemainingAccounts,
   getDriftEarnWithdrawAccounts,
 } from "./driftUtils";
+import {
+  buildJupiterDirectWithdrawRemainingAccounts,
+  getJupiterVaultWithdrawAccounts,
+} from "./jupiterUtils";
 
 export interface DirectWithdrawalInstructions {
   instructions: TransactionInstruction[];
@@ -138,7 +142,7 @@ export class DirectWithdrawalService {
       leftOverAmount = leftOverAmount.sub(currentInputAmount);
 
       // Check if strategy is a Drift strategy
-      if ("marketIndex" in strategy) {
+      if (strategy.type === "drift") {
         // Handle Drift strategy
         const driftStrategy = strategy as StrategyConfigDrift;
         await this.addDriftDirectWithdrawalInstruction(
@@ -154,7 +158,7 @@ export class DirectWithdrawalService {
           currentInputAmount,
           isWithdrawAll && leftOverAmount.isZero()
         );
-      } else {
+      } else if (strategy.type === "kamino") {
         // Handle regular strategy
         const regularStrategy = strategy as StrategyConfig;
         await this.addKaminoDirectWithdrawalInstruction(
@@ -166,6 +170,20 @@ export class DirectWithdrawalService {
           assetMint,
           assetTokenProgram,
           regularStrategy.adaptorProgramId,
+          currentInputAmount,
+          isWithdrawAll && leftOverAmount.isZero()
+        );
+      } else if (strategy.type === "jupiter") {
+        // Handle Jupiter strategy
+        const jupiterStrategy = strategy as StrategyConfig;
+        await this.addJupiterDirectWithdrawalInstruction(
+          instructions,
+          vault,
+          jupiterStrategy.address,
+          userPublicKey,
+          assetMint,
+          assetTokenProgram,
+          jupiterStrategy.adaptorProgramId,
           currentInputAmount,
           isWithdrawAll && leftOverAmount.isZero()
         );
@@ -365,6 +383,104 @@ export class DirectWithdrawalService {
           vaultAssetMint: assetMint,
           assetTokenProgram,
           strategy: kvault,
+          remainingAccounts,
+          adaptorProgram: adaptorProgramId,
+        }
+      );
+
+    instructions.push(directWithdrawIx);
+  }
+
+  /**
+   * Add Jupiter-specific direct withdrawal instruction
+   */
+  private async addJupiterDirectWithdrawalInstruction(
+    instructions: TransactionInstruction[],
+    vault: PublicKey,
+    lending: PublicKey,
+    userPublicKey: PublicKey,
+    assetMint: PublicKey,
+    assetTokenProgram: PublicKey,
+    adaptorProgramId: PublicKey,
+    inputAmountBN: BN,
+    isWithdrawAll: boolean
+  ): Promise<void> {
+    const vaultLpMint = this.voltrClient.findVaultLpMint(vault);
+
+    const requestWithdrawVaultReceipt =
+      this.voltrClient.findRequestWithdrawVaultReceipt(vault, userPublicKey);
+    instructions.push(
+      createAssociatedTokenAccountIdempotentInstruction(
+        userPublicKey,
+        getAssociatedTokenAddressSync(
+          vaultLpMint,
+          requestWithdrawVaultReceipt,
+          true
+        ),
+        requestWithdrawVaultReceipt,
+        vaultLpMint
+      )
+    );
+
+    instructions.push(
+      await this.voltrClient.createRequestWithdrawVaultIx(
+        {
+          amount: inputAmountBN,
+          isAmountInLp: false,
+          isWithdrawAll,
+        },
+        {
+          payer: userPublicKey,
+          userTransferAuthority: userPublicKey,
+          vault,
+        }
+      )
+    );
+
+    const { vaultStrategyAuth } = this.voltrClient.findVaultStrategyAddresses(
+      vault,
+      lending
+    );
+    // Get Kamino-specific accounts
+    const jupiterAccounts = getJupiterVaultWithdrawAccounts(
+      lending,
+      assetMint,
+      assetTokenProgram
+    );
+
+    // Setup strategy shares account
+    const vaultStrategyFTokenAta = getAssociatedTokenAddressSync(
+      jupiterAccounts.fTokenMint,
+      vaultStrategyAuth,
+      true,
+      TOKEN_PROGRAM_ID
+    );
+
+    // Build remaining accounts for Kamino
+    const remainingAccounts = await buildJupiterDirectWithdrawRemainingAccounts(
+      lending,
+      vaultStrategyFTokenAta,
+      jupiterAccounts.lendingAdmin,
+      jupiterAccounts.fTokenMint,
+      jupiterAccounts.supplyTokenReservesLiquidity,
+      jupiterAccounts.rateModel,
+      jupiterAccounts.userClaim,
+      jupiterAccounts.liquidity,
+      jupiterAccounts.rewardsRateModel,
+      jupiterAccounts.lendingSupplyPositionOnLiquidity,
+      jupiterAccounts.jVault
+    );
+
+    // Create the direct withdraw instruction
+    const directWithdrawIx =
+      await this.voltrClient.createDirectWithdrawStrategyIx(
+        {}, // args
+        {
+          user: userPublicKey,
+          vault,
+          vaultAssetMint: assetMint,
+          assetTokenProgram,
+          strategy: lending,
           remainingAccounts,
           adaptorProgram: adaptorProgramId,
         }
