@@ -8,18 +8,9 @@ export async function GET(
   try {
     const startUnixTs = request.nextUrl.searchParams.get("startTs");
     const endUnixTs = request.nextUrl.searchParams.get("endTs");
-    if (!startUnixTs || !endUnixTs) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "startTs and endTs are required",
-        },
-        { status: 400 }
-      );
-    }
-    const pStartUtcSeconds = parseInt(startUnixTs);
-    const pEndUtcSeconds = parseInt(endUnixTs);
-
+    const pStartUtcSeconds = startUnixTs ? parseInt(startUnixTs) : 0;
+    const pEndUtcSeconds = endUnixTs ? parseInt(endUnixTs) : Date.now() / 1000;
+    
     const { data, error } = await supabaseAdmin
       .rpc("calculate_fee_earned_in_lp", {
         p_vault_pk: pubkey,
