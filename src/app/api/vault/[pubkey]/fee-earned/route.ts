@@ -9,8 +9,10 @@ export async function GET(
     const startUnixTs = request.nextUrl.searchParams.get("startTs");
     const endUnixTs = request.nextUrl.searchParams.get("endTs");
     const pStartUtcSeconds = startUnixTs ? parseInt(startUnixTs) : 0;
-    const pEndUtcSeconds = endUnixTs ? parseInt(endUnixTs) : Date.now() / 1000;
-    
+    const pEndUtcSeconds = endUnixTs
+      ? parseInt(endUnixTs)
+      : Math.floor(Date.now() / 1000);
+
     const { data, error } = await supabaseAdmin
       .rpc("calculate_fee_earned_in_lp", {
         p_vault_pk: pubkey,
