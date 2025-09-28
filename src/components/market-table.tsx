@@ -143,7 +143,13 @@ export default async function MarketsTable() {
                       </td>
                       <td className="px-4 py-3 w-32 text-white">
                         <div className="bg-indigo-500/30 rounded-lg px-3 py-1.5 items-center">
-                          <Link href={`/vault/${vault.pubkey}`}>
+                          <Link
+                            href={
+                              vault.name.includes("Turbo")
+                                ? `https://kamino.com/earn/${vault.pubkey}`
+                                : `/vault/${vault.pubkey}`
+                            }
+                          >
                             <div className="flex items-center justify-between">
                               <div className="text-indigo-200 font-semibold hover:text-indigo-100 mx-auto">
                                 View More
