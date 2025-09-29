@@ -238,7 +238,11 @@ export default async function MarketsTable() {
                 </div>
 
                 <Link
-                  href={`/vault/${vault.pubkey}`}
+                  href={
+                    vault.name.includes("Turbo")
+                      ? `https://kamino.com/earn/${vault.pubkey}`
+                      : `/vault/${vault.pubkey}`
+                  }
                   className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
                 >
                   <span className="text-[16px] font-semibold text-indigo-200">
