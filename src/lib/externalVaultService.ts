@@ -78,7 +78,7 @@ async function fetchKaminoMetrics(
     const response = await fetch(
       `https://api.kamino.finance/kvaults/${pubkey}/metrics`,
       {
-        next: { revalidate: 60 }, // Cache for 1 minute
+        next: { revalidate: 0 },
       }
     );
 
