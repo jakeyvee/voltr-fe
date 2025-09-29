@@ -29,6 +29,7 @@ export interface KaminoMetrics {
   apy365d: string;
   tokenPrice: string;
   tokensAvailable: string;
+  tokensInvested: string;
   apy: string;
 }
 
@@ -108,7 +109,9 @@ async function processExternalVault(
   return {
     ...config,
     tvl:
-      parseFloat(metrics.tokensAvailable) * Math.pow(10, config.asset.decimals),
+      (parseFloat(metrics.tokensAvailable) +
+        parseFloat(metrics.tokensInvested)) *
+      Math.pow(10, config.asset.decimals),
     apy: parseFloat(metrics.apy7d) * 100,
     asset: {
       ...config.asset,
