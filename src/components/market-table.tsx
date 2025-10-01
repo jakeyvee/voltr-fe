@@ -61,7 +61,7 @@ export default async function MarketsTable() {
                     Integrations
                   </th>
                   <th scope="col" className="px-4 py-3 w-28">
-                    7D APY
+                    30D APY
                   </th>
                   <th scope="col" className="px-4 py-3 w-32"></th>
                 </tr>

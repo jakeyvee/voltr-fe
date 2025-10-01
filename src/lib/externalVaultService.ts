@@ -112,7 +112,7 @@ async function processExternalVault(
       (parseFloat(metrics.tokensAvailable) +
         parseFloat(metrics.tokensInvested)) *
       Math.pow(10, config.asset.decimals),
-    apy: parseFloat(metrics.apy7d) * 100,
+    apy: parseFloat(metrics.apy30d) * 100,
     asset: {
       ...config.asset,
       price: parseFloat(metrics.tokenPrice),
