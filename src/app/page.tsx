@@ -1,574 +1,206 @@
-import Hero from "@/components/hero-home";
+import VaultsGrid from "@/components/vaults-grid";
 import { ArrowUpRightIcon } from "@heroicons/react/24/solid";
+import Image from "next/image";
 import Link from "next/link";
+import LayersBg from "@/../public/images/layers_bg.png";
+import { formatNumber } from "@/lib/format";
 
-export default function Home() {
+interface TvlData {
+  success: boolean;
+  data: {
+    totalTvlUsd: number;
+    lastUpdated: string;
+  };
+}
+
+async function getTvlData(): Promise<number | null> {
+  try {
+    // Use absolute URL for server-side fetch
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/vaults/tvl`, {
+      next: { revalidate: 300 }, // Cache for 5 minutes
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch TVL data");
+    }
+
+    const data: TvlData = await response.json();
+
+    if (data.success) {
+      return data.data.totalTvlUsd;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching TVL:", error);
+    return null;
+  }
+}
+
+export default async function Home() {
+  // Mock data - replace with actual API calls
+  const tvl = await getTvlData();
+  const totalStrategies = 6;
+
   return (
     <div className="min-h-[calc(100vh-15.5rem)]">
-      <Hero />
-      <div className="max-w-3xl mx-auto grid md:grid-cols-2 grid-cols-1 gap-3 px-6 md:px-0">
-        <div className="group">
-          <div className="border bg-gray-900 rounded-xl xl:w-full border-gray-700 group-hover:border-indigo-500">
-            <div className="h-[86px] bg-indigo-800/40 rounded-tl-xl rounded-tr-xl overflow-hidden relative">
-              <div className="absolute right-[-96px] top-[-12px]">
-                <svg
-                  width="276"
-                  height="137"
-                  viewBox="0 0 210 364"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-8 gap-3 lg:gap-6">
+          {/* Left Container - Main CTA */}
+          <div
+            className="lg:col-span-5 rounded-xl p-6 lg:p-8 flex flex-col justify-between h-[35rem] lg:h-[38rem] relative overflow-hidden"
+            style={{
+              background:
+                "linear-gradient(180deg, oklch(87% 0.065 274.039) 1.84%, oklch(78.5% 0.115 274.713) 23.3%, oklch(67.3% 0.182 276.935) 35.22%, oklch(58.5% 0.233 277.117) 47.62%, #38306F 66.28%, #000000 99.59%)",
+            }}
+          >
+            <div className="relative z-10">
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 leading-tight">
+                Earn With Confidence
+              </h1>
+              <p className="text-base lg:text-lg text-white/70 mb-6 max-w-2xl">
+                Maximize your stablecoin yields with institutional-grade
+                strategies. Access the highest returns across DeFi, CeFi, and
+                traditional markets.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  target="_blank"
+                  href="https://tally.so/r/mVyajN"
+                  className="group flex items-center gap-2 px-6 py-2.5 border border-white rounded-2xl text-white text-sm hover:bg-white hover:text-indigo-600 transition-all duration-300"
                 >
-                  <circle
-                    cx="122"
-                    cy="122"
-                    r="122"
-                    fill="url(#paint0_radial_8_15)"
-                  />
-                  <circle
-                    cx="122"
-                    cy="122"
-                    r="80.013"
-                    fill="url(#paint1_radial_8_15)"
-                  />
-                  <circle
-                    cx="121.604"
-                    cy="122.396"
-                    r="47.1364"
-                    fill="url(#paint2_radial_8_15)"
-                  />
-                  <defs>
-                    <radialGradient
-                      id="paint0_radial_8_15"
-                      cx="0"
-                      cy="0"
-                      r="1"
-                      gradientUnits="userSpaceOnUse"
-                      gradientTransform="translate(122 122) rotate(90) scale(122)"
-                    >
-                      <stop stop-color="#4338CA" stop-opacity="0" />
-                      <stop
-                        offset="0.489583"
-                        stop-color="#4338CA"
-                        stop-opacity="0"
-                      />
-                      <stop
-                        offset="1"
-                        stop-color="#4338CA"
-                        stop-opacity="0.8"
-                      />
-                    </radialGradient>
-                    <radialGradient
-                      id="paint1_radial_8_15"
-                      cx="0"
-                      cy="0"
-                      r="1"
-                      gradientUnits="userSpaceOnUse"
-                      gradientTransform="translate(122 122) rotate(90) scale(80.013)"
-                    >
-                      <stop stop-color="#4338CA" stop-opacity="0" />
-                      <stop
-                        offset="0.489583"
-                        stop-color="#4338CA"
-                        stop-opacity="0"
-                      />
-                      <stop
-                        offset="1"
-                        stop-color="#4338CA"
-                        stop-opacity="0.8"
-                      />
-                    </radialGradient>
-                    <radialGradient
-                      id="paint2_radial_8_15"
-                      cx="0"
-                      cy="0"
-                      r="1"
-                      gradientUnits="userSpaceOnUse"
-                      gradientTransform="translate(121.604 122.396) rotate(90) scale(47.1364)"
-                    >
-                      <stop stop-color="#4338CA" stop-opacity="0" />
-                      <stop
-                        offset="0.489583"
-                        stop-color="#4338CA"
-                        stop-opacity="0"
-                      />
-                      <stop
-                        offset="1"
-                        stop-color="#4338CA"
-                        stop-opacity="0.8"
-                      />
-                    </radialGradient>
-                  </defs>
-                </svg>
-              </div>
-              <div className="bg-indigo-700 inline-flex rounded-[26px] h-[28px] px-[6px] items-center ml-[13px] mt-[11px]">
-                <span className="font-ataero text-sm mx-1 leading-[7px]">
-                  For Users
-                </span>
+                  <span>Get private beta access</span>
+                  <ArrowUpRightIcon className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
               </div>
             </div>
 
-            <div className="py-[18px] px-[22px] border-b border-gray-700">
-              <div className="flex justify-between items-center mb-5">
-                <div className="relative flex items-center"></div>
-                <div className="relative flex items-center"></div>
-                <div className="flex flex-col items-end">
-                  <div className="relative inline-block">
-                    <div className="mb-2 flex">
-                      <p
-                        className="tooltip-label-dashed relative inline-block font-normal text-gray-500 text-xs leading-[1]"
-                        style={
-                          {
-                            "--tooltip-underline-color": "#5A5E60",
-                          } as React.CSSProperties
-                        }
-                      >
-                        Earn yield up to
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[28px] leading-[28px] font-semibold text-clip text-transparent bg-gradient-to-r from-indigo-400 to-indigo-600 bg-clip-text">
-                    20% <span className="text-xs -ml-1">APY</span>
-                  </span>
+            <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black/40 to-transparent pointer-events-none">
+              <Image src={LayersBg} alt="Gradient" className="w-full h-full" />
+            </div>
+          </div>
+
+          {/* Right Side - Stacked Containers */}
+          <div className="lg:col-span-3 grid grid-rows-2 gap-3 lg:gap-6">
+            {/* TVL Container */}
+            <div className="rounded-xl p-6 bg-gray-900 flex flex-col justify-between h-[13.5rem] lg:h-[18.1875rem] overflow-hidden border border-gray-800">
+              <div>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <h2 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-indigo-400 tracking-tight">
+                    $
+                  </h2>
+                  <h2 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white tracking-tight">
+                    {formatNumber(tvl)}
+                  </h2>
                 </div>
               </div>
-              <p className="text-[20px] font-medium leading-[14px] mb-1">
-                Curated Strategies
-              </p>
-              <div className="relative inline-block">
-                <p
-                  className="tooltip-label-dashed relative inline-block font-normal text-gray-500 text-xs leading-[1]"
-                  style={
-                    {
-                      "--tooltip-underline-color": "#5A5E60",
-                    } as React.CSSProperties
-                  }
-                >
-                  Money Market, Basis Tade, Funding Rate, etc.
+              <div className="flex justify-between items-end gap-2">
+                <h3 className="text-xl lg:text-2xl text-white font-medium">
+                  Total Value Locked
+                </h3>
+              </div>
+            </div>
+
+            {/* Total Strategies Container */}
+            <div className="rounded-xl p-6 bg-indigo-500 flex flex-col justify-between h-[13.5rem] lg:h-[18.1875rem] overflow-hidden">
+              <div>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <h2 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-gray-900 tracking-tight">
+                    0{totalStrategies}
+                  </h2>
+                </div>
+              </div>
+              <div className="flex justify-between items-end gap-2">
+                <h3 className="text-xl lg:text-2xl text-gray-900 font-medium">
+                  Active Strategies
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Fund Managers Section */}
+        <div className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-0">
+            {/* Header Card */}
+            <div className="rounded-xl lg:rounded-r-none bg-gray-900 text-white p-6 lg:h-[20.5625rem] h-[16rem] flex flex-col justify-between">
+              <div>
+                <h2 className="text-4xl font-bold uppercase leading-tight tracking-tight mb-4">
+                  Elite Managers
+                </h2>
+                <p className="text-sm text-gray-400 leading-tight tracking-wider">
+                  Proven strategies from <br />
+                  industry-leading fund managers.
                 </p>
               </div>
             </div>
 
-            <div className="py-4 px-[22px]">
-              <Link
-                target="_blank"
-                href="https://tally.so/r/mVyajN"
-                className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
-              >
-                Get private beta access <ArrowUpRightIcon className="w-2.5 h-2.5 ml-1 stroke-white stroke-2" />
-              </Link>
-            </div>
-          </div>
-        </div>
-        <div className="group">
-          <div className="border bg-gray-900 rounded-xl xl:w-full border-gray-700 group-hover:border-blue-500">
-            <div className="h-[86px] bg-blue-800/40 rounded-tl-xl rounded-tr-xl overflow-hidden relative">
-              <div className="absolute right-[-36px] top-[-32px]">
-                <svg
-                  width="252"
-                  height="125"
-                  viewBox="0 0 210 364"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g filter="url(#filter0_f_7_2)">
-                    <path
-                      d="M146.5 154L155.116 180.738H183L160.442 197.262L169.058 224L146.5 207.475L123.942 224L132.558 197.262L110 180.738H137.884L146.5 154Z"
-                      fill="#1D4ED8"
-                    />
-                  </g>
-                  <g filter="url(#filter1_i_7_2)">
-                    <path
-                      d="M405.486 179.754L307.066 75.3248L168.096 108.847L256.899 209.923L405.486 179.754Z"
-                      fill="url(#paint0_linear_7_2)"
-                      fill-opacity="0.45"
-                    />
-                  </g>
-                  <g filter="url(#filter2_ii_7_2)">
-                    <path
-                      d="M359.278 317.474L406.268 179.611L257.682 209.781L214 341.247L359.278 317.474Z"
-                      fill="url(#paint1_linear_7_2)"
-                      fill-opacity="0.7"
-                    />
-                  </g>
-                  <g filter="url(#filter3_ii_7_2)">
-                    <path
-                      d="M124.371 243.534L168.097 108.847L256.9 209.923L213.218 341.389L124.371 243.534Z"
-                      fill="url(#paint2_linear_7_2)"
-                      fill-opacity="0.25"
-                    />
-                  </g>
-                  <g filter="url(#filter4_f_7_2)">
-                    <path
-                      d="M257.549 209.873L168.439 108.994L307.148 75.3682L405.505 179.61L257.549 209.873ZM257.549 209.873L212.994 341.016"
-                      stroke="#1D4ED8"
-                      stroke-width="1.68131"
-                    />
-                  </g>
-                  <g filter="url(#filter5_f_7_2)">
-                    <path
-                      d="M167.5 72L176.589 99.8835H206L182.206 117.116L191.294 145L167.5 127.767L143.706 145L152.794 117.116L129 99.8835H158.411L167.5 72Z"
-                      fill="#1D4ED8"
-                    />
-                  </g>
-                  <g filter="url(#filter6_f_7_2)">
-                    <path
-                      d="M318 119L326.735 145.738H355L332.133 162.262L340.867 189L318 172.475L295.133 189L303.867 162.262L281 145.738H309.265L318 119Z"
-                      fill="#1D4ED8"
-                    />
-                  </g>
-                  <defs>
-                    <filter
-                      id="filter0_f_7_2"
-                      x="0.714661"
-                      y="44.7147"
-                      width="291.571"
-                      height="288.571"
-                      filterUnits="userSpaceOnUse"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                      <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                      />
-                      <feGaussianBlur
-                        stdDeviation="54.6427"
-                        result="effect1_foregroundBlur_7_2"
-                      />
-                    </filter>
-                    <filter
-                      id="filter1_i_7_2"
-                      x="168.096"
-                      y="75.3247"
-                      width="237.389"
-                      height="166.806"
-                      filterUnits="userSpaceOnUse"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                      <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                      />
-                      <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                      />
-                      <feOffset dy="32.2083" />
-                      <feGaussianBlur stdDeviation="41.8708" />
-                      <feComposite
-                        in2="hardAlpha"
-                        operator="arithmetic"
-                        k2="-1"
-                        k3="1"
-                      />
-                      <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 0.113725 0 0 0 0 0.305882 0 0 0 0 0.847059 0 0 0 0.28 0"
-                      />
-                      <feBlend
-                        mode="normal"
-                        in2="shape"
-                        result="effect1_innerShadow_7_2"
-                      />
-                    </filter>
-                    <filter
-                      id="filter2_ii_7_2"
-                      x="205.594"
-                      y="179.611"
-                      width="204.037"
-                      height="168.361"
-                      filterUnits="userSpaceOnUse"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                      <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                      />
-                      <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                      />
-                      <feOffset dx="-8.40656" />
-                      <feGaussianBlur stdDeviation="16.8131" />
-                      <feComposite
-                        in2="hardAlpha"
-                        operator="arithmetic"
-                        k2="-1"
-                        k3="1"
-                      />
-                      <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 0.117647 0 0 0 0 0.25098 0 0 0 0 0.686275 0 0 0 0.25 0"
-                      />
-                      <feBlend
-                        mode="normal"
-                        in2="shape"
-                        result="effect1_innerShadow_7_2"
-                      />
-                      <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                      />
-                      <feOffset dx="3.36263" dy="6.72525" />
-                      <feGaussianBlur stdDeviation="26.901" />
-                      <feComposite
-                        in2="hardAlpha"
-                        operator="arithmetic"
-                        k2="-1"
-                        k3="1"
-                      />
-                      <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 0.113725 0 0 0 0 0.305882 0 0 0 0 0.847059 0 0 0 0.25 0"
-                      />
-                      <feBlend
-                        mode="normal"
-                        in2="effect1_innerShadow_7_2"
-                        result="effect2_innerShadow_7_2"
-                      />
-                    </filter>
-                    <filter
-                      id="filter3_ii_7_2"
-                      x="117.646"
-                      y="95.3967"
-                      width="140.935"
-                      height="258.875"
-                      filterUnits="userSpaceOnUse"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                      <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                      />
-                      <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                      />
-                      <feOffset dx="1.68131" dy="12.8833" />
-                      <feGaussianBlur stdDeviation="20.1758" />
-                      <feComposite
-                        in2="hardAlpha"
-                        operator="arithmetic"
-                        k2="-1"
-                        k3="1"
-                      />
-                      <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 0.113725 0 0 0 0 0.305882 0 0 0 0 0.847059 0 0 0 0.25 0"
-                      />
-                      <feBlend
-                        mode="normal"
-                        in2="shape"
-                        result="effect1_innerShadow_7_2"
-                      />
-                      <feColorMatrix
-                        in="SourceAlpha"
-                        type="matrix"
-                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                        result="hardAlpha"
-                      />
-                      <feOffset dx="-6.72525" dy="-13.4505" />
-                      <feGaussianBlur stdDeviation="20.1758" />
-                      <feComposite
-                        in2="hardAlpha"
-                        operator="arithmetic"
-                        k2="-1"
-                        k3="1"
-                      />
-                      <feColorMatrix
-                        type="matrix"
-                        values="0 0 0 0 0.113725 0 0 0 0 0.305882 0 0 0 0 0.847059 0 0 0 0.25 0"
-                      />
-                      <feBlend
-                        mode="normal"
-                        in2="effect1_innerShadow_7_2"
-                        result="effect2_innerShadow_7_2"
-                      />
-                    </filter>
-                    <filter
-                      id="filter4_f_7_2"
-                      x="145.029"
-                      y="52.579"
-                      width="283.98"
-                      height="310.564"
-                      filterUnits="userSpaceOnUse"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                      <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                      />
-                      <feGaussianBlur
-                        stdDeviation="10.9285"
-                        result="effect1_foregroundBlur_7_2"
-                      />
-                    </filter>
-                    <filter
-                      id="filter5_f_7_2"
-                      x="57"
-                      y="0"
-                      width="221"
-                      height="217"
-                      filterUnits="userSpaceOnUse"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                      <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                      />
-                      <feGaussianBlur
-                        stdDeviation="36"
-                        result="effect1_foregroundBlur_7_2"
-                      />
-                    </filter>
-                    <filter
-                      id="filter6_f_7_2"
-                      x="217"
-                      y="55"
-                      width="202"
-                      height="198"
-                      filterUnits="userSpaceOnUse"
-                      color-interpolation-filters="sRGB"
-                    >
-                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                      <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                      />
-                      <feGaussianBlur
-                        stdDeviation="32"
-                        result="effect1_foregroundBlur_7_2"
-                      />
-                    </filter>
-                    <linearGradient
-                      id="paint0_linear_7_2"
-                      x1="342.005"
-                      y1="111.237"
-                      x2="218.607"
-                      y2="183.628"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop stop-color="#1D4ED8" stop-opacity="0.64" />
-                      <stop offset="1" stop-color="#1D4ED8" />
-                    </linearGradient>
-                    <linearGradient
-                      id="paint1_linear_7_2"
-                      x1="389.856"
-                      y1="201.934"
-                      x2="217.176"
-                      y2="344.512"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop stop-color="#1D4ED8" />
-                      <stop
-                        offset="1"
-                        stop-color="#1D4ED8"
-                        stop-opacity="0.15"
-                      />
-                    </linearGradient>
-                    <linearGradient
-                      id="paint2_linear_7_2"
-                      x1="240.886"
-                      y1="203.26"
-                      x2="55.2798"
-                      y2="348.882"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop stop-color="#1D4ED8" />
-                      <stop
-                        offset="1"
-                        stop-color="#1D4ED8"
-                        stop-opacity="0.15"
-                      />
-                    </linearGradient>
-                  </defs>
-                </svg>
+            <Link
+              href="https://elemental.fund"
+              className="rounded-xl lg:rounded-none bg-gray-900 hover:bg-indigo-500 text-white hover:text-gray-900 group transition-all duration-700 ease-in-out lg:h-[20.5625rem] h-[16rem] relative overflow-hidden"
+            >
+              <div className="absolute top-5 left-6 z-10">
+                <img
+                  alt="Elemental Fund"
+                  src="https://lh0wrlblwpfflwdq.public.blob.vercel-storage.com/elemental-clear.png"
+                  className="w-14 h-14 transition duration-300 ease-in-out group-hover:grayscale"
+                />
               </div>
-              <div className="bg-blue-700 inline-flex rounded-[26px] h-[28px] px-[6px] items-center ml-[13px] mt-[11px]">
-                <span className="font-ataero text-sm mx-1 leading-[7px]">
-                  For Vault Managers
-                </span>
-              </div>
-            </div>
-
-            <div className="py-[18px] px-[22px] border-b border-gray-700">
-              <div className="flex justify-between items-center mb-5">
-                <div className="relative flex items-center"></div>
-                <div className="flex flex-col items-end">
-                  <div className="relative inline-block">
-                    <div className="mb-2 flex">
-                      <p
-                        className="tooltip-label-dashed relative inline-block font-normal text-gray-500 text-xs leading-[1]"
-                        style={
-                          {
-                            "--tooltip-underline-color": "#5A5E60",
-                          } as React.CSSProperties
-                        }
-                      >
-                        Instantly integrate with
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[28px] leading-[28px] font-semibold text-clip text-transparent bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text">
-                    10+ <span className="text-xs -ml-1">Protocols</span>
-                  </span>
+              <div className="absolute bottom-6 right-6 z-30">
+                <div className="w-7 h-7 border border-white group-hover:border-gray-900 rounded-full p-1 flex justify-center items-center hover:bg-white hover:text-black hover:!border-transparent transition-all duration-300">
+                  <ArrowUpRightIcon className="w-3.5 h-3.5" />
                 </div>
               </div>
-              <p className="text-[20px] font-medium leading-[14px] mb-1">
-                Supported Protocols
-              </p>
-              <div className="relative inline-block">
-                <p
-                  className="tooltip-label-dashed relative inline-block font-normal text-gray-500 text-xs leading-[1]"
-                  style={
-                    {
-                      "--tooltip-underline-color": "#5A5E60",
-                    } as React.CSSProperties
-                  }
-                >
-                  Drift, Raydium, Kamino, MarginFi, etc.
-                </p>
+              <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
+                <div className="text-xl font-medium tracking-tight group-hover:text-gray-900 transition-all ease-[cubic-bezier(0.3,1.5,0.7,1)] duration-500 transform origin-top-left group-hover:scale-75">
+                  Elemental Fund
+                </div>
+                <div className="text-xl font-light text-white/50 group-hover:text-gray-900/50 tracking-tight transition-all ease-[cubic-bezier(0.3,1.5,0.7,1)] duration-500 transform group-hover:mb-4 origin-top-left group-hover:scale-75">
+                  DeFi Strategy Manager
+                </div>
+                <div className="text-sm leading-tight tracking-tight text-gray-900/50 hidden group-hover:block w-4/5 font-light transition-opacity duration-500">
+                  Elemental started on Solana with a modest pool of $1,000 from
+                  a few early adopters in September 2022. Since then, Elemental
+                  has grown into a leading Solana-based crypto fund that makes
+                  investing in DeFi simple.
+                </div>
               </div>
-            </div>
+            </Link>
 
-            <div className="py-4 px-[22px]">
-              <Link
-                target="_blank"
-                href="https://docs.voltr.xyz"
-                className="btn w-full bg-gradient-to-t from-blue-600 to-blue-500 text-white shadow-inner hover:bg-gradient-to-b"
-              >
-                Launch a vault <ArrowUpRightIcon className="w-2.5 h-2.5 ml-1 stroke-white stroke-2" />
-              </Link>
-            </div>
+            <Link
+              href="https://vectis.finance"
+              className="rounded-xl lg:rounded-l-none bg-gray-900 hover:bg-indigo-500 text-white hover:text-gray-900 group transition-all duration-700 ease-in-out lg:h-[20.5625rem] h-[16rem] relative overflow-hidden"
+            >
+              <div className="absolute top-5 left-6 z-10">
+                <img
+                  alt="Vectis Finance"
+                  src="https://lh0wrlblwpfflwdq.public.blob.vercel-storage.com/vectis-JAVpHQEjrVIZHc17osumDhnEmcQlcz.png"
+                  className="w-14 h-14 transition duration-300 ease-in-out group-hover:grayscale"
+                />
+              </div>
+              <div className="absolute bottom-6 right-6 z-30">
+                <div className="w-7 h-7 border border-white group-hover:border-gray-900 rounded-full p-1 flex justify-center items-center hover:bg-white hover:text-black hover:!border-transparent transition-all duration-300">
+                  <ArrowUpRightIcon className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end h-full">
+                <h3 className="text-xl font-medium tracking-tight group-hover:text-gray-900 transition-all ease-[cubic-bezier(0.3,1.5,0.7,1)] duration-500 transform origin-top-left group-hover:scale-75">
+                  Vectis Finance
+                </h3>
+                <div className="text-xl font-light text-white/50 group-hover:text-gray-900/50 tracking-tight transition-all ease-[cubic-bezier(0.3,1.5,0.7,1)] duration-500 transform group-hover:mb-4 origin-top-left group-hover:scale-75">
+                  DeFi Strategy Manager
+                </div>
+                <div className="text-sm leading-tight tracking-tight text-gray-900/50 hidden group-hover:block w-4/5 font-light transition-opacity duration-500">
+                  Vectis Finance offers advanced, automated yield optimization
+                  strategies on Solana. Their vaults use delta-neutral and
+                  risk-hedging techniques to maximize stablecoin returns while
+                  minimizing market exposure.
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
+        <VaultsGrid />
       </div>
     </div>
   );
