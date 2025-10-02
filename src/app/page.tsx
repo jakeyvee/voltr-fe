@@ -143,7 +143,7 @@ export default async function Home() {
                 <img
                   alt="Elemental Fund"
                   src="https://lh0wrlblwpfflwdq.public.blob.vercel-storage.com/elemental-clear.png"
-                  className="w-14 h-14 transition duration-300 ease-in-out group-hover:grayscale"
+                  className="w-14 h-14 transition duration-300 ease-in-out group-hover:hidden lg:group-hover:block lg:group-hover:grayscale"
                 />
               </div>
               <div className="absolute bottom-6 right-6 z-30">
@@ -175,7 +175,7 @@ export default async function Home() {
                 <img
                   alt="Vectis Finance"
                   src="https://lh0wrlblwpfflwdq.public.blob.vercel-storage.com/vectis-JAVpHQEjrVIZHc17osumDhnEmcQlcz.png"
-                  className="w-14 h-14 transition duration-300 ease-in-out group-hover:grayscale"
+                  className="w-14 h-14 transition duration-300 ease-in-out group-hover:hidden lg:group-hover:block lg:group-hover:grayscale"
                 />
               </div>
               <div className="absolute bottom-6 right-6 z-30">
