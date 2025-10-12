@@ -34,6 +34,7 @@ const INSTRUCTION_DISCRIMINATORS = new Map<string, string>([
   ["67,229,185,188,226,11,210,60", "update_vault"],
   ["31,45,162,5,193,217,134,188", "withdraw_strategy"],
   ["135,7,237,120,149,94,95,7", "withdraw_vault"],
+  ["122,3,21,222,158,255,238,157", "update_vault_config"],
 ]);
 
 export interface Transaction {
