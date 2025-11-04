@@ -104,20 +104,20 @@ async function updateVaultHistory(
     vaultAccount.feeState.accumulatedLpAdminFees
   );
 
-  const totalLp = accumulatedLpFees
-    .add(new BN(vaultLpMintAccount.supply.toString()))
-    .toNumber();
+  const totalLp = accumulatedLpFees.add(
+    new BN(vaultLpMintAccount.supply.toString())
+  );
 
   const { error: insertError } = await supabaseAdmin
     .from("vault_histories")
     .insert({
       vault_pk: vaultPk.toBase58(),
-      max_cap: vaultAccount.vaultConfiguration.maxCap.toNumber(),
-      total_value: vaultAccount.asset.totalValue.toNumber(),
-      total_lp: totalLp,
-      unharvested_lp: accumulatedLpFees.toNumber(),
+      max_cap: vaultAccount.vaultConfiguration.maxCap.toString(),
+      total_value: vaultAccount.asset.totalValue.toString(),
+      total_lp: totalLp.toString(),
+      unharvested_lp: accumulatedLpFees.toString(),
       withdrawal_waiting_period:
-        vaultAccount.vaultConfiguration.withdrawalWaitingPeriod.toNumber(),
+        vaultAccount.vaultConfiguration.withdrawalWaitingPeriod.toString(),
       performance_fee_bps:
         vaultAccount.feeConfiguration.adminPerformanceFee +
         vaultAccount.feeConfiguration.managerPerformanceFee,

@@ -42,7 +42,7 @@ async function updateAllocationHistory(
   const { error: insertError } = await supabaseAdmin
     .from("allocations")
     .update({
-      position_value: allocationPositionValue.toNumber(),
+      position_value: allocationPositionValue.toString(),
       updated_tx: signature,
     })
     .eq("pk", allocationPk.toBase58());
