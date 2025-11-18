@@ -16,8 +16,9 @@ interface TvlData {
 async function getTvlData(): Promise<number | null> {
   try {
     // Use absolute URL for server-side fetch
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/vaults/tvl`, {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/vaults/tvl`, {
       next: { revalidate: 300 }, // Cache for 5 minutes
     });
 
