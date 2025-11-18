@@ -83,7 +83,15 @@ export const getVaultReserves = async (
   );
 
   const kaminoReserves = new Map<Address, KaminoReserve>();
-  const slotDuration = await getMedianSlotDurationInMsFromLastEpochs();
+  let slotDuration = 400;
+  try {
+    slotDuration = await getMedianSlotDurationInMsFromLastEpochs();
+  } catch (error) {
+    console.error(
+      "Error getting median slot duration in ms from last epochs:",
+      error
+    );
+  }
 
   reservesAndOracles.forEach(([reserve, oracle], index) => {
     if (!oracle) {
