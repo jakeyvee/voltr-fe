@@ -6,25 +6,14 @@ import { BN } from "@coral-xyz/anchor";
 import {
   ComputeBudgetProgram,
   PublicKey,
-  SystemProgram,
   TransactionConfirmationStrategy,
   TransactionMessage,
   VersionedTransaction,
-  TransactionInstruction,
 } from "@solana/web3.js";
 import { createConnection } from "@/lib/publicConnection";
-import {
-  createAssociatedTokenAccountIdempotentInstruction,
-  createCloseAccountInstruction,
-  createSyncNativeInstruction,
-  getAccount,
-  getAssociatedTokenAddressSync,
-  NATIVE_MINT,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+import { getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { toast } from "react-toastify";
 import ChartCard from "./chart/chart-card";
-import { VoltrClient } from "@voltr/vault-sdk";
 import MetricCard from "./metric/Metric";
 import VaultCard, { FeeConfiguration, Integration } from "./vault/Vault";
 import AllocationsCard from "./allocation/allocations-card";
@@ -33,6 +22,8 @@ import { Breadcrumb } from "./breadcrumb/Breadcrumb";
 import SwapCard, { RequestWithdrawal } from "./swap/SwapCard";
 import { DirectWithdrawalService } from "@/lib/directWithdrawalService";
 import { getAddressLookupTableAccounts } from "@/lib/addressLookupUtils";
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { SEEDS, VAULT_PROGRAM_ID } from "@voltr/vault-sdk";
 
 export interface VaultInformation {
   pubkey: string;
@@ -72,6 +63,8 @@ export interface VaultInformation {
   integrations: Integration[];
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function MarketClientPage(initialVault: VaultInformation) {
   const {
     vaultData: vault,
@@ -89,189 +82,242 @@ export default function MarketClientPage(initialVault: VaultInformation) {
   const [userAssetWalletAmount, setUserAssetWalletAmount] = useState<number>(0);
 
   const conn = createConnection();
-  const vc = new VoltrClient(conn, undefined, { commitment: "confirmed" });
   const vaultPk = new PublicKey(vault.pubkey);
   const directWithdrawalService = new DirectWithdrawalService(conn);
   const supportsDirectWithdrawal =
     directWithdrawalService.supportsDirectWithdrawal(vault.pubkey);
-
-  const [_listenerSubId, setListenerSubId] = useState<number>(-1);
-  const [_withdrawReceiptListenerId, setWithdrawReceiptListenerId] =
-    useState<number>(-1);
-  const [_assetBalanceListenerId, setAssetBalanceListenerId] =
-    useState<number>(-1);
-  const [_vaultAccountListenerId, setVaultAccountListenerId] =
-    useState<number>(-1);
   const [userWithdrawRequest, setUserWithdrawRequest] =
     useState<RequestWithdrawal | null>(null);
 
-  const calculateAndSetUserAssetAmount = async (userLpAta: PublicKey) => {
-    const userLpAtaAcc = await getAccount(conn, userLpAta, "confirmed");
-    const userLpAmount = userLpAtaAcc?.amount;
-    const userAssetAmount = await vc.calculateAssetsForWithdraw(
-      vaultPk,
-      new BN(userLpAmount.toString())
-    );
-    setUserAssetAmount(userAssetAmount.toNumber());
+  const refreshUserBalance = async () => {
+    if (!wallet.connected || !wallet.publicKey) {
+      setUserAssetAmount(0);
+      return;
+    }
+
+    try {
+      const balanceRes = await fetch(
+        `${API_BASE_URL}/vault/${
+          vault.pubkey
+        }/user/${wallet.publicKey.toBase58()}/balance`
+      );
+      if (balanceRes.ok) {
+        const { data } = await balanceRes.json();
+        setUserAssetAmount(data.userAssetAmount);
+      } else {
+        console.error("Failed to fetch user balance");
+        setUserAssetAmount(0);
+      }
+    } catch (error) {
+      console.error("Error refreshing user balance:", error);
+      setUserAssetAmount(0);
+    }
+  };
+
+  const refreshUserWithdrawal = async () => {
+    if (!wallet.connected || !wallet.publicKey) {
+      setUserWithdrawRequest(null);
+      return;
+    }
+
+    try {
+      const withdrawalRes = await fetch(
+        `${API_BASE_URL}/vault/${
+          vault.pubkey
+        }/user/${wallet.publicKey.toBase58()}/pending-withdrawal`
+      );
+      if (withdrawalRes.ok) {
+        const { data } = await withdrawalRes.json();
+        setUserWithdrawRequest(data);
+      } else {
+        console.error("Failed to fetch pending withdrawal");
+        setUserWithdrawRequest(null);
+      }
+    } catch (error) {
+      console.error("Error refreshing pending withdrawal:", error);
+      setUserWithdrawRequest(null);
+    }
   };
 
   useEffect(() => {
+    let vaultListenerId = -1;
+    let withdrawReceiptListenerId = -1;
+    let assetBalanceListenerId = -1;
+    let lpBalanceListenerId = -1;
+
     const setupVaultAccountListener = async () => {
+      // Clean up previous listener
+      if (vaultListenerId > 0) {
+        conn.removeAccountChangeListener(vaultListenerId);
+      }
+
       // Set up listener for vault account changes
-      const vaultAccountChangeListener = conn.onAccountChange(
+      vaultListenerId = conn.onAccountChange(
         vaultPk,
         async (_accountInfo) => {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
           await refreshVaultData();
         },
-        "finalized"
+        "confirmed"
+      );
+    };
+
+    const setupWithdrawReceiptListener = async () => {
+      if (!wallet.connected || !wallet.publicKey) {
+        if (withdrawReceiptListenerId > 0) {
+          conn.removeAccountChangeListener(withdrawReceiptListenerId);
+          withdrawReceiptListenerId = -1;
+        }
+        setUserWithdrawRequest(null);
+        return;
+      }
+
+      // Clean up previous listener
+      if (withdrawReceiptListenerId > 0) {
+        conn.removeAccountChangeListener(withdrawReceiptListenerId);
+      }
+
+      const [withdrawReceiptPda] = PublicKey.findProgramAddressSync(
+        [
+          SEEDS.REQUEST_WITHDRAW_VAULT_RECEIPT,
+          vaultPk.toBuffer(),
+          wallet.publicKey.toBuffer(),
+        ],
+        VAULT_PROGRAM_ID
       );
 
-      setVaultAccountListenerId((prev) => {
-        if (prev > 0) conn.removeAccountChangeListener(prev);
-        return vaultAccountChangeListener;
-      });
+      const checkAndUpdateWithdrawRequest = async () => {
+        await refreshUserWithdrawal();
+      };
+
+      // Initial check
+      await checkAndUpdateWithdrawRequest();
+
+      // Set up listener
+      const listenerId = conn.onAccountChange(
+        withdrawReceiptPda,
+        async () => {
+          await checkAndUpdateWithdrawRequest();
+        },
+        "confirmed"
+      );
+
+      withdrawReceiptListenerId = listenerId;
     };
 
-    const fetchRequestWithdrawVaultReceipt = async () => {
-      if (wallet.connected && wallet.publicKey) {
-        const walletPubkey = wallet.publicKey;
-        const requestWithdrawVaultReceipt = vc.findRequestWithdrawVaultReceipt(
-          vaultPk,
-          walletPubkey
-        );
-
-        const checkAndUpdateWithdrawRequest = async () => {
-          const requestWithdrawVaultReceiptInfo = await conn.getAccountInfo(
-            requestWithdrawVaultReceipt,
-            "confirmed"
-          );
-
-          if (requestWithdrawVaultReceiptInfo) {
-            const userWithdrawRequest = await vc.getPendingWithdrawalForUser(
-              vaultPk,
-              walletPubkey
-            );
-            setUserWithdrawRequest({
-              amountAtPresent:
-                userWithdrawRequest.amountAssetToWithdrawAtPresent,
-              withdrawableFromTs: userWithdrawRequest.withdrawableFromTs,
-            });
-          } else {
-            setUserWithdrawRequest(null);
-          }
-        };
-
-        await checkAndUpdateWithdrawRequest();
-
-        const subId = conn.onAccountChange(
-          requestWithdrawVaultReceipt,
-          async () => {
-            await checkAndUpdateWithdrawRequest();
-          },
-          "confirmed"
-        );
-
-        setWithdrawReceiptListenerId((prev) => {
-          if (prev > 0) conn.removeAccountChangeListener(prev);
-          return subId;
-        });
-      } else {
-        setUserWithdrawRequest(null);
-        setWithdrawReceiptListenerId((prev) => {
-          if (prev > 0) conn.removeAccountChangeListener(prev);
-          return -1;
-        });
+    const setupAssetBalanceListener = async () => {
+      if (!wallet.connected || !wallet.publicKey) {
+        if (assetBalanceListenerId > 0) {
+          conn.removeAccountChangeListener(assetBalanceListenerId);
+          assetBalanceListenerId = -1;
+        }
+        setUserAssetWalletAmount(0);
+        return;
       }
-    };
 
-    const fetchUserAssetWalletBalance = async () => {
-      if (wallet.connected && wallet.publicKey) {
-        const userAssetAta = getAssociatedTokenAddressSync(
-          new PublicKey(vault.token.mint),
-          wallet.publicKey
-        );
+      // Clean up previous listener
+      if (assetBalanceListenerId > 0) {
+        conn.removeAccountChangeListener(assetBalanceListenerId);
+      }
 
-        const updateAssetBalance = async () => {
+      const userAssetAta = getAssociatedTokenAddressSync(
+        new PublicKey(vault.token.mint),
+        wallet.publicKey
+      );
+
+      const updateAssetBalance = async () => {
+        try {
           const userAssetAtaAcc = await getAccount(
             conn,
             userAssetAta,
             "confirmed"
           );
-          const userAssetAmount = userAssetAtaAcc?.amount;
-          setUserAssetWalletAmount(Number(userAssetAmount));
-        };
+          setUserAssetWalletAmount(Number(userAssetAtaAcc?.amount));
+        } catch (error) {
+          setUserAssetWalletAmount(0);
+        }
+      };
 
-        await updateAssetBalance();
+      // Initial balance fetch
+      await updateAssetBalance();
 
-        const subId = conn.onAccountChange(
-          userAssetAta,
-          async () => {
-            await updateAssetBalance();
-          },
-          "confirmed"
-        );
+      // Set up listener
+      const listenerId = conn.onAccountChange(
+        userAssetAta,
+        updateAssetBalance,
+        "confirmed"
+      );
 
-        setAssetBalanceListenerId((prev) => {
-          if (prev > 0) conn.removeAccountChangeListener(prev);
-          return subId;
-        });
-      } else {
-        setUserAssetWalletAmount(0);
-        setAssetBalanceListenerId((prev) => {
-          if (prev > 0) conn.removeAccountChangeListener(prev);
-          return -1;
-        });
-      }
+      assetBalanceListenerId = listenerId;
     };
 
-    const fetchUserLpAmount = async () => {
-      if (wallet.connected && wallet.publicKey) {
-        const { vaultLpMint } = vc.findVaultAddresses(vaultPk);
-        const userLpAta = getAssociatedTokenAddressSync(
-          vaultLpMint,
-          wallet.publicKey
-        );
-        await calculateAndSetUserAssetAmount(userLpAta);
-
-        const subId = conn.onAccountChange(
-          userLpAta,
-          async (_accountInfo) => {
-            await calculateAndSetUserAssetAmount(userLpAta);
-          },
-          "confirmed"
-        );
-
-        setListenerSubId((prev) => {
-          if (prev > 0) conn.removeAccountChangeListener(prev);
-          return subId;
-        });
-      } else {
+    const setupLpBalanceListener = async () => {
+      if (!wallet.connected || !wallet.publicKey) {
+        // Clean up listener if wallet disconnected
+        if (lpBalanceListenerId > 0) {
+          conn.removeAccountChangeListener(lpBalanceListenerId);
+          lpBalanceListenerId = -1;
+        }
         setUserAssetAmount(0);
-        setListenerSubId((prev) => {
-          if (prev > 0) conn.removeAccountChangeListener(prev);
-          return -1;
-        });
+        return;
       }
+
+      // Clean up previous listener
+      if (lpBalanceListenerId > 0) {
+        conn.removeAccountChangeListener(lpBalanceListenerId);
+      }
+
+      const [vaultLpMint] = PublicKey.findProgramAddressSync(
+        [SEEDS.VAULT_LP_MINT, vaultPk.toBuffer()],
+        VAULT_PROGRAM_ID
+      );
+
+      const userLpAta = getAssociatedTokenAddressSync(
+        vaultLpMint,
+        wallet.publicKey
+      );
+
+      const updateLpBalance = async () => {
+        await refreshUserBalance();
+      };
+
+      // Initial balance fetch
+      await updateLpBalance();
+
+      // Set up listener
+      const listenerId = conn.onAccountChange(
+        userLpAta,
+        async (_accountInfo) => {
+          await updateLpBalance();
+        },
+        "confirmed"
+      );
+
+      lpBalanceListenerId = listenerId;
     };
 
+    // Set up all listeners
     setupVaultAccountListener();
-    fetchRequestWithdrawVaultReceipt();
-    fetchUserAssetWalletBalance();
-    fetchUserLpAmount();
+    setupWithdrawReceiptListener();
+    setupAssetBalanceListener();
+    setupLpBalanceListener();
 
+    // Cleanup function
     return () => {
-      [
-        _listenerSubId,
-        _withdrawReceiptListenerId,
-        _assetBalanceListenerId,
-        _vaultAccountListenerId,
-      ].forEach((id) => {
+      const listenerIds = [
+        vaultListenerId,
+        withdrawReceiptListenerId,
+        assetBalanceListenerId,
+        lpBalanceListenerId,
+      ];
+
+      listenerIds.forEach((id) => {
         if (id > 0) {
           conn.removeAccountChangeListener(id);
         }
       });
     };
-  }, [wallet.connected && wallet.publicKey]);
+  }, [wallet.connected, wallet.publicKey]);
 
   const handleButtonClick = async () => {
     if (!wallet || !wallet.connected || !wallet.publicKey) {
@@ -286,180 +332,114 @@ export default function MarketClientPage(initialVault: VaultInformation) {
       const inputAmountBN = new BN(
         Number(inputAmount) * 10 ** vault.token.decimals
       );
-      let computeUnits = 400000;
+      let msg = "";
 
-      const ixs: TransactionInstruction[] = [];
-      const luts: PublicKey[] = [];
-      const msg =
-        selectedTab === "deposit"
-          ? "deposited"
-          : supportsDirectWithdrawal
-          ? "instant withdrawn"
-          : userWithdrawRequest === null
-          ? "requested withdrawal"
-          : userWithdrawRequest.withdrawableFromTs > Date.now() / 1000
-          ? "cancelled withdrawal"
-          : "withdrawn";
-
-      // Handle swap instruction based on direction
-      if (selectedTab === "deposit") {
-        if (assetMint.equals(NATIVE_MINT)) {
-          const assetAta = getAssociatedTokenAddressSync(assetMint, user);
-          ixs.push(
-            createAssociatedTokenAccountIdempotentInstruction(
-              user,
-              assetAta,
-              user,
-              assetMint
-            )
+      if (
+        selectedTab === "withdraw" &&
+        supportsDirectWithdrawal &&
+        directWithdrawalService
+      ) {
+        msg = "instant withdrawn";
+        const { instructions, lookupTableAddresses } =
+          await directWithdrawalService.createDirectWithdrawalInstructions(
+            inputAmountBN,
+            inputAmountBN.toString() === userAssetAmount.toString(),
+            vault.pubkey,
+            user,
+            assetMint
           );
 
-          ixs.push(
-            SystemProgram.transfer({
-              fromPubkey: user,
-              toPubkey: assetAta,
-              lamports: inputAmountBN.toNumber(),
-            })
-          );
-
-          ixs.push(createSyncNativeInstruction(assetAta));
-        }
-        const vaultLpMint = vc.findVaultLpMint(vaultPk);
-        ixs.push(
-          createAssociatedTokenAccountIdempotentInstruction(
-            user,
-            getAssociatedTokenAddressSync(vaultLpMint, user),
-            user,
-            vaultLpMint
-          )
+        const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+          units: 800000,
+        });
+        const { lastValidBlockHeight, blockhash } =
+          await conn.getLatestBlockhash();
+        const lookupTableAccounts = await getAddressLookupTableAccounts(
+          lookupTableAddresses,
+          conn
         );
-
-        ixs.push(
-          await vc.createDepositVaultIx(inputAmountBN, {
-            userTransferAuthority: user,
-            vault: vaultPk,
-            vaultAssetMint: assetMint,
-            assetTokenProgram: TOKEN_PROGRAM_ID,
-          })
-        );
+        const messageV0 = new TransactionMessage({
+          payerKey: wallet.publicKey,
+          recentBlockhash: blockhash,
+          instructions: [modifyComputeUnits, ...instructions],
+        }).compileToV0Message(lookupTableAccounts);
+        const transaction = new VersionedTransaction(messageV0);
+        const txSig = await wallet.sendTransaction(transaction, conn);
+        const strategy: TransactionConfirmationStrategy = {
+          signature: txSig,
+          lastValidBlockHeight,
+          blockhash,
+        };
+        await conn.confirmTransaction(strategy, "confirmed");
       } else {
-        if (supportsDirectWithdrawal && directWithdrawalService) {
-          computeUnits = 800000;
+        let endpoint = "";
+        let body: object = {};
 
-          // Create direct withdrawal instructions
-          const { instructions, lookupTableAddresses } =
-            await directWithdrawalService.createDirectWithdrawalInstructions(
-              inputAmountBN,
-              inputAmountBN.toString() === userAssetAmount.toString(),
-              vault.pubkey,
-              user,
-              assetMint,
-              TOKEN_PROGRAM_ID
-            );
-
-          ixs.push(...instructions);
-          luts.push(...lookupTableAddresses);
-        } else if (userWithdrawRequest === null) {
-          const vaultLpMint = vc.findVaultLpMint(vaultPk);
-          const requestWithdrawVaultReceipt =
-            vc.findRequestWithdrawVaultReceipt(vaultPk, user);
-          ixs.push(
-            createAssociatedTokenAccountIdempotentInstruction(
-              user,
-              getAssociatedTokenAddressSync(
-                vaultLpMint,
-                requestWithdrawVaultReceipt,
-                true
-              ),
-              requestWithdrawVaultReceipt,
-              vaultLpMint
-            )
-          );
-
-          ixs.push(
-            await vc.createRequestWithdrawVaultIx(
-              {
-                amount: inputAmountBN,
-                isAmountInLp: false,
-                isWithdrawAll:
-                  inputAmountBN.toString() === userAssetAmount.toString(),
-              },
-              {
-                payer: user,
-                userTransferAuthority: user,
-                vault: vaultPk,
-              }
-            )
-          );
-        } else if (userWithdrawRequest.withdrawableFromTs > Date.now() / 1000) {
-          ixs.push(
-            await vc.createCancelRequestWithdrawVaultIx({
-              userTransferAuthority: user,
-              vault: vaultPk,
-            })
-          );
+        if (selectedTab === "deposit") {
+          msg = "deposited";
+          endpoint = `/vault/${vault.pubkey}/deposit`;
+          body = {
+            userPubkey: user.toBase58(),
+            lamportAmount: inputAmountBN.toString(),
+          };
         } else {
-          ixs.push(
-            createAssociatedTokenAccountIdempotentInstruction(
-              user,
-              getAssociatedTokenAddressSync(assetMint, user),
-              user,
-              assetMint
-            )
-          );
-
-          ixs.push(
-            await vc.createWithdrawVaultIx({
-              userTransferAuthority: user,
-              vault: vaultPk,
-              vaultAssetMint: assetMint,
-              assetTokenProgram: TOKEN_PROGRAM_ID,
-            })
-          );
+          if (userWithdrawRequest === null) {
+            msg = "requested withdrawal";
+            endpoint = `/vault/${vault.pubkey}/request-withdrawal`;
+            body = {
+              userPubkey: user.toBase58(),
+              lamportAmount: inputAmountBN.toString(),
+              isAmountInLp: false,
+              isWithdrawAll:
+                inputAmountBN.toString() === userAssetAmount.toString(),
+            };
+          } else if (
+            userWithdrawRequest.withdrawableFromTs >
+            Date.now() / 1000
+          ) {
+            msg = "cancelled withdrawal";
+            endpoint = `/vault/${vault.pubkey}/cancel-withdrawal`;
+            body = { userPubkey: user.toBase58() };
+          } else {
+            msg = "withdrawn";
+            endpoint = `/vault/${vault.pubkey}/withdraw`;
+            body = { userPubkey: user.toBase58() };
+          }
         }
 
-        if (assetMint.equals(NATIVE_MINT)) {
-          ixs.push(
-            createCloseAccountInstruction(
-              getAssociatedTokenAddressSync(assetMint, user),
-              user,
-              user
-            )
-          );
+        // Fetch serialized transaction from backend
+        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to build transaction");
         }
+        const { transaction: serializedTx } = await res.json();
+
+        // Deserialize, sign, and send the transaction
+        const txBuffer = bs58.decode(serializedTx);
+        const transaction = VersionedTransaction.deserialize(txBuffer);
+
+        const txSig = await wallet.sendTransaction(transaction, conn);
+        const { lastValidBlockHeight, blockhash } =
+          await conn.getLatestBlockhash();
+        const strategy: TransactionConfirmationStrategy = {
+          signature: txSig,
+          lastValidBlockHeight,
+          blockhash,
+        };
+        await conn.confirmTransaction(strategy, "confirmed");
       }
 
-      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-        units: computeUnits,
-      });
-      const { lastValidBlockHeight, blockhash } =
-        await conn.getLatestBlockhash();
-
-      const lookupTableAccounts = await getAddressLookupTableAccounts(
-        luts,
-        conn
-      );
-
-      const messageV0 = new TransactionMessage({
-        payerKey: wallet.publicKey,
-        recentBlockhash: blockhash,
-        instructions: [modifyComputeUnits, ...ixs],
-      }).compileToV0Message(lookupTableAccounts);
-
-      const transaction = new VersionedTransaction(messageV0);
-      const txSig = await wallet.sendTransaction(transaction, conn);
-
-      const strategy: TransactionConfirmationStrategy = {
-        signature: txSig,
-        lastValidBlockHeight,
-        blockhash: blockhash,
-      };
-
-      await conn.confirmTransaction(strategy, "confirmed");
       toast.success(`Successfully ${msg}!`);
-    } catch (error) {
+      setInputAmount(""); // Clear input on success
+    } catch (error: any) {
       console.error("Error:", error);
-      toast.error(`Error: ${error}`);
+      toast.error(`Error: ${error.message || error}`);
     } finally {
       setIsButtonLoading(false);
     }
@@ -533,8 +513,9 @@ function useRefreshVaultData(initialData: VaultInformation, pubkey: string) {
   const refreshVaultData = async () => {
     try {
       setIsLoading(true);
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${baseUrl}/vault/${pubkey}?_=${Date.now()}`);
+      const res = await fetch(
+        `${API_BASE_URL}/vault/${pubkey}?_=${Date.now()}`
+      );
 
       if (!res.ok) throw new Error("Failed to fetch fresh data");
 
