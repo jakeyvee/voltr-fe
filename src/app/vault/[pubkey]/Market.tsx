@@ -46,6 +46,7 @@ export interface VaultInformation {
     icon: string;
     mint: string;
     price: number;
+    programId: string;
   };
   apy: {
     oneDay: number;
@@ -381,6 +382,8 @@ export default function MarketClientPage(initialVault: VaultInformation) {
           body = {
             userPubkey: user.toBase58(),
             lamportAmount: inputAmountBN.toString(),
+            assetMint: assetMint.toBase58(),
+            assetTokenProgram: vault.token.programId,
           };
         } else {
           if (userWithdrawRequest === null) {
@@ -403,7 +406,11 @@ export default function MarketClientPage(initialVault: VaultInformation) {
           } else {
             msg = "withdrawn";
             endpoint = `/vault/${vault.pubkey}/withdraw`;
-            body = { userPubkey: user.toBase58() };
+            body = {
+              userPubkey: user.toBase58(),
+              assetMint: assetMint.toBase58(),
+              assetTokenProgram: vault.token.programId,
+            };
           }
         }
 
