@@ -20,8 +20,6 @@ import AllocationsCard from "./allocation/allocations-card";
 import { DailyStats } from "./chart/RealTimeChartJs";
 import { Breadcrumb } from "./breadcrumb/Breadcrumb";
 import SwapCard, { RequestWithdrawal } from "./swap/SwapCard";
-import { DirectWithdrawalService } from "@/lib/directWithdrawalService";
-import { getAddressLookupTableAccounts } from "@/lib/addressLookupUtils";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { SEEDS, VAULT_PROGRAM_ID } from "@voltr/vault-sdk";
 
@@ -84,9 +82,6 @@ export default function MarketClientPage(initialVault: VaultInformation) {
 
   const conn = createConnection();
   const vaultPk = new PublicKey(vault.pubkey);
-  const directWithdrawalService = new DirectWithdrawalService(conn);
-  const supportsDirectWithdrawal =
-    directWithdrawalService.supportsDirectWithdrawal(vault.pubkey);
   const [userWithdrawRequest, setUserWithdrawRequest] =
     useState<RequestWithdrawal | null>(null);
 
@@ -334,113 +329,84 @@ export default function MarketClientPage(initialVault: VaultInformation) {
         Number(inputAmount) * 10 ** vault.token.decimals
       );
       let msg = "";
+      let endpoint = "";
+      let body: object = {};
 
-      if (
+      if (selectedTab === "deposit") {
+        msg = "deposited";
+        endpoint = `/vault/${vault.pubkey}/deposit`;
+        body = {
+          userPubkey: user.toBase58(),
+          lamportAmount: inputAmountBN.toString(),
+          assetMint: assetMint.toBase58(),
+          assetTokenProgram: vault.token.programId,
+        };
+      } else if (
         selectedTab === "withdraw" &&
-        supportsDirectWithdrawal &&
-        directWithdrawalService
+        vault.withdrawalWaitingPeriod === 0
       ) {
         msg = "instant withdrawn";
-        const { instructions, lookupTableAddresses } =
-          await directWithdrawalService.createDirectWithdrawalInstructions(
-            inputAmountBN,
+        endpoint = `/vault/${vault.pubkey}/direct-withdraw`;
+        body = {
+          userPubkey: user.toBase58(),
+          lamportAmount: inputAmountBN.toString(),
+          isWithdrawAll:
             inputAmountBN.toString() === userAssetAmount.toString(),
-            vault.pubkey,
-            user,
-            assetMint
-          );
-
-        const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-          units: 800000,
-        });
-        const { lastValidBlockHeight, blockhash } =
-          await conn.getLatestBlockhash();
-        const lookupTableAccounts = await getAddressLookupTableAccounts(
-          lookupTableAddresses,
-          conn
-        );
-        const messageV0 = new TransactionMessage({
-          payerKey: wallet.publicKey,
-          recentBlockhash: blockhash,
-          instructions: [modifyComputeUnits, ...instructions],
-        }).compileToV0Message(lookupTableAccounts);
-        const transaction = new VersionedTransaction(messageV0);
-        const txSig = await wallet.sendTransaction(transaction, conn);
-        const strategy: TransactionConfirmationStrategy = {
-          signature: txSig,
-          lastValidBlockHeight,
-          blockhash,
+          assetMint: assetMint.toBase58(),
+          assetTokenProgram: vault.token.programId,
         };
-        await conn.confirmTransaction(strategy, "confirmed");
       } else {
-        let endpoint = "";
-        let body: object = {};
-
-        if (selectedTab === "deposit") {
-          msg = "deposited";
-          endpoint = `/vault/${vault.pubkey}/deposit`;
+        if (userWithdrawRequest === null) {
+          msg = "requested withdrawal";
+          endpoint = `/vault/${vault.pubkey}/request-withdrawal`;
           body = {
             userPubkey: user.toBase58(),
             lamportAmount: inputAmountBN.toString(),
+            isAmountInLp: false,
+            isWithdrawAll:
+              inputAmountBN.toString() === userAssetAmount.toString(),
+          };
+        } else if (userWithdrawRequest.withdrawableFromTs > Date.now() / 1000) {
+          msg = "cancelled withdrawal";
+          endpoint = `/vault/${vault.pubkey}/cancel-withdrawal`;
+          body = { userPubkey: user.toBase58() };
+        } else {
+          msg = "withdrawn";
+          endpoint = `/vault/${vault.pubkey}/withdraw`;
+          body = {
+            userPubkey: user.toBase58(),
             assetMint: assetMint.toBase58(),
             assetTokenProgram: vault.token.programId,
           };
-        } else {
-          if (userWithdrawRequest === null) {
-            msg = "requested withdrawal";
-            endpoint = `/vault/${vault.pubkey}/request-withdrawal`;
-            body = {
-              userPubkey: user.toBase58(),
-              lamportAmount: inputAmountBN.toString(),
-              isAmountInLp: false,
-              isWithdrawAll:
-                inputAmountBN.toString() === userAssetAmount.toString(),
-            };
-          } else if (
-            userWithdrawRequest.withdrawableFromTs >
-            Date.now() / 1000
-          ) {
-            msg = "cancelled withdrawal";
-            endpoint = `/vault/${vault.pubkey}/cancel-withdrawal`;
-            body = { userPubkey: user.toBase58() };
-          } else {
-            msg = "withdrawn";
-            endpoint = `/vault/${vault.pubkey}/withdraw`;
-            body = {
-              userPubkey: user.toBase58(),
-              assetMint: assetMint.toBase58(),
-              assetTokenProgram: vault.token.programId,
-            };
-          }
         }
-
-        // Fetch serialized transaction from backend
-        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Failed to build transaction");
-        }
-        const { transaction: serializedTx } = await res.json();
-
-        // Deserialize, sign, and send the transaction
-        const txBuffer = bs58.decode(serializedTx);
-        const transaction = VersionedTransaction.deserialize(txBuffer);
-
-        const txSig = await wallet.sendTransaction(transaction, conn);
-        const { lastValidBlockHeight, blockhash } =
-          await conn.getLatestBlockhash();
-        const strategy: TransactionConfirmationStrategy = {
-          signature: txSig,
-          lastValidBlockHeight,
-          blockhash,
-        };
-        await conn.confirmTransaction(strategy, "confirmed");
       }
+
+      // Fetch serialized transaction from backend
+      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to build transaction");
+      }
+      const { transaction: serializedTx } = await res.json();
+
+      // Deserialize, sign, and send the transaction
+      const txBuffer = bs58.decode(serializedTx);
+      const transaction = VersionedTransaction.deserialize(txBuffer);
+
+      const txSig = await wallet.sendTransaction(transaction, conn);
+      const { lastValidBlockHeight, blockhash } =
+        await conn.getLatestBlockhash();
+      const strategy: TransactionConfirmationStrategy = {
+        signature: txSig,
+        lastValidBlockHeight,
+        blockhash,
+      };
+      await conn.confirmTransaction(strategy, "confirmed");
 
       toast.success(`Successfully ${msg}!`);
       setInputAmount(""); // Clear input on success
@@ -505,7 +471,7 @@ export default function MarketClientPage(initialVault: VaultInformation) {
             isButtonLoading={isButtonLoading}
             handleButtonClick={handleButtonClick}
             wallet={wallet}
-            supportsDirectWithdrawal={supportsDirectWithdrawal}
+            supportsDirectWithdrawal={vault.withdrawalWaitingPeriod === 0}
           />
         </div>
       </div>
