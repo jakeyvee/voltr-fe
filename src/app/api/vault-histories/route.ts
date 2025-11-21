@@ -131,7 +131,12 @@ async function updateVaultHistory(
     });
 
   if (insertError) {
-    throw new Error(`Error inserting vault history: ${insertError.message}`);
+    if (insertError.code === "23505") {
+      // duplicate key error is ok, so we can ignore it
+      return;
+    } else {
+      throw new Error(`Error inserting vault history: ${insertError.message}`);
+    }
   }
 }
 
