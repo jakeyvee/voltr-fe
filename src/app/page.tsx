@@ -42,7 +42,7 @@ async function getTvlData(): Promise<number | null> {
 export default async function Home() {
   // Mock data - replace with actual API calls
   const tvl = await getTvlData();
-  const totalStrategies = 6;
+  const totalStrategies = 7;
 
   return (
     <div className="min-h-[calc(100vh-15.5rem)]">
