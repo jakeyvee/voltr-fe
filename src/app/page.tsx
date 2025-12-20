@@ -1,9 +1,10 @@
-import VaultsGrid from "@/components/vaults-grid";
+import VaultsGrid, { Vault } from "@/components/vaults-grid";
 import { ArrowUpRightIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import LayersBg from "@/../public/images/layers_bg.png";
 import { formatNumber } from "@/lib/format";
+import { notFound } from "next/navigation";
 
 interface TvlData {
   success: boolean;
@@ -12,6 +13,14 @@ interface TvlData {
     lastUpdated: string;
   };
 }
+
+const getVaultsInfo = async () => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${baseUrl}/vaults`, { cache: "no-store" });
+  if (!res.ok) notFound();
+  const { vaults }: { vaults: Vault[] } = await res.json();
+  return vaults;
+};
 
 async function getTvlData(): Promise<number | null> {
   try {
@@ -41,7 +50,7 @@ async function getTvlData(): Promise<number | null> {
 
 export default async function Home() {
   // Mock data - replace with actual API calls
-  const tvl = await getTvlData();
+  const [tvl, vaults] = await Promise.all([getTvlData(), getVaultsInfo()]);
   const totalStrategies = 7;
 
   return (
@@ -98,7 +107,7 @@ export default async function Home() {
               </div>
               <div className="flex justify-between items-end gap-2">
                 <h3 className="text-xl lg:text-2xl text-white font-medium">
-                  Total Value Locked
+                  Total Deposits
                 </h3>
               </div>
             </div>
@@ -108,7 +117,7 @@ export default async function Home() {
               <div>
                 <div className="flex items-baseline gap-1 mb-2">
                   <h2 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-gray-900 tracking-tight">
-                    0{totalStrategies}
+                    0{vaults.length}
                   </h2>
                 </div>
               </div>
@@ -201,7 +210,7 @@ export default async function Home() {
             </Link>
           </div>
         </div>
-        <VaultsGrid />
+        <VaultsGrid vaults={vaults} />
       </div>
     </div>
   );

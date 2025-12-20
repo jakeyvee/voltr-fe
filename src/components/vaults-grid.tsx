@@ -1,7 +1,6 @@
 import { formatNumber } from "@/lib/format";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-interface Vault {
+
+export interface Vault {
   pubkey: string;
   name: string;
   age: number;
@@ -25,17 +24,7 @@ interface Vault {
   }[];
 }
 
-const getVaultsInfo = async () => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  const res = await fetch(`${baseUrl}/vaults`, { cache: "no-store" });
-  if (!res.ok) notFound();
-  const { vaults }: { vaults: Vault[] } = await res.json();
-  return vaults;
-};
-
-export default async function VaultsGrid() {
-  const vaults = await getVaultsInfo();
-
+export default async function VaultsGrid({ vaults }: { vaults: Vault[] }) {
   return (
     <section className="mt-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
@@ -55,7 +44,7 @@ export default async function VaultsGrid() {
                     <div className="text-sm text-gray-400">{vault.theme}</div>
                   </div>
                   <div className="text-green-300 text-lg font-medium">
-                    {formatNumber(vault.apy)}% {" "}
+                    {formatNumber(vault.apy)}%{" "}
                     <span className="text-xs text-gray-400 font-normal -ml-0.5">
                       APY
                     </span>
