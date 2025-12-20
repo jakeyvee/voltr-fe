@@ -218,7 +218,9 @@ export default function MarketClientPage(initialVault: VaultInformation) {
 
       const userAssetAta = getAssociatedTokenAddressSync(
         new PublicKey(vault.token.mint),
-        wallet.publicKey
+        wallet.publicKey,
+        false,
+        new PublicKey(vault.token.programId)
       );
 
       const updateAssetBalance = async () => {
