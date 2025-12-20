@@ -226,7 +226,8 @@ export default function MarketClientPage(initialVault: VaultInformation) {
           const userAssetAtaAcc = await getAccount(
             conn,
             userAssetAta,
-            "confirmed"
+            "confirmed",
+            new PublicKey(vault.token.programId)
           );
           setUserAssetWalletAmount(Number(userAssetAtaAcc?.amount));
         } catch (error) {
