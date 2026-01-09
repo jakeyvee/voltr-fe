@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { UnifiedWalletButton, useWallet } from "@jup-ag/wallet-adapter";
 import { useParams } from "next/navigation";
 import {
@@ -19,8 +20,19 @@ import {
   ShieldCheckIcon,
   AdjustmentsHorizontalIcon,
   InformationCircleIcon,
+  PuzzlePieceIcon,
+  PlusIcon,
+  TrashIcon,
+  CloudArrowUpIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+
+const AVAILABLE_ADAPTORS = [
+  { name: "Drift", pid: "EBN93eXs5fHGBABuajQqdsKRkCgaqtJa8vEFD6vKXiP" },
+  { name: "Jupiter", pid: "EW35URAx3LiM13fFK3QxAXfGemHso9HWPixrv7YDY4AM" },
+  { name: "Kamino", pid: "to6Eti9CsC5FGkAtqiPphvKD2hiQiLsS8zWiDBqBPKR" },
+  { name: "Trustful", pid: "3pnpK9nrs1R65eMV1wqCXkDkhSgN18xb1G5pgYPwoZjJ" },
+];
 
 export default function UpdateVaultPage() {
   const { pubkey } = useParams();
@@ -28,6 +40,7 @@ export default function UpdateVaultPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [vaultAccount, setVaultAccount] = useState<any>(null);
+  const [installedAdaptors, setInstalledAdaptors] = useState<string[]>([]);
 
   // --- Editable Form State ---
   const [maxCap, setMaxCap] = useState<string>("");
@@ -52,8 +65,15 @@ export default function UpdateVaultPage() {
   const fetchVaultData = async () => {
     try {
       setIsLoading(true);
-      const account = await vc.fetchVaultAccount(vaultPk);
+      const [account, adaptorReceipts] = await Promise.all([
+        vc.fetchVaultAccount(vaultPk),
+        vc.fetchAllAdaptorAddReceiptAccountsOfVault(vaultPk),
+      ]);
+
       setVaultAccount(account);
+      setInstalledAdaptors(
+        adaptorReceipts.map((r) => r.account.adaptorProgram.toBase58())
+      );
 
       // Pre-fill form
       setMaxCap(account.vaultConfiguration.maxCap.toString());
@@ -97,6 +117,54 @@ export default function UpdateVaultPage() {
         return new PublicKey(value).toBuffer();
       default:
         throw new Error("Unknown field");
+    }
+  };
+
+  const handleAdaptorAction = async (
+    programId: string,
+    action: "add" | "remove"
+  ) => {
+    if (!wallet.publicKey) return;
+    setIsUpdating(true);
+
+    try {
+      const adaptorProgram = new PublicKey(programId);
+      let ix;
+
+      if (action === "add") {
+        ix = await vc.createAddAdaptorIx({
+          vault: vaultPk,
+          admin: wallet.publicKey,
+          payer: wallet.publicKey,
+          adaptorProgram,
+        });
+      } else {
+        ix = await vc.createRemoveAdaptorIx({
+          vault: vaultPk,
+          admin: wallet.publicKey,
+          adaptorProgram,
+        });
+      }
+
+      const { blockhash } = await conn.getLatestBlockhash();
+      const messageV0 = new TransactionMessage({
+        payerKey: wallet.publicKey,
+        recentBlockhash: blockhash,
+        instructions: [ix],
+      }).compileToV0Message();
+
+      const transaction = new VersionedTransaction(messageV0);
+      const txSig = await wallet.sendTransaction(transaction, conn);
+      await conn.confirmTransaction(txSig, "confirmed");
+
+      toast.success(
+        `Adaptor ${action === "add" ? "added" : "removed"} successfully!`
+      );
+      fetchVaultData(); // Refresh list
+    } catch (e: any) {
+      toast.error(`Action failed: ${e.message}`);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -240,94 +308,205 @@ export default function UpdateVaultPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Settings Columns */}
-        <div className="lg:col-span-8 space-y-6">
-          <SectionCard
-            title="Global Parameters"
-            icon={
-              <AdjustmentsHorizontalIcon className="w-5 h-5 text-indigo-400" />
-            }
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Field
-                label="Max Capacity (Raw)"
-                current={vaultAccount.vaultConfiguration.maxCap.toString()}
-                value={maxCap}
-                onChange={setMaxCap}
-              />
-              <Field
-                label="Manager Authority"
-                current={vaultAccount.manager.toBase58()}
-                value={managerPk}
-                onChange={setManagerPk}
-              />
-              <Field
-                label="Waiting Period (Sec)"
-                current={vaultAccount.vaultConfiguration.withdrawalWaitingPeriod.toString()}
-                value={waitPeriod}
-                onChange={setWaitPeriod}
-              />
-              <Field
-                label="Locked Profit Degradation (Sec)"
-                current={vaultAccount.vaultConfiguration.lockedProfitDegradationDuration.toString()}
-                value={degradation}
-                onChange={setDegradation}
-              />
-            </div>
-          </SectionCard>
+        <div className="lg:col-span-8">
+          <TabGroup>
+            <TabList className="flex gap-4 mb-6 border-b border-white/5">
+              <Tab
+                className={({ selected }) => `
+        pb-4 text-sm font-medium outline-none transition-all border-b-2
+        ${
+          selected
+            ? "text-indigo-400 border-indigo-400"
+            : "text-gray-500 border-transparent hover:text-gray-300"
+        }
+      `}
+              >
+                <h3 className="flex items-center gap-3 text-lg">
+                  <AdjustmentsHorizontalIcon className="w-5 h-5" />
+                  Vault Config
+                </h3>
+              </Tab>
+              <Tab
+                className={({ selected }) => `
+        pb-4 text-sm font-medium outline-none transition-all border-b-2
+        ${
+          selected
+            ? "text-indigo-400 border-indigo-400"
+            : "text-gray-500 border-transparent hover:text-gray-300"
+        }
+      `}
+              >
+                <h3 className="flex items-center gap-3 text-lg">
+                  <PuzzlePieceIcon className="w-5 h-5" />
+                  Manage Adaptors
+                </h3>
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel className="space-y-6">
+                <SectionCard
+                  title="Global Parameters"
+                  icon={
+                    <AdjustmentsHorizontalIcon className="w-5 h-5 text-indigo-400" />
+                  }
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Field
+                      label="Max Capacity (Raw)"
+                      current={vaultAccount.vaultConfiguration.maxCap.toString()}
+                      value={maxCap}
+                      onChange={setMaxCap}
+                    />
+                    <Field
+                      label="Manager Authority"
+                      current={vaultAccount.manager.toBase58()}
+                      value={managerPk}
+                      onChange={setManagerPk}
+                    />
+                    <Field
+                      label="Waiting Period (Sec)"
+                      current={vaultAccount.vaultConfiguration.withdrawalWaitingPeriod.toString()}
+                      value={waitPeriod}
+                      onChange={setWaitPeriod}
+                    />
+                    <Field
+                      label="Locked Profit Degradation (Sec)"
+                      current={vaultAccount.vaultConfiguration.lockedProfitDegradationDuration.toString()}
+                      value={degradation}
+                      onChange={setDegradation}
+                    />
+                  </div>
+                </SectionCard>
 
-          <SectionCard
-            title="Fee Structure"
-            icon={<PencilSquareIcon className="w-5 h-5 text-orange-400" />}
-          >
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Field
-                  label="Manager Mgt Fee (BPS)"
-                  current={vaultAccount.feeConfiguration.managerManagementFee}
-                  value={mgtFeeManager}
-                  onChange={setMgtFeeManager}
-                  type="number"
-                />
-                <Field
-                  label="Manager Perf Fee (BPS)"
-                  current={vaultAccount.feeConfiguration.managerPerformanceFee}
-                  value={perfFeeManager}
-                  onChange={setPerfFeeManager}
-                  type="number"
-                />
-                <Field
-                  label="Admin Mgt Fee (BPS)"
-                  current={vaultAccount.feeConfiguration.adminManagementFee}
-                  value={mgtFeeAdmin}
-                  onChange={setMgtFeeAdmin}
-                  type="number"
-                />
-                <Field
-                  label="Admin Perf Fee (BPS)"
-                  current={vaultAccount.feeConfiguration.adminPerformanceFee}
-                  value={perfFeeAdmin}
-                  onChange={setPerfFeeAdmin}
-                  type="number"
-                />
-              </div>
-              <div className="pt-4 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Field
-                  label="Issuance Fee (BPS)"
-                  current={vaultAccount.feeConfiguration.issuanceFee}
-                  value={issuanceFee}
-                  onChange={setIssuanceFee}
-                  type="number"
-                />
-                <Field
-                  label="Redemption Fee (BPS)"
-                  current={vaultAccount.feeConfiguration.redemptionFee}
-                  value={redemptionFee}
-                  onChange={setRedemptionFee}
-                  type="number"
-                />
-              </div>
-            </div>
-          </SectionCard>
+                <SectionCard
+                  title="Fee Structure"
+                  icon={
+                    <PencilSquareIcon className="w-5 h-5 text-orange-400" />
+                  }
+                >
+                  <div className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Field
+                        label="Manager Mgt Fee (BPS)"
+                        current={
+                          vaultAccount.feeConfiguration.managerManagementFee
+                        }
+                        value={mgtFeeManager}
+                        onChange={setMgtFeeManager}
+                        type="number"
+                      />
+                      <Field
+                        label="Manager Perf Fee (BPS)"
+                        current={
+                          vaultAccount.feeConfiguration.managerPerformanceFee
+                        }
+                        value={perfFeeManager}
+                        onChange={setPerfFeeManager}
+                        type="number"
+                      />
+                      <Field
+                        label="Admin Mgt Fee (BPS)"
+                        current={
+                          vaultAccount.feeConfiguration.adminManagementFee
+                        }
+                        value={mgtFeeAdmin}
+                        onChange={setMgtFeeAdmin}
+                        type="number"
+                      />
+                      <Field
+                        label="Admin Perf Fee (BPS)"
+                        current={
+                          vaultAccount.feeConfiguration.adminPerformanceFee
+                        }
+                        value={perfFeeAdmin}
+                        onChange={setPerfFeeAdmin}
+                        type="number"
+                      />
+                    </div>
+                    <div className="pt-4 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Field
+                        label="Issuance Fee (BPS)"
+                        current={vaultAccount.feeConfiguration.issuanceFee}
+                        value={issuanceFee}
+                        onChange={setIssuanceFee}
+                        type="number"
+                      />
+                      <Field
+                        label="Redemption Fee (BPS)"
+                        current={vaultAccount.feeConfiguration.redemptionFee}
+                        value={redemptionFee}
+                        onChange={setRedemptionFee}
+                        type="number"
+                      />
+                    </div>
+                  </div>
+                </SectionCard>
+              </TabPanel>
+              <TabPanel>
+                <SectionCard
+                  title="Available Adaptors"
+                  icon={
+                    <CloudArrowUpIcon className="w-5 h-5 text-indigo-400" />
+                  }
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {AVAILABLE_ADAPTORS.map((adaptor) => {
+                      const isInstalled = installedAdaptors.includes(
+                        adaptor.pid
+                      );
+                      return (
+                        <div
+                          key={adaptor.pid}
+                          className="bg-gray-800/40 border border-white/5 rounded-xl p-5 flex items-center justify-between group hover:border-indigo-500/30 transition-all"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-white font-semibold">
+                              {adaptor.name} Adaptor
+                            </span>
+                            <span className="text-[10px] text-gray-500 font-mono mt-1">
+                              {adaptor.pid.slice(0, 6)}...
+                              {adaptor.pid.slice(-6)}
+                            </span>
+                          </div>
+
+                          {isInstalled ? (
+                            <button
+                              onClick={() =>
+                                handleAdaptorAction(adaptor.pid, "remove")
+                              }
+                              disabled={isUpdating}
+                              className="p-2.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                              title="Remove Adaptor"
+                            >
+                              <TrashIcon className="w-5 h-5" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                handleAdaptorAction(adaptor.pid, "add")
+                              }
+                              disabled={isUpdating}
+                              className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all"
+                              title="Add Adaptor"
+                            >
+                              <PlusIcon className="w-5 h-5" />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-8 p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-xl flex gap-3">
+                    <InformationCircleIcon className="w-5 h-5 text-indigo-400 shrink-0" />
+                    <p className="text-xs text-indigo-300/70 leading-relaxed">
+                      Adaptors allow the vault to interact with external
+                      protocols like Drift or Kamino.
+                    </p>
+                  </div>
+                </SectionCard>
+              </TabPanel>
+            </TabPanels>
+          </TabGroup>
         </div>
 
         {/* Action Sidebar */}
