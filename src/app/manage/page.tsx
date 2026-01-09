@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useWallet } from "@jup-ag/wallet-adapter";
+import React, { useMemo, useState } from "react";
+import { UnifiedWalletButton, useWallet } from "@jup-ag/wallet-adapter";
 import {
   PublicKey,
   Keypair,
@@ -55,8 +55,47 @@ export default function CreateVaultPage() {
   );
 
   // Metadata
-  const [lpSymbol, setLpSymbol] = useState("");
-  const [lpUri, setLpUri] = useState("");
+  const [lpName, setLpName] = useState<string | undefined>(undefined);
+  const [lpSymbol, setLpSymbol] = useState<string | undefined>(undefined);
+  const [lpUri, setLpUri] = useState<string | undefined>(undefined);
+
+  const isAllFieldsFilled = useMemo(() => {
+    return (
+      vaultName !== undefined &&
+      vaultDesc !== undefined &&
+      assetMint !== undefined &&
+      managerPk !== undefined &&
+      managerManagementFee !== undefined &&
+      managerPerformanceFee !== undefined &&
+      adminManagementFee !== undefined &&
+      adminPerformanceFee !== undefined &&
+      issuanceFee !== undefined &&
+      redemptionFee !== undefined &&
+      maxCap !== undefined &&
+      waitPeriod !== undefined &&
+      degradation !== undefined &&
+      lpName !== undefined &&
+      lpSymbol !== undefined &&
+      lpUri !== undefined
+    );
+  }, [
+    vaultName,
+    vaultDesc,
+    assetMint,
+    managerPk,
+    managerManagementFee,
+    managerPerformanceFee,
+    adminManagementFee,
+    adminPerformanceFee,
+    issuanceFee,
+    redemptionFee,
+    maxCap,
+    waitPeriod,
+    degradation,
+    lpName,
+    lpSymbol,
+    lpUri,
+  ]);
 
   const handleCreate = async () => {
     if (!wallet.publicKey) {
@@ -73,19 +112,22 @@ export default function CreateVaultPage() {
       const vaultAddress = vaultKp.publicKey;
 
       if (
-        !vaultName ||
-        !vaultDesc ||
-        !assetMint ||
-        !managerPk ||
-        !managerManagementFee ||
-        !managerPerformanceFee ||
-        !adminManagementFee ||
-        !adminPerformanceFee ||
-        !issuanceFee ||
-        !redemptionFee ||
-        !maxCap ||
-        !waitPeriod ||
-        !degradation
+        vaultName === undefined ||
+        vaultDesc === undefined ||
+        assetMint === undefined ||
+        managerPk === undefined ||
+        managerManagementFee === undefined ||
+        managerPerformanceFee === undefined ||
+        adminManagementFee === undefined ||
+        adminPerformanceFee === undefined ||
+        issuanceFee === undefined ||
+        redemptionFee === undefined ||
+        maxCap === undefined ||
+        waitPeriod === undefined ||
+        degradation === undefined ||
+        lpName === undefined ||
+        lpSymbol === undefined ||
+        lpUri === undefined
       ) {
         toast.error("Please fill in all fields");
         return;
@@ -119,7 +161,7 @@ export default function CreateVaultPage() {
       });
 
       const metadataIx = await vc.createCreateLpMetadataIx(
-        { name: vaultName + " LP", symbol: lpSymbol, uri: lpUri },
+        { name: lpName, symbol: lpSymbol, uri: lpUri },
         {
           payer: wallet.publicKey,
           admin: wallet.publicKey,
@@ -299,6 +341,12 @@ export default function CreateVaultPage() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
+                label="LP Name"
+                placeholder="Vault LP"
+                value={lpName}
+                onChange={setLpName}
+              />
+              <Input
                 label="LP Symbol"
                 placeholder="vUSDC"
                 value={lpSymbol}
@@ -321,23 +369,23 @@ export default function CreateVaultPage() {
               <h2 className="text-lg font-semibold text-white mb-4">
                 Deployment Summary
               </h2>
-              <div className="space-y-3 text-sm">
+              <div className="space-y-3 text-sm mb-4">
                 <SummaryItem label="Type" value="Standard Vault" />
                 <SummaryItem
                   label="Vault Name"
-                  value={vaultName || "Not Set"}
+                  value={vaultName !== undefined ? vaultName : "Not Set"}
                 />
                 <SummaryItem
                   label="Vault Description"
-                  value={vaultDesc || "Not Set"}
+                  value={vaultDesc !== undefined ? vaultDesc : "Not Set"}
                 />
                 <SummaryItem
                   label="Base Asset Mint"
-                  value={assetMint || "Not Set"}
+                  value={assetMint !== undefined ? assetMint : "Not Set"}
                 />
                 <SummaryItem
                   label="Manager Authority"
-                  value={managerPk || "Not Set"}
+                  value={managerPk !== undefined ? managerPk : "Not Set"}
                 />
                 <SummaryItem
                   label="Admin Authority"
@@ -345,50 +393,105 @@ export default function CreateVaultPage() {
                 />
                 <SummaryItem
                   label="Max Capacity"
-                  value={`${maxCap ? maxCap : "Not Set"}`}
+                  value={`${maxCap !== undefined ? maxCap : "Not Set"}`}
                 />
                 <SummaryItem
                   label="Locked Profit Degradation Duration"
-                  value={`${degradation ? degradation : "--"} Sec`}
+                  value={`${
+                    degradation !== undefined ? degradation : "--"
+                  } Sec`}
                 />
                 <SummaryItem
                   label="Withdraw Waiting Period"
-                  value={`${waitPeriod ? waitPeriod : "--"} Sec`}
+                  value={`${waitPeriod !== undefined ? waitPeriod : "--"} Sec`}
                 />
                 <SummaryItem
                   label="Admin Fee"
                   value={`${
-                    adminPerformanceFee ? adminPerformanceFee / 100 : "--"
+                    adminPerformanceFee !== undefined
+                      ? adminPerformanceFee / 100
+                      : "--"
                   }% Perf / ${
-                    adminManagementFee ? adminManagementFee / 100 : "--"
+                    adminManagementFee !== undefined
+                      ? adminManagementFee / 100
+                      : "--"
                   }% Mgt`}
                 />
                 <SummaryItem
                   label="Manager Fee"
                   value={`${
-                    managerPerformanceFee ? managerPerformanceFee / 100 : "--"
+                    managerPerformanceFee !== undefined
+                      ? managerPerformanceFee / 100
+                      : "--"
                   }% Perf / ${
-                    managerManagementFee ? managerManagementFee / 100 : "--"
+                    managerManagementFee !== undefined
+                      ? managerManagementFee / 100
+                      : "--"
                   }% Mgt`}
                 />
                 <SummaryItem
                   label="Issuance Fee"
-                  value={`${issuanceFee ? issuanceFee / 100 : "--"}%`}
+                  value={`${
+                    issuanceFee !== undefined ? issuanceFee / 100 : "--"
+                  }%`}
                 />
                 <SummaryItem
                   label="Redemption Fee"
-                  value={`${redemptionFee ? redemptionFee / 100 : "--"}%`}
+                  value={`${
+                    redemptionFee !== undefined ? redemptionFee / 100 : "--"
+                  }%`}
                 />
-                <SummaryItem label="LP Symbol" value={lpSymbol || "Not Set"} />
-                <SummaryItem label="LP URI" value={lpUri || "Not Set"} />
+                <SummaryItem
+                  label="LP Name"
+                  value={lpName !== undefined ? lpName : "Not Set"}
+                />
+                <SummaryItem
+                  label="LP Symbol"
+                  value={lpSymbol !== undefined ? lpSymbol : "Not Set"}
+                />
+                <SummaryItem
+                  label="LP URI"
+                  value={lpUri !== undefined ? lpUri : "Not Set"}
+                />
               </div>
-              <button
-                onClick={handleCreate}
-                disabled={isLoading || !vaultName || !assetMint}
-                className="btn w-full mt-8 bg-gradient-to-t from-indigo-600 to-indigo-500 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-indigo-500/20 disabled:opacity-50 transition-all"
-              >
-                {isLoading ? "Deploying..." : "Initialize Vault"}
-              </button>
+              {wallet && wallet.connected ? (
+                <button
+                  onClick={handleCreate}
+                  disabled={isLoading || !isAllFieldsFilled}
+                  className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Deploying...
+                    </div>
+                  ) : (
+                    "Initialize Vault"
+                  )}
+                </button>
+              ) : (
+                <UnifiedWalletButton
+                  buttonClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                  currentUserClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                />
+              )}
             </div>
 
             <div className="p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-xl">
@@ -474,8 +577,12 @@ const Select = ({ label, options, value, onChange }: any) => (
 );
 
 const SummaryItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex justify-between items-center border-b border-white/5 pb-2">
-    <span className="text-gray-400">{label}</span>
-    <span className="text-gray-100 font-medium">{value}</span>
+  <div className="flex justify-between items-center border-b border-white/5 pb-2 gap-2">
+    <span className="text-gray-400 whitespace-nowrap flex-shrink-0">
+      {label}
+    </span>
+    <span className="text-gray-100 font-medium truncate text-right min-w-0">
+      {value}
+    </span>
   </div>
 );
