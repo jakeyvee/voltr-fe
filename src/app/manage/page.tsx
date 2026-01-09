@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { UnifiedWalletButton, useWallet } from "@jup-ag/wallet-adapter";
 import {
   PublicKey,
@@ -23,6 +24,7 @@ import Link from "next/link";
 
 export default function CreateVaultPage() {
   const wallet = useWallet();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   // --- Form State ---
@@ -182,8 +184,9 @@ export default function CreateVaultPage() {
       const txSig = await wallet.sendTransaction(transaction, conn);
       await conn.confirmTransaction(txSig, "confirmed");
 
-      toast.success("Vault Created Successfully!");
-      console.log("Vault Address:", vaultAddress.toBase58());
+      toast.success("Vault Created Successfully! Redirecting to admin dashboard...");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      router.push(`/manage/${vaultAddress.toBase58()}`);
     } catch (error: any) {
       console.error(error);
       toast.error(`Creation failed: ${error.message}`);
