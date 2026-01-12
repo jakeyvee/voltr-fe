@@ -184,7 +184,9 @@ export default function CreateVaultPage() {
       const txSig = await wallet.sendTransaction(transaction, conn);
       await conn.confirmTransaction(txSig, "confirmed");
 
-      toast.success("Vault Created Successfully! Redirecting to admin dashboard...");
+      toast.success(
+        "Vault Created Successfully! Redirecting to admin dashboard..."
+      );
       await new Promise((resolve) => setTimeout(resolve, 3000));
       router.push(`/manage/${vaultAddress.toBase58()}`);
     } catch (error: any) {
@@ -248,17 +250,28 @@ export default function CreateVaultPage() {
             icon={<ShieldCheckIcon className="w-5 h-5 text-emerald-400" />}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Base Asset Mint"
-                placeholder="Address..."
-                value={assetMint}
-                onChange={setAssetMint}
-              />
+              <div className="flex flex-col gap-1.5">
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Admin Authority
+                </div>
+                <input
+                  type="text"
+                  className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-indigo-500 transition-colors"
+                  placeholder={"Wallet not connected"}
+                  value={wallet?.publicKey?.toBase58()}
+                />
+              </div>
               <Input
                 label="Manager Authority"
                 placeholder="Manager Public Key"
                 value={managerPk}
                 onChange={setManagerPk}
+              />
+              <Input
+                label="Base Asset Mint"
+                placeholder="Address..."
+                value={assetMint}
+                onChange={setAssetMint}
               />
             </div>
           </Card>
