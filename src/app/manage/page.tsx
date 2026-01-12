@@ -257,8 +257,9 @@ export default function CreateVaultPage() {
                 <input
                   type="text"
                   className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-indigo-500 transition-colors"
-                  placeholder={"Wallet not connected"}
+                  placeholder={"Wallet Not Connected"}
                   value={wallet?.publicKey?.toBase58()}
+                  disabled
                 />
               </div>
               <Input
