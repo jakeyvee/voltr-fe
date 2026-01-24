@@ -61,17 +61,17 @@ const atAero = localFont({
 export const metadata: Metadata = {
   title: "Start earning with confidence",
   description:
-    "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+    "Ranger opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
   openGraph: {
     title: "Start earning with confidence",
     description:
-      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+      "Ranger opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
     images: [
       {
         url: "/images/logo.png",
         width: 256,
         height: 256,
-        alt: "Voltr logo",
+        alt: "Ranger logo",
       },
     ],
     type: "website",
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Start earning with confidence",
     description:
-      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+      "Ranger opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
     images: ["/images/logo.png"],
   },
 };
@@ -93,7 +93,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${atAero.variable} bg-[#0c111d] font-inter text-base text-gray-200 antialiased`}
+        className={`${inter.variable} ${atAero.variable} bg-[#000] font-inter text-base text-gray-200 antialiased`}
       >
         <WalletWrapper>
           <div className="flex min-h-screen flex-col overflow-hidden supports-[overflow:clip]:overflow-clip">

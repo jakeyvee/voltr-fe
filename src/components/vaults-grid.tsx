@@ -33,7 +33,7 @@ export default async function VaultsGrid({ vaults }: { vaults: Vault[] }) {
           .map((vault, index) => (
             <div
               key={index}
-              className="flex flex-col rounded-xl bg-gray-900 shadow-sm overflow-hidden"
+              className="flex flex-col rounded-xl bg-bgBlack shadow-sm overflow-hidden"
             >
               <div className="px-5 py-4">
                 <div className="flex w-full items-center justify-between mb-3">
@@ -43,7 +43,7 @@ export default async function VaultsGrid({ vaults }: { vaults: Vault[] }) {
                     </h2>
                     <div className="text-sm text-gray-400">{vault.theme}</div>
                   </div>
-                  <div className="text-green-300 text-lg font-medium">
+                  <div className="text-ranger-400 text-lg font-medium">
                     {formatNumber(vault.apy)}%{" "}
                     <span className="text-xs text-gray-400 font-normal -ml-0.5">
                       APY

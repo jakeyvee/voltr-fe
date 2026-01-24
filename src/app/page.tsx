@@ -62,7 +62,7 @@ export default async function Home() {
             className="lg:col-span-5 rounded-xl p-6 lg:p-8 flex flex-col justify-between h-[35rem] lg:h-[38rem] relative overflow-hidden"
             style={{
               background:
-                "linear-gradient(180deg, oklch(87% 0.065 274.039) 1.84%, oklch(78.5% 0.115 274.713) 23.3%, oklch(67.3% 0.182 276.935) 35.22%, oklch(58.5% 0.233 277.117) 47.62%, #38306F 66.28%, #000000 99.59%)",
+                "linear-gradient(180deg, #B7E5AD 1.84%, #A2CC9A 23.3%, #8EB286 35.22%, #7A9973 47.62%, #51664D 66.28%, #293326 99.59%)",
             }}
           >
             <div className="relative z-10">
@@ -77,10 +77,10 @@ export default async function Home() {
               <div className="flex flex-wrap gap-3">
                 <Link
                   target="_blank"
-                  href="https://tally.so/r/mVyajN"
-                  className="group flex items-center gap-2 px-6 py-2.5 border border-white rounded-2xl text-white text-sm hover:bg-white hover:text-indigo-600 transition-all duration-300"
+                  href="https://app.ranger.finance/earn"
+                  className="group flex items-center gap-2 px-6 py-2.5 border border-white rounded-2xl text-white text-sm hover:bg-white hover:text-ranger-800 transition-all duration-300"
                 >
-                  <span>Get private beta access</span>
+                  <span>Start Earning Now</span>
                   <ArrowUpRightIcon className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </div>
@@ -94,10 +94,10 @@ export default async function Home() {
           {/* Right Side - Stacked Containers */}
           <div className="lg:col-span-3 grid grid-rows-2 gap-3 lg:gap-6">
             {/* TVL Container */}
-            <div className="rounded-xl p-6 bg-gray-900 flex flex-col justify-between h-[13.5rem] lg:h-[18.1875rem] overflow-hidden border border-gray-800">
+            <div className="rounded-xl p-6 bg-bgBlack flex flex-col justify-between h-[13.5rem] lg:h-[18.1875rem] overflow-hidden border border-gray-800">
               <div>
                 <div className="flex items-baseline gap-1 mb-2">
-                  <h2 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-indigo-400 tracking-tight">
+                  <h2 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-ranger-400 tracking-tight">
                     $
                   </h2>
                   <h2 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white tracking-tight">
@@ -113,7 +113,7 @@ export default async function Home() {
             </div>
 
             {/* Total Strategies Container */}
-            <div className="rounded-xl p-6 bg-indigo-500 flex flex-col justify-between h-[13.5rem] lg:h-[18.1875rem] overflow-hidden">
+            <div className="rounded-xl p-6 bg-ranger-400 flex flex-col justify-between h-[13.5rem] lg:h-[18.1875rem] overflow-hidden">
               <div>
                 <div className="flex items-baseline gap-1 mb-2">
                   <h2 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-gray-900 tracking-tight">
@@ -133,7 +133,7 @@ export default async function Home() {
         <div className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-0">
             {/* Header Card */}
-            <div className="rounded-xl lg:rounded-r-none bg-gray-900 text-white p-6 lg:h-[20.5625rem] h-[16rem] flex flex-col justify-between">
+            <div className="rounded-xl lg:rounded-r-none bg-bgBlack text-white p-6 lg:h-[20.5625rem] h-[16rem] flex flex-col justify-between">
               <div>
                 <h2 className="text-4xl font-bold uppercase leading-tight tracking-tight mb-4">
                   Elite Managers
@@ -147,7 +147,7 @@ export default async function Home() {
 
             <Link
               href="https://elemental.fund"
-              className="rounded-xl lg:rounded-none bg-gray-900 hover:bg-indigo-500 text-white hover:text-gray-900 group transition-all duration-700 ease-in-out lg:h-[20.5625rem] h-[16rem] relative overflow-hidden"
+              className="rounded-xl lg:rounded-none bg-bgBlack hover:bg-ranger-500 text-white hover:text-gray-900 group transition-all duration-700 ease-in-out lg:h-[20.5625rem] h-[16rem] relative overflow-hidden"
             >
               <div className="absolute top-5 left-6 z-10">
                 <img
@@ -179,7 +179,7 @@ export default async function Home() {
 
             <Link
               href="https://vectis.finance"
-              className="rounded-xl lg:rounded-l-none bg-gray-900 hover:bg-indigo-500 text-white hover:text-gray-900 group transition-all duration-700 ease-in-out lg:h-[20.5625rem] h-[16rem] relative overflow-hidden"
+              className="rounded-xl lg:rounded-l-none bg-bgBlack hover:bg-ranger-500 text-white hover:text-gray-900 group transition-all duration-700 ease-in-out lg:h-[20.5625rem] h-[16rem] relative overflow-hidden"
             >
               <div className="absolute top-5 left-6 z-10">
                 <img

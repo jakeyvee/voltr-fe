@@ -32,6 +32,22 @@ module.exports = {
           "100%": { transform: "translateY(-245px)" },
         },
       },
+      colors: {
+        bgBlack: "#0E0E0E",
+        phantom: "#1E1E24",
+        ranger: {
+          "100": "#E3FFDC",
+          "200": "#E3FFDC",
+          "300": "#E3FFDC",
+          "400": "#CBFFC0",
+          "500": "#B7E5AD",
+          "600": "#A2CC9A",
+          "700": "#8EB286",
+          "800": "#7A9973",
+          "900": "#668060",
+          "950": "#51664D",
+        }
+      },
     },
   },
   daisyui: {

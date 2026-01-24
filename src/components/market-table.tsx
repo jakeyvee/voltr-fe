@@ -40,10 +40,10 @@ export default async function MarketsTable() {
     <section>
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         {/* Desktop View (Table) - Hidden on mobile */}
-        <div className="hidden md:block bg-gray-900 relative shadow-md rounded-lg overflow-hidden">
+        <div className="hidden md:block bg-bgBlack relative shadow-md rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left text-gray-400 table-fixed">
-              <thead className="text-xs uppercase bg-gray-800 text-gray-400">
+              <thead className="text-xs uppercase bg-phantom text-gray-400">
                 <tr>
                   <th scope="col" className="px-4 py-3 w-48">
                     Vault
@@ -137,12 +137,12 @@ export default async function MarketsTable() {
                         </div>
                       </td>
                       <td className="px-4 py-3 w-28">
-                        <div className="text-green-300">
+                        <div className="text-ranger-300">
                           {formatNumber(vault.apy)}%
                         </div>
                       </td>
                       <td className="px-4 py-3 w-32 text-white">
-                        <div className="bg-indigo-500/30 rounded-lg px-3 py-1.5 items-center">
+                        <div className="bg-ranger-500/30 rounded-lg px-3 py-1.5 items-center">
                           <Link
                             href={
                               vault.name.includes("Turbo")
@@ -151,7 +151,7 @@ export default async function MarketsTable() {
                             }
                           >
                             <div className="flex items-center justify-between">
-                              <div className="text-indigo-200 font-semibold hover:text-indigo-100 mx-auto">
+                              <div className="text-ranger-400 font-semibold hover:text-ranger-300 mx-auto">
                                 View More
                               </div>
                             </div>
@@ -171,7 +171,7 @@ export default async function MarketsTable() {
           {vaults.map((vault, index) => (
             <div
               key={index}
-              className="flex flex-col rounded-xl bg-gray-900 shadow-sm overflow-hidden"
+              className="flex flex-col rounded-xl bg-bgBlack shadow-sm overflow-hidden"
             >
               <div className="px-5 py-4">
                 <div className="flex w-full items-center justify-between mb-3">
@@ -181,7 +181,7 @@ export default async function MarketsTable() {
                     </h2>
                     <div className="text-sm text-gray-400">{vault.theme}</div>
                   </div>
-                  <div className="text-green-300 text-lg font-medium">
+                  <div className="text-ranger-400 text-lg font-medium">
                     {formatNumber(vault.apy)}%
                     <span className="text-xs text-gray-400 font-normal -ml-0.5">
                       APY
@@ -243,13 +243,13 @@ export default async function MarketsTable() {
                       ? `https://kamino.com/earn/${vault.pubkey}`
                       : `/vault/${vault.pubkey}`
                   }
-                  className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
+                  className="btn w-full bg-gradient-to-t from-ranger-600 to-ranger-500 text-white shadow-inner hover:bg-gradient-to-b"
                 >
-                  <span className="text-[16px] font-semibold text-indigo-200">
+                  <span className="text-[16px] font-semibold text-ranger-400">
                     View More
                   </span>
                   <svg
-                    className="w-4 h-4 text-indigo-200 ml-1"
+                    className="w-4 h-4 text-ranger-400 ml-1"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 12 10"
                     fill="currentColor"

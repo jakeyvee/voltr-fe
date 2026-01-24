@@ -25,7 +25,7 @@ export default function MetricCard({
 
   return (
     <div className="grid md:grid-cols-2 gap-2">
-      <div className="bg-gray-900 shadow-sm rounded-xl flex flex-col">
+      <div className="bg-bgBlack shadow-sm rounded-xl flex flex-col">
         <div className="px-5 py-4 flex flex-row justify-between">
           <div className="flex flex-col space-y-2 justify-between">
             <h2 className="text-sm font-medium text-gray-500">
@@ -42,7 +42,7 @@ export default function MetricCard({
           </div>
         </div>
       </div>
-      <div className="bg-gray-900 shadow-sm rounded-xl flex flex-col relative">
+      <div className="bg-bgBlack shadow-sm rounded-xl flex flex-col relative">
         <div className="px-5 py-3">
           <div className="w-full grid grid-cols-2">
             <div className="flex flex-col items-center justify-center py-2 space-y-0.5 border-r border-b border-slate-700/60">
@@ -74,7 +74,7 @@ export default function MetricCard({
           </div>
         </div>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-3 h-3 rounded-full bg-gray-900 z-10"></div>
+          <div className="w-3 h-3 rounded-full bg-bgBlack z-10"></div>
         </div>
       </div>
     </div>

@@ -86,7 +86,7 @@ export default function AllocationsCard({
 
   const colors = [
     tailwindConfig.theme.colors.violet[500],
-    tailwindConfig.theme.colors.indigo[500],
+    tailwindConfig.theme.colors.ranger[500],
     tailwindConfig.theme.colors.teal[500],
     tailwindConfig.theme.colors.pink[500],
     tailwindConfig.theme.colors.orange[500],
@@ -95,13 +95,13 @@ export default function AllocationsCard({
     tailwindConfig.theme.colors.fuchsia[500],
     tailwindConfig.theme.colors.green[500],
     tailwindConfig.theme.colors.red[500],
-    tailwindConfig.theme.colors.blue[500],
+    tailwindConfig.theme.colors.emerald[500],
     tailwindConfig.theme.colors.gray[500],
   ];
 
   const hoverColors = [
     tailwindConfig.theme.colors.violet[600],
-    tailwindConfig.theme.colors.indigo[600],
+    tailwindConfig.theme.colors.ranger[600],
     tailwindConfig.theme.colors.teal[600],
     tailwindConfig.theme.colors.pink[600],
     tailwindConfig.theme.colors.orange[600],
@@ -110,7 +110,7 @@ export default function AllocationsCard({
     tailwindConfig.theme.colors.fuchsia[600],
     tailwindConfig.theme.colors.green[600],
     tailwindConfig.theme.colors.red[600],
-    tailwindConfig.theme.colors.blue[600],
+    tailwindConfig.theme.colors.emerald[600],
     tailwindConfig.theme.colors.gray[600],
   ];
 
@@ -135,7 +135,7 @@ export default function AllocationsCard({
   );
 
   return (
-    <div className="col-span-full md:col-span-4 bg-gray-900 shadow-sm rounded-xl">
+    <div className="col-span-full md:col-span-4 bg-bgBlack shadow-sm rounded-xl">
       <header className="px-5 py-4 border-b border-slate-700/60">
         <h2 className="font-semibold text-gray-100">Current Allocations</h2>
       </header>

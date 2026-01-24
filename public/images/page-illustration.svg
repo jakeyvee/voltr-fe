@@ -26,13 +26,13 @@
         </linearGradient>
         <linearGradient id="pid" x1="63.707" x2="229.25" y1="116.657" y2="464.961"
             gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6366f1" stop-opacity=".8" />
-            <stop offset=".382" stop-color="#6366f1" stop-opacity=".32" />
-            <stop offset="1" stop-color="#6366f1" stop-opacity="0" />
+            <stop stop-color="#CBFFC0" stop-opacity=".8" />
+            <stop offset=".382" stop-color="#CBFFC0" stop-opacity=".32" />
+            <stop offset="1" stop-color="#CBFFC0" stop-opacity="0" />
         </linearGradient>
         <linearGradient id="pig" x1="495" x2="422" y1="-95" y2="275" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6366f1" stop-opacity=".5" />
-            <stop offset="1" stop-color="#6366f1" stop-opacity="0" />
+            <stop stop-color="#CBFFC0" stop-opacity=".5" />
+            <stop offset="1" stop-color="#CBFFC0" stop-opacity="0" />
         </linearGradient>
         <filter id="pie">
             <feGaussianBlur stdDeviation="96" />

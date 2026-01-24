@@ -5,9 +5,9 @@
     <defs>
         <linearGradient id="b" x1="-19.293" x2="146.25" y1="251.657" y2="599.961"
             gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6366F1" stop-opacity=".8" />
-            <stop offset=".382" stop-color="#6366F1" stop-opacity=".32" />
-            <stop offset="1" stop-color="#6366F1" stop-opacity="0" />
+            <stop stop-color="#CBFFC0" stop-opacity=".8" />
+            <stop offset=".382" stop-color="#CBFFC0" stop-opacity=".32" />
+            <stop offset="1" stop-color="#CBFFC0" stop-opacity="0" />
         </linearGradient>
         <filter id="a" width="758.843" height="666.843" x=".578" y=".578"
             color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">

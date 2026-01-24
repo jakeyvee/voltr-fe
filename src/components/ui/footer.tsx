@@ -34,8 +34,8 @@ export default function Footer() {
             <ul className="inline-flex gap-1">
               <li>
                 <a
-                  className="flex items-center justify-center text-gray-400 transition hover:text-gray-300 bg-gray-800 rounded-full"
-                  href="https://x.com/voltrxyz"
+                  className="flex items-center justify-center text-gray-400 transition hover:text-gray-300 bg-bgBlack rounded-full"
+                  href="https://x.com/ranger_finance"
                   aria-label="Twitter"
                 >
                   <svg
@@ -49,8 +49,8 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  className="flex items-center justify-center text-gray-400 transition hover:text-gray-300 bg-gray-800 rounded-full"
-                  href="https://github.com/voltrxyz"
+                  className="flex items-center justify-center text-gray-400 transition hover:text-gray-300 bg-bgBlack rounded-full"
+                  href="https://github.com/ranger-finance"
                   aria-label="Github"
                 >
                   <svg
@@ -69,7 +69,7 @@ export default function Footer() {
               <li className="flex items-center gap-1 text-gray-400">
                 <a
                   className="flex items-center justify-center transition hover:text-gray-300 gap-1"
-                  href="https://docs.voltr.xyz/"
+                  href="https://docs.ranger.finance/"
                   aria-label="Docs"
                 >
                   <BookOpenIcon className="w-4 h-4" />

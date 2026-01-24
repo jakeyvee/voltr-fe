@@ -2,8 +2,8 @@ export default function Terms() {
   return (
     <div className="min-h-[calc(100vh-15.5rem)]">
       <div className="mx-auto max-w-4xl px-4 md:px-6">
-        <div className="mt-6 bg-gray-900 relative shadow-md rounded-lg overflow-hidden">
-          <div className="py-8 px-4 md:p-12 text-gray-300 space-y-4 prose prose-invert prose-headings:text-white prose-a:text-indigo-400 hover:prose-a:text-indigo-300 prose-strong:text-gray-100">
+        <div className="mt-6 bg-bgBlack relative shadow-md rounded-lg overflow-hidden">
+          <div className="py-8 px-4 md:p-12 text-gray-300 space-y-4 prose prose-invert prose-headings:text-white prose-a:text-ranger-400 hover:prose-a:text-ranger-300 prose-strong:text-gray-100">
             <h1 className="text-4xl font-bold text-center !text-white mb-4">
               Terms and Conditions
             </h1>

@@ -204,7 +204,7 @@ export default function CreateVaultPage() {
         <div>
           <Link
             href="/vaults"
-            className="flex items-center text-sm text-indigo-400 hover:text-indigo-300 transition mb-2"
+            className="flex items-center text-sm text-ranger-400 hover:text-ranger-300 transition mb-2"
           >
             <ArrowLeftIcon className="w-4 h-4 mr-1" /> Back to Vaults
           </Link>
@@ -216,7 +216,7 @@ export default function CreateVaultPage() {
           </p>
         </div>
         <div className="hidden md:block">
-          <RocketLaunchIcon className="w-12 h-12 text-indigo-500/20" />
+          <RocketLaunchIcon className="w-12 h-12 text-ranger-500/20" />
         </div>
       </div>
 
@@ -226,7 +226,7 @@ export default function CreateVaultPage() {
           {/* Section 1: Identity */}
           <Card
             title="Vault Identity"
-            icon={<SparklesIcon className="w-5 h-5 text-indigo-400" />}
+            icon={<SparklesIcon className="w-5 h-5 text-ranger-400" />}
           >
             <div className="grid grid-cols-1 gap-4">
               <Input
@@ -247,7 +247,7 @@ export default function CreateVaultPage() {
           {/* Section 2: Asset Details */}
           <Card
             title="Asset Configuration"
-            icon={<ShieldCheckIcon className="w-5 h-5 text-emerald-400" />}
+            icon={<ShieldCheckIcon className="w-5 h-5 text-ranger-400" />}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
@@ -256,7 +256,7 @@ export default function CreateVaultPage() {
                 </div>
                 <input
                   type="text"
-                  className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-indigo-500 transition-colors"
+                  className="bg-phantom border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-ranger-500 transition-colors"
                   placeholder={"Wallet Not Connected"}
                   value={wallet?.publicKey?.toBase58()}
                   disabled
@@ -382,7 +382,7 @@ export default function CreateVaultPage() {
         {/* Sidebar / Summary */}
         <div className="lg:col-span-1">
           <div className="sticky top-10 space-y-4">
-            <div className="bg-gray-900 border border-indigo-500/20 rounded-2xl p-6 shadow-xl">
+            <div className="bg-bgBlack border border-ranger-500/20 rounded-2xl p-6 shadow-xl">
               <h2 className="text-lg font-semibold text-white mb-4">
                 Deployment Summary
               </h2>
@@ -475,7 +475,7 @@ export default function CreateVaultPage() {
                 <button
                   onClick={handleCreate}
                   disabled={isLoading || !isAllFieldsFilled}
-                  className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
+                  className="btn w-full bg-gradient-to-t from-ranger-600 to-ranger-500 text-white shadow-inner hover:bg-gradient-to-b"
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center">
@@ -505,14 +505,14 @@ export default function CreateVaultPage() {
                 </button>
               ) : (
                 <UnifiedWalletButton
-                  buttonClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
-                  currentUserClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                  buttonClassName="btn !w-full !bg-gradient-to-t !from-ranger-500 !to-ranger-400 !bg-[length:100%_100%] !bg-[bottom] !text-gray-900 !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                  currentUserClassName="btn !w-full !bg-gradient-to-t !from-ranger-500 !to-ranger-400 !bg-[length:100%_100%] !bg-[bottom] !text-gray-900 !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
                 />
               )}
             </div>
 
-            <div className="p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-xl">
-              <p className="text-xs text-indigo-300/70 leading-relaxed">
+            <div className="p-4 bg-ranger-500/5 border border-ranger-500/10 rounded-xl">
+              <p className="text-xs text-ranger-300/70 leading-relaxed">
                 By initializing this vault, you will become the Admin. This
                 allows you to update configurations and add adapters later.
               </p>
@@ -535,7 +535,7 @@ const Card = ({
   children: React.ReactNode;
   icon: React.ReactNode;
 }) => (
-  <div className="bg-gray-900/50 border border-white/5 rounded-2xl p-6 backdrop-blur-sm">
+  <div className="bg-bgBlack/80 border border-white/5 rounded-2xl p-6 backdrop-blur-sm">
     <div className="flex items-center gap-2 mb-6">
       {icon}
       <h2 className="text-lg font-semibold text-gray-100">{title}</h2>
@@ -551,7 +551,7 @@ const Input = ({ label, value, onChange, placeholder, type = "text" }: any) => (
     </label>
     <input
       type={type}
-      className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-indigo-500 transition-colors"
+      className="bg-phantom border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-ranger-500 transition-colors"
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -566,7 +566,7 @@ const TextArea = ({ label, value, onChange, placeholder }: any) => (
     </label>
     <textarea
       rows={3}
-      className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-indigo-500 transition-colors"
+      className="bg-phantom border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-ranger-500 transition-colors"
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -580,7 +580,7 @@ const Select = ({ label, options, value, onChange }: any) => (
       {label}
     </label>
     <select
-      className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-indigo-500 transition-colors"
+      className="bg-phantom border border-gray-700 rounded-lg px-4 py-2.5 text-white outline-none focus:border-ranger-500 transition-colors"
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >
