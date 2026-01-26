@@ -151,7 +151,7 @@ export default async function MarketsTable() {
                             }
                           >
                             <div className="flex items-center justify-between">
-                              <div className="text-gray-900 font-semibold hover:text-ranger-300 mx-auto">
+                              <div className="text-gray-900 font-semibold hover:text-gray-800 mx-auto">
                                 View More
                               </div>
                             </div>
@@ -243,13 +243,13 @@ export default async function MarketsTable() {
                       ? `https://kamino.com/earn/${vault.pubkey}`
                       : `/vault/${vault.pubkey}`
                   }
-                  className="btn w-full bg-gradient-to-t from-ranger-600 to-ranger-500 text-white shadow-inner hover:bg-gradient-to-b"
+                  className="btn w-full bg-gradient-to-t from-ranger-600 to-ranger-500 text-gray-900 hover:text-gray-800 shadow-inner hover:bg-gradient-to-b"
                 >
-                  <span className="text-[16px] font-semibold text-gray-900">
+                  <span className="text-[16px] font-semibold">
                     View More
                   </span>
                   <svg
-                    className="w-4 h-4 text-ranger-400 ml-1"
+                    className="w-4 h-4 ml-1"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 12 10"
                     fill="currentColor"
