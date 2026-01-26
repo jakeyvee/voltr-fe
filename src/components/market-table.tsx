@@ -142,7 +142,7 @@ export default async function MarketsTable() {
                         </div>
                       </td>
                       <td className="px-4 py-3 w-32 text-white">
-                        <div className="bg-ranger-500/30 rounded-lg px-3 py-1.5 items-center">
+                        <div className="bg-gradient-to-t from-ranger-600 to-ranger-500 rounded-lg px-3 py-1.5 items-center">
                           <Link
                             href={
                               vault.name.includes("Turbo")
@@ -151,7 +151,7 @@ export default async function MarketsTable() {
                             }
                           >
                             <div className="flex items-center justify-between">
-                              <div className="text-ranger-400 font-semibold hover:text-ranger-300 mx-auto">
+                              <div className="text-gray-900 font-semibold hover:text-ranger-300 mx-auto">
                                 View More
                               </div>
                             </div>
@@ -245,7 +245,7 @@ export default async function MarketsTable() {
                   }
                   className="btn w-full bg-gradient-to-t from-ranger-600 to-ranger-500 text-white shadow-inner hover:bg-gradient-to-b"
                 >
-                  <span className="text-[16px] font-semibold text-ranger-400">
+                  <span className="text-[16px] font-semibold text-gray-900">
                     View More
                   </span>
                   <svg
