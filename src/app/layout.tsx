@@ -6,6 +6,7 @@ import WalletWrapper from "@/components/WalletWrapper";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import PageIllustration from "@/components/page-illustration";
+import AcquisitionBanner from "@/components/acquisition-banner";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -97,6 +98,7 @@ export default function RootLayout({
       >
         <WalletWrapper>
           <div className="flex min-h-screen flex-col overflow-hidden supports-[overflow:clip]:overflow-clip">
+            <AcquisitionBanner />
             <Header />
             <PageIllustration />
             {children}
