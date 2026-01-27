@@ -147,7 +147,7 @@ export default async function MarketsTable() {
                             href={
                               vault.name.includes("Turbo")
                                 ? `https://kamino.com/earn/${vault.pubkey}`
-                                : `/vault/${vault.pubkey}`
+                                : `/earn/${vault.pubkey}`
                             }
                           >
                             <div className="flex items-center justify-between">
@@ -241,7 +241,7 @@ export default async function MarketsTable() {
                   href={
                     vault.name.includes("Turbo")
                       ? `https://kamino.com/earn/${vault.pubkey}`
-                      : `/vault/${vault.pubkey}`
+                      : `/earn/${vault.pubkey}`
                   }
                   className="btn w-full bg-gradient-to-t from-ranger-600 to-ranger-500 text-gray-900 hover:text-gray-800 shadow-inner hover:bg-gradient-to-b"
                 >
