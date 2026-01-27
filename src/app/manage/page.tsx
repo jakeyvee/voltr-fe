@@ -89,7 +89,7 @@ export default function ManagePage() {
                                 Manage Vault
                             </h2>
                             <p className="text-gray-400 mb-6 flex-grow">
-                                Access your vault's configuration panel to update parameters,
+                                Access your vaults&apos; configuration panel to update parameters,
                                 manage fees, and add protocol integrations.
                             </p>
 
