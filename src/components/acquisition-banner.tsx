@@ -14,7 +14,7 @@ export default function AcquisitionBanner() {
             <div className="max-w-6xl mx-auto px-4 md:px-6 py-2">
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 flex-1 justify-center md:justify-start">
-                        <p className="text-sm md:text-base text-white font-medium text-center md:text-left">
+                        <h3 className="text-sm md:text-base text-white font-medium text-center md:text-left">
                             We've officially merged Voltr into Ranger,
                             learn about {" "}
                             <Link
@@ -25,7 +25,7 @@ export default function AcquisitionBanner() {
                             >the acquisition
                             </Link>
                             .
-                        </p>
+                        </h3>
                     </div>
 
                     {/* Close Button */}
