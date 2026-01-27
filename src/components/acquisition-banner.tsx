@@ -15,7 +15,7 @@ export default function AcquisitionBanner() {
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 flex-1 justify-center md:justify-start">
                         <h3 className="text-sm md:text-base text-white font-medium text-center md:text-left">
-                            We've officially merged Voltr into Ranger,
+                            We&apos;ve officially merged Voltr into Ranger,
                             learn about {" "}
                             <Link
                                 href="https://x.com/ranger_finance/status/1987897253043036255"
