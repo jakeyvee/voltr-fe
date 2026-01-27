@@ -203,10 +203,10 @@ export default function CreateVaultPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <Link
-            href="/vaults"
+            href="/manage"
             className="flex items-center text-sm text-ranger-400 hover:text-ranger-300 transition mb-2"
           >
-            <ArrowLeftIcon className="w-4 h-4 mr-1" /> Back to Vaults
+            <ArrowLeftIcon className="w-4 h-4 mr-1" /> Back to Manage
           </Link>
           <h1 className="text-3xl font-bold text-white tracking-tight">
             Launch New Vault
