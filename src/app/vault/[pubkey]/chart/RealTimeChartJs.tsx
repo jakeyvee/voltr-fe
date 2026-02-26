@@ -43,7 +43,7 @@ export default function ChartCardComponent({
   tokenName,
 }: DailyData) {
   // convert 2025-01-17 00:00:00+00 string to Date
-  const dateLabelsDate = dateLabels.map((date) => new Date(date));
+  const dateLabelsDate = dateLabels.map((date) => new Date(date + "T00:00:00"));
 
   const chartData = {
     labels: dateLabelsDate,
