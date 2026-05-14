@@ -2,9 +2,9 @@
 .stats-dropdown-menu {
   min-width: 80px;
   padding: 4px 0;
-  background-color:  #1E1E24 !important;
+  background-color: rgb(17 24 39) !important;
   box-shadow: none !important;
-  border-radius:0.25rem !important;
+  border-radius: 0.25rem !important;
   border: none !important;
   --tw-ring-color: rgb(199 210 254 / 0.2) !important;
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0

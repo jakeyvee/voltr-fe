@@ -42,7 +42,7 @@ export default function VaultCard({
   const [selectedTab, setSelectedTab] = useState(0);
 
   return (
-    <div className="bg-bgBlack shadow-sm rounded-xl">
+    <div className="bg-gray-900 shadow-sm rounded-xl">
       <div className="flex flex-col h-full">
         <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
           <div className="relative mt-2">
@@ -51,7 +51,7 @@ export default function VaultCard({
                 className={({ selected }) =>
                   `w-1/3 text-sm font-medium inline-block py-3 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
                     selected
-                      ? "border-t-0 border-b-ranger-500 text-ranger-400"
+                      ? "border-t-0 border-b-indigo-500 text-indigo-400"
                       : "border-y-0 text-gray-400 hover:text-gray-300"
                   }`
                 }
@@ -62,7 +62,7 @@ export default function VaultCard({
                 className={({ selected }) =>
                   `w-1/3 text-sm font-medium inline-block py-2 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
                     selected
-                      ? "border-t-0 border-b-ranger-500 text-ranger-400"
+                      ? "border-t-0 border-b-indigo-500 text-indigo-400"
                       : "border-y-0 text-gray-400 hover:text-gray-300"
                   }`
                 }
@@ -73,7 +73,7 @@ export default function VaultCard({
                 className={({ selected }) =>
                   `w-1/3 text-sm font-medium inline-block py-2 px-5 transition-colors duration-300 mr-1 focus:outline-none border border-x-0 ${
                     selected
-                      ? "border-t-0 border-b-ranger-500 text-ranger-400"
+                      ? "border-t-0 border-b-indigo-500 text-indigo-400"
                       : "border-y-0 text-gray-400 hover:text-gray-300"
                   }`
                 }
@@ -92,23 +92,23 @@ export default function VaultCard({
                     <Link
                       href={vaultExternalUri}
                       target="_blank"
-                      className="font-medium text-ranger-500 hover:text-ranger-400"
+                      className="font-medium text-indigo-500 hover:text-indigo-400"
                     >
                       Learn more →
                     </Link>
                   </div>
-                  <div className="p-4 bg-ranger-900/30 rounded-lg border border-ranger-500/30">
+                  <div className="p-4 bg-emerald-900/30 rounded-lg border border-emerald-500/30">
                     <div className="flex items-start gap-3">
-                      <InformationCircleIcon className="w-5 h-5 text-ranger-400 mt-0.5 flex-shrink-0" />
+                      <InformationCircleIcon className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
                       <div className="space-y-2 w-full">
-                        <h3 className="font-medium text-ranger-200">
+                        <h3 className="font-medium text-indigo-200">
                           This vault can interact with
                         </h3>
                         <div className="space-y-0.5">
                           {integrations.map((integration) => (
                             <div
                               key={integration.adaptorPk}
-                              className="text-sm text-ranger-300 flex justify-between"
+                              className="text-sm text-indigo-300 flex justify-between"
                             >
                               • {integration.feature}
                             </div>

@@ -58,24 +58,24 @@ export default function ChartCardComponent({
             {
               stop: 0,
               color: `rgba(${hexToRGB(
-                tailwindConfig.theme.colors.ranger[500]
+                tailwindConfig.theme.colors.indigo[500]
               )}, 0)`,
             },
             {
               stop: 1,
               color: `rgba(${hexToRGB(
-                tailwindConfig.theme.colors.ranger[500]
+                tailwindConfig.theme.colors.indigo[500]
               )}, 0.2)`,
             },
           ]);
           return gradientOrColor || "transparent";
         },
-        borderColor: tailwindConfig.theme.colors.ranger[500],
+        borderColor: tailwindConfig.theme.colors.indigo[500],
         borderWidth: 2,
         pointRadius: 0,
         pointHoverRadius: 3,
-        pointBackgroundColor: tailwindConfig.theme.colors.ranger[500],
-        pointHoverBackgroundColor: tailwindConfig.theme.colors.ranger[500],
+        pointBackgroundColor: tailwindConfig.theme.colors.indigo[500],
+        pointHoverBackgroundColor: tailwindConfig.theme.colors.indigo[500],
         pointBorderWidth: 0,
         pointHoverBorderWidth: 0,
         clip: 20,

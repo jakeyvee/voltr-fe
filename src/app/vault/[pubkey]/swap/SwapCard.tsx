@@ -29,7 +29,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
     <div className="flex w-full gap-2">
       <Menu as="div" className="relative inline-flex w-1/2">
         <MenuButton
-          className="btn w-full !justify-between min-w-[11rem] text-gray-300 bg-phantom border-white/15 hover:border-white/30 hover:text-gray-100"
+          className="btn w-full !justify-between min-w-[11rem] text-gray-300 bg-gray-800 border-white/15 hover:border-white/30 hover:text-gray-100"
           aria-label="Select option"
           disabled
         >
@@ -131,7 +131,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
   }, [userWithdrawRequest]);
 
   return (
-    <div className="bg-bgBlack rounded-xl shadow-sm">
+    <div className="bg-gray-900 rounded-xl shadow-sm">
       <div className="grow py-3 px-5 space-y-2 border-b border-slate-700/60">
         <h2 className="text-sm font-medium text-gray-500">Your Deposits</h2>
         <div className="text-lg font-bold">
@@ -151,12 +151,12 @@ const SwapCard: React.FC<SwapCardProps> = ({
             setSelectedTab(index === 0 ? "deposit" : "withdraw")
           }
         >
-          <TabList className="flex rounded-lg bg-ranger-700/20 font-bold">
+          <TabList className="flex rounded-lg bg-indigo-700/20 font-bold">
             <Tab
               className={`w-full rounded-lg py-2 text-sm leading-5 transition-all focus:outline-none ${
                 selectedTab === "deposit"
-                  ? "text-ranger-800 bg-white shadow"
-                  : "text-ranger-100 hover:bg-white/[0.12] hover:text-white"
+                  ? "text-indigo-800 bg-white shadow"
+                  : "text-indigo-100 hover:bg-white/[0.12] hover:text-white"
               }`}
             >
               Deposit
@@ -164,8 +164,8 @@ const SwapCard: React.FC<SwapCardProps> = ({
             <Tab
               className={`w-full rounded-lg py-2 text-sm leading-5 transition-all focus:outline-none ${
                 selectedTab === "withdraw"
-                  ? "text-ranger-800 bg-white shadow"
-                  : "text-ranger-100 hover:bg-white/[0.12] hover:text-white"
+                  ? "text-indigo-800 bg-white shadow"
+                  : "text-indigo-100 hover:bg-white/[0.12] hover:text-white"
               }`}
             >
               Withdraw
@@ -176,7 +176,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
         {selectedTab === "withdraw" && userWithdrawRequest ? (
           // Withdraw Request Active View
           <div className="space-y-4">
-            <div className="p-4 bg-ranger-900/30 rounded-lg border border-ranger-500/30">
+            <div className="p-4 bg-indigo-900/30 rounded-lg border border-indigo-500/30">
               <div className="flex items-start gap-3">
                 {timeRemaining === "0s" ? (
                   <CheckCircleIcon className="w-5 h-5 text-teal-400 mt-0.5 flex-shrink-0" />
@@ -194,7 +194,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
                     </h3>
                   )}
                   <div className="space-y-0.5">
-                    <div className="text-sm text-ranger-300 flex justify-between">
+                    <div className="text-sm text-indigo-300 flex justify-between">
                       <div>Amount: </div>
                       <div>
                         {formatNumber(
@@ -204,7 +204,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
                         {inputSymbol}
                       </div>
                     </div>
-                    <div className="text-sm text-ranger-300 flex justify-between">
+                    <div className="text-sm text-indigo-300 flex justify-between">
                       <div>Available in: </div>
                       <div>{timeRemaining}</div>
                     </div>
@@ -217,7 +217,7 @@ const SwapCard: React.FC<SwapCardProps> = ({
               disabled={isButtonLoading}
               className={`btn w-full bg-gradient-to-t text-white shadow-inner hover:bg-gradient-to-b ${
                 timeRemaining === "0s"
-                  ? "from-ranger-500 to-ranger-400"
+                  ? "from-indigo-600 to-indigo-500"
                   : "from-red-700 to-red-600 "
               }`}
             >
@@ -297,15 +297,15 @@ const SwapCard: React.FC<SwapCardProps> = ({
             </div>
 
             {selectedTab === "withdraw" && !supportsDirectWithdrawal && (
-              <div className="p-4 bg-ranger-900/30 rounded-lg border border-ranger-500/30">
+              <div className="p-4 bg-indigo-900/30 rounded-lg border border-indigo-500/30">
                 <div className="flex items-start gap-3">
-                  <InformationCircleIcon className="w-5 h-5 text-ranger-400 mt-0.5 flex-shrink-0" />
+                  <InformationCircleIcon className="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" />
                   <div className="space-y-2 w-full">
-                    <h3 className="font-medium text-ranger-200">
+                    <h3 className="font-medium text-indigo-200">
                       Withdrawal Information
                     </h3>
                     <div className="space-y-0.5">
-                      <div className="text-sm text-ranger-300 flex justify-between">
+                      <div className="text-sm text-indigo-300 flex justify-between">
                         <div>Waiting period: </div>
                         <div>{formatTime(withdrawalWaitingPeriod)}</div>
                       </div>
@@ -320,12 +320,12 @@ const SwapCard: React.FC<SwapCardProps> = ({
                 <button
                   onClick={handleButtonClick}
                   disabled={isButtonLoading}
-                  className="btn w-full bg-gradient-to-t from-ranger-500 to-ranger-400 text-gray-900 shadow-inner hover:bg-gradient-to-b"
+                  className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
                 >
                   {isButtonLoading ? (
                     <div className="flex items-center justify-center">
                       <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900"
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                         viewBox="0 0 24 24"
                       >
                         <circle
@@ -354,8 +354,8 @@ const SwapCard: React.FC<SwapCardProps> = ({
                 </button>
               ) : (
                 <UnifiedWalletButton
-                  buttonClassName="btn !w-full !bg-gradient-to-t !from-ranger-500 !to-ranger-400 !bg-[length:100%_100%] !bg-[bottom] !text-gray-900 !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
-                  currentUserClassName="btn !w-full !bg-gradient-to-t !from-ranger-500 !to-ranger-400 !bg-[length:100%_100%] !bg-[bottom] !text-gray-900 !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                  buttonClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                  currentUserClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
                 />
               )}
             </div>

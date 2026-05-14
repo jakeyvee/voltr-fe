@@ -6,7 +6,6 @@ import WalletWrapper from "@/components/WalletWrapper";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import PageIllustration from "@/components/page-illustration";
-import AcquisitionBanner from "@/components/acquisition-banner";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -62,17 +61,17 @@ const atAero = localFont({
 export const metadata: Metadata = {
   title: "Start earning with confidence",
   description:
-    "Ranger opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+    "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
   openGraph: {
     title: "Start earning with confidence",
     description:
-      "Ranger opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
     images: [
       {
         url: "/images/logo.png",
         width: 256,
         height: 256,
-        alt: "Ranger logo",
+        alt: "Voltr logo",
       },
     ],
     type: "website",
@@ -81,7 +80,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Start earning with confidence",
     description:
-      "Ranger opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
     images: ["/images/logo.png"],
   },
 };
@@ -94,11 +93,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${atAero.variable} bg-[#000] font-inter text-base text-gray-200 antialiased`}
+        className={`${inter.variable} ${atAero.variable} bg-[#0c111d] font-inter text-base text-gray-200 antialiased`}
       >
         <WalletWrapper>
           <div className="flex min-h-screen flex-col overflow-hidden supports-[overflow:clip]:overflow-clip">
-            <AcquisitionBanner />
             <Header />
             <PageIllustration />
             {children}

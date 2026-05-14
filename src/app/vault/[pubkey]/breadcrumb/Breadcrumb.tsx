@@ -13,7 +13,7 @@ export const Breadcrumb = ({ name, token }: BreadcrumbProps) => {
     <div className="flex items-center gap-2">
       <Link
         href="/earn"
-        className="bg-bgBlack shadow-sm rounded-lg flex flex-col p-1.5"
+        className="bg-gray-900 shadow-sm rounded-lg flex flex-col p-1.5"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

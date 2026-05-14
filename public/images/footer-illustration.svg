@@ -16,14 +16,14 @@
     <defs>
         <linearGradient id="b" x1="811" x2="591.548" y1="315" y2="513.553"
             gradientUnits="userSpaceOnUse">
-            <stop stop-color="#CBFFC0" stop-opacity="0" />
-            <stop offset=".452" stop-color="#CBFFC0" stop-opacity=".2" />
-            <stop offset="1" stop-color="#CBFFC0" stop-opacity=".48" />
+            <stop stop-color="#6366f1" stop-opacity="0" />
+            <stop offset=".452" stop-color="#6366f1" stop-opacity=".2" />
+            <stop offset="1" stop-color="#6366f1" stop-opacity=".48" />
         </linearGradient>
         <linearGradient id="d" x1="637" x2="603" y1="497.904" y2="341.5"
             gradientUnits="userSpaceOnUse">
-            <stop stop-color="#CBFFC0" stop-opacity=".3" />
-            <stop offset="1" stop-color="#CBFFC0" stop-opacity="0" />
+            <stop stop-color="#6366f1" stop-opacity=".3" />
+            <stop offset="1" stop-color="#6366f1" stop-opacity="0" />
         </linearGradient>
         <filter id="a" width="758.843" height="666.843" x="316.578" y="158.578"
             color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">

@@ -276,7 +276,7 @@ export default function UpdateVaultPage() {
 
   if (isLoading)
     return (
-      <div className="min-h-screen flex items-center justify-center text-ranger-400 animate-pulse">
+      <div className="min-h-screen flex items-center justify-center text-indigo-400 animate-pulse">
         Loading Vault Configuration...
       </div>
     );
@@ -287,7 +287,7 @@ export default function UpdateVaultPage() {
         <div>
           <Link
             href="/manage"
-            className="flex items-center text-sm text-ranger-400 hover:text-ranger-300 transition mb-2"
+            className="flex items-center text-sm text-indigo-400 hover:text-indigo-300 transition mb-2"
           >
             <ArrowLeftIcon className="w-4 h-4 mr-1" /> Back to Manage
           </Link>
@@ -298,9 +298,9 @@ export default function UpdateVaultPage() {
             {vaultPk.toBase58()}
           </p>
         </div>
-        <div className="bg-ranger-500/10 border border-ranger-500/20 px-4 py-2 rounded-lg hidden md:flex items-center gap-2">
-          <ShieldCheckIcon className="w-5 h-5 text-ranger-500" />
-          <span className="text-ranger-500 text-sm font-medium">
+        <div className="bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-lg hidden md:flex items-center gap-2">
+          <ShieldCheckIcon className="w-5 h-5 text-emerald-500" />
+          <span className="text-emerald-500 text-sm font-medium">
             Verified Admin Session
           </span>
         </div>
@@ -316,7 +316,7 @@ export default function UpdateVaultPage() {
         pb-4 text-sm font-medium outline-none transition-all border-b-2
         ${
           selected
-            ? "text-ranger-400 border-ranger-400"
+            ? "text-indigo-400 border-indigo-400"
             : "text-gray-500 border-transparent hover:text-gray-300"
         }
       `}
@@ -331,7 +331,7 @@ export default function UpdateVaultPage() {
         pb-4 text-sm font-medium outline-none transition-all border-b-2
         ${
           selected
-            ? "text-ranger-400 border-ranger-400"
+            ? "text-indigo-400 border-indigo-400"
             : "text-gray-500 border-transparent hover:text-gray-300"
         }
       `}
@@ -347,7 +347,7 @@ export default function UpdateVaultPage() {
                 <SectionCard
                   title="Global Parameters"
                   icon={
-                    <AdjustmentsHorizontalIcon className="w-5 h-5 text-ranger-400" />
+                    <AdjustmentsHorizontalIcon className="w-5 h-5 text-indigo-400" />
                   }
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -446,7 +446,7 @@ export default function UpdateVaultPage() {
                 <SectionCard
                   title="Available Adaptors"
                   icon={
-                    <CloudArrowUpIcon className="w-5 h-5 text-ranger-400" />
+                    <CloudArrowUpIcon className="w-5 h-5 text-indigo-400" />
                   }
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -457,7 +457,7 @@ export default function UpdateVaultPage() {
                       return (
                         <div
                           key={adaptor.pid}
-                          className="bg-phantom/40 border border-white/5 rounded-xl p-5 flex items-center justify-between group hover:border-ranger-500/30 transition-all"
+                          className="bg-gray-800/40 border border-white/5 rounded-xl p-5 flex items-center justify-between group hover:border-indigo-500/30 transition-all"
                         >
                           <div className="flex flex-col">
                             <span className="text-white font-semibold">
@@ -486,7 +486,7 @@ export default function UpdateVaultPage() {
                                 handleAdaptorAction(adaptor.pid, "add")
                               }
                               disabled={isUpdating}
-                              className="p-2.5 rounded-lg bg-ranger-500/10 text-ranger-400 hover:bg-ranger-500 hover:text-white transition-all"
+                              className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all"
                               title="Add Adaptor"
                             >
                               <PlusIcon className="w-5 h-5" />
@@ -496,9 +496,9 @@ export default function UpdateVaultPage() {
                       );
                     })}
                   </div>
-                  <div className="mt-8 p-4 bg-ranger-500/5 border border-ranger-500/10 rounded-xl flex gap-3">
-                    <InformationCircleIcon className="w-5 h-5 text-ranger-400 shrink-0" />
-                    <p className="text-xs text-ranger-300/70 leading-relaxed">
+                  <div className="mt-8 p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-xl flex gap-3">
+                    <InformationCircleIcon className="w-5 h-5 text-indigo-400 shrink-0" />
+                    <p className="text-xs text-indigo-300/70 leading-relaxed">
                       Adaptors allow the vault to interact with external
                       protocols like Drift or Kamino.
                     </p>
@@ -512,7 +512,7 @@ export default function UpdateVaultPage() {
         {/* Action Sidebar */}
         <div className="lg:col-span-4">
           <div className="sticky top-10 space-y-4">
-            <div className="bg-bgBlack border border-ranger-500/20 rounded-2xl p-6 shadow-xl">
+            <div className="bg-gray-900 border border-indigo-500/20 rounded-2xl p-6 shadow-xl">
               <h2 className="text-lg font-semibold text-white mb-4">
                 Pending Changes
               </h2>
@@ -584,7 +584,7 @@ export default function UpdateVaultPage() {
                 <button
                   onClick={handleUpdate}
                   disabled={isUpdating}
-                  className="btn w-full bg-gradient-to-t from-ranger-600 to-ranger-500 text-white shadow-inner hover:bg-gradient-to-b"
+                  className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-inner hover:bg-gradient-to-b"
                 >
                   {isUpdating ? (
                     <div className="flex items-center justify-center">
@@ -614,15 +614,15 @@ export default function UpdateVaultPage() {
                 </button>
               ) : (
                 <UnifiedWalletButton
-                  buttonClassName="btn !w-full !bg-gradient-to-t !from-ranger-500 !to-ranger-400 !bg-[length:100%_100%] !bg-[bottom] !text-gray-900 !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
-                  currentUserClassName="btn !w-full !bg-gradient-to-t !from-ranger-500 !to-ranger-400 !bg-[length:100%_100%] !bg-[bottom] !text-gray-900 !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                  buttonClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
+                  currentUserClassName="btn !w-full !bg-gradient-to-t !from-indigo-600 !to-indigo-500 !bg-[length:100%_100%] !bg-[bottom] !text-white !shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:!bg-[length:100%_150%]"
                 />
               )}
             </div>
 
-            <div className="p-4 bg-ranger-500/5 border border-ranger-500/10 rounded-xl flex gap-3">
-              <InformationCircleIcon className="w-5 h-5 text-ranger-400 shrink-0" />
-              <p className="text-xs text-ranger-300/70 leading-relaxed">
+            <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl flex gap-3">
+              <InformationCircleIcon className="w-5 h-5 text-blue-400 shrink-0" />
+              <p className="text-xs text-blue-300/70 leading-relaxed">
                 If multiple fields are changed, the changes are batched
                 atomically.
               </p>
@@ -637,9 +637,9 @@ export default function UpdateVaultPage() {
 // --- Internal Helper Components ---
 
 const SectionCard = ({ title, children, icon }: any) => (
-  <div className="bg-bgBlack/50 border border-white/5 rounded-2xl p-8 backdrop-blur-sm">
+  <div className="bg-gray-900/50 border border-white/5 rounded-2xl p-8 backdrop-blur-sm">
     <div className="flex items-center gap-3 mb-8">
-      <div className="p-2 bg-phantom rounded-lg">{icon}</div>
+      <div className="p-2 bg-gray-800 rounded-lg">{icon}</div>
       <h2 className="text-xl font-bold text-gray-100">{title}</h2>
     </div>
     {children}
@@ -655,16 +655,16 @@ const Field = ({ label, current, value, onChange, type = "text" }: any) => {
           {label}
         </label>
         {isChanged && (
-          <span className="text-[10px] bg-ranger-500/20 text-ranger-400 px-2 py-0.5 rounded-full font-bold">
+          <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold">
             CHANGED
           </span>
         )}
       </div>
       <input
         type={type}
-        className={`bg-phantom border ${
-          isChanged ? "border-ranger-500/50" : "border-gray-700"
-        } rounded-lg px-4 py-2.5 text-white outline-none focus:border-ranger-500 transition-all`}
+        className={`bg-gray-800/50 border ${
+          isChanged ? "border-indigo-500/50" : "border-gray-700"
+        } rounded-lg px-4 py-2.5 text-white outline-none focus:border-indigo-500 transition-all`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -679,7 +679,7 @@ const Field = ({ label, current, value, onChange, type = "text" }: any) => {
 const ChangeItem = ({ label, from, to, suffix = "" }: any) => {
   if (from.toString() === to.toString()) return null;
   return (
-    <div className="flex flex-col text-xs border-l-2 border-ranger-500 pl-3 py-1">
+    <div className="flex flex-col text-xs border-l-2 border-indigo-500 pl-3 py-1">
       <span className="text-gray-500">{label}</span>
       <div className="flex items-center gap-2 text-white">
         <span className="line-through text-gray-600">
@@ -687,7 +687,7 @@ const ChangeItem = ({ label, from, to, suffix = "" }: any) => {
           {suffix}
         </span>
         <span>→</span>
-        <span className="text-ranger-400 font-bold">
+        <span className="text-indigo-400 font-bold">
           {to}
           {suffix}
         </span>
