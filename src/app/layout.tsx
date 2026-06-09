@@ -5,6 +5,7 @@ import "./globals.css";
 import WalletWrapper from "@/components/WalletWrapper";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
+import NonLandingOnly from "@/components/non-landing-only";
 import PageIllustration from "@/components/page-illustration";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -59,13 +60,14 @@ const atAero = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Start earning with confidence",
+  metadataBase: new URL("https://voltr.xyz"),
+  title: "Voltr | Vault Infrastructure for Solana Yield Managers",
   description:
-    "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+    "Launch and operate Solana yield vaults with Voltr. Create vaults, configure fees, connect strategy adaptors, allocate capital, and manage vault operations through UI, SDK, CLI, and agent workflows.",
   openGraph: {
-    title: "Start earning with confidence",
+    title: "Launch and operate yield vaults on Solana",
     description:
-      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+      "Voltr gives vault managers modular infrastructure for vault creation, strategy allocation, fee accounting, integrations, and automated operations.",
     images: [
       {
         url: "/images/logo.png",
@@ -78,9 +80,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Start earning with confidence",
+    title: "Voltr | Solana Vault Infrastructure",
     description:
-      "Voltr opens access to transparent, high-yield generating vaults secured by institutional-grade security. Deposit your assets and earn yield across Solana.",
+      "Create, manage, and scale yield vaults on Solana with Voltr's UI, SDK, CLI, adaptors, and Agent Skills.",
     images: ["/images/logo.png"],
   },
 };
@@ -97,10 +99,14 @@ export default function RootLayout({
       >
         <WalletWrapper>
           <div className="flex min-h-screen flex-col overflow-hidden supports-[overflow:clip]:overflow-clip">
-            <Header />
+            <NonLandingOnly>
+              <Header />
+            </NonLandingOnly>
             <PageIllustration />
             {children}
-            <Footer />
+            <NonLandingOnly>
+              <Footer />
+            </NonLandingOnly>
             <ToastContainer
               position="top-right"
               autoClose={5000}

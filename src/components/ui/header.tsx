@@ -1,4 +1,3 @@
-import { formatNumber } from "@/lib/format";
 import Logo from "./logo-words";
 import WalletButton from "./wallet-button";
 

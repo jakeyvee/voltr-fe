@@ -5,3 +5,40 @@
 @import "additional-styles/utility-patterns.css";
 @import "additional-styles/theme.css";
 @import "tailwindcss/utilities";
+
+/* Landing feature-card illustration animations */
+@keyframes voltrFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes voltrFloatCenter {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -4px); }
+}
+@keyframes voltrPulseLine {
+  0%, 100% { opacity: 0.35; filter: drop-shadow(0 0 2px currentColor); }
+  50% { opacity: 1; filter: drop-shadow(0 0 8px currentColor); }
+}
+@keyframes voltrDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+  50% { transform: translate(4%, 5%) scale(1.08); opacity: 0.45; }
+}
+@keyframes voltrShimmer {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.6; }
+}
+@keyframes voltrBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+@keyframes voltrFlow {
+  0% { transform: translateX(-130%); }
+  100% { transform: translateX(330%); }
+}
+@keyframes voltrBadgeGlow {
+  0%, 100% { box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.12), 0 0 0 rgba(99,102,241,0); }
+  50% { box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.12), 0 0 16px rgba(99,102,241,0.35); }
+}
+@keyframes voltrDraw {
+  to { stroke-dashoffset: 0; }
+}
