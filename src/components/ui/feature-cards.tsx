@@ -78,8 +78,8 @@ function BuildIllustration() {
 function AllocationIllustration() {
   const rows: [string, string, number][] = [
     ["Kamino", "46%", 0],
-    ["Drift", "32%", 0.6],
-    ["Jupiter", "22%", 1.2],
+    ["Jupiter", "32%", 0.6],
+    ["Project 0", "22%", 1.2],
   ];
   return (
     <div className="flex h-full w-full flex-col justify-center gap-3">

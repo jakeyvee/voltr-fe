@@ -342,12 +342,11 @@ export default async function Home() {
         <section className="relative overflow-hidden px-6 py-24 text-center md:py-32">
           <div className="pointer-events-none absolute inset-0" style={gridBg} />
           <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center">
-            <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight text-white md:text-6xl">
-              Launch and operate yield vaults on Solana.
+            <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight text-white md:text-5xl">
+              Institutional-grade Infrastructure for Allocators
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-gray-400">
-              The infrastructure layer for vault managers. Create vaults,
-              allocate capital across strategy adaptors, and run yield products
+              Create vaults, allocate capital across strategy adaptors, and run yield products
               from one stack.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
