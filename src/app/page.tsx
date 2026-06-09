@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import LandingHeader from "@/components/ui/landing-header";
 import LandingFooter from "@/components/ui/landing-footer";
+import LandingScrollExperience from "@/components/landing-scroll-experience";
 import { FeatureCard, coreFeatureCards } from "@/components/ui/feature-cards";
 import { formatNumber } from "@/lib/format";
 
@@ -212,15 +213,21 @@ function SectionIntro({
   title,
   titleMuted,
   copy,
+  revealAfterHero = false,
 }: {
   num: string;
   eyebrow: string;
   title: string;
   titleMuted: string;
   copy: string;
+  revealAfterHero?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-10 px-6 py-16 md:px-12 lg:grid-cols-2 lg:gap-32 lg:py-20">
+    <div
+      className="grid grid-cols-1 gap-10 px-6 py-16 md:px-12 lg:grid-cols-2 lg:gap-32 lg:py-20"
+      data-scroll-reveal
+      data-scroll-after-hero={revealAfterHero ? "true" : undefined}
+    >
       <div className="flex flex-col gap-8">
         <div className="flex items-center gap-4">
           <span className="font-mono text-sm tracking-tighter text-white/40">
@@ -247,10 +254,12 @@ function SectionIntro({
 function FeatureGrid({ items }: { items: typeof coreFeatureCards }) {
   return (
     <div className="grid grid-cols-1 border-t border-dashed border-white/15 md:grid-cols-3">
-      {items.map((feature) => (
+      {items.map((feature, index) => (
         <div
           key={feature.title}
           className="border-b border-dashed border-white/15 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+          data-scroll-reveal
+          data-scroll-delay={index * 90}
         >
           <FeatureCard {...feature} />
         </div>
@@ -334,22 +343,38 @@ export default async function Home() {
   ];
 
   return (
-    <>
+    <LandingScrollExperience>
       <LandingHeader />
       <main className="bg-[#0c111d]">
       <div className="mx-auto max-w-7xl border-x border-dashed border-white/15">
         {/* Hero */}
         <section className="relative overflow-hidden px-6 py-24 text-center md:py-32">
-          <div className="pointer-events-none absolute inset-0" style={gridBg} />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={gridBg}
+            data-scroll-parallax
+            data-scroll-speed="-24"
+          />
           <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center">
-            <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight text-white md:text-5xl">
+            <h1
+              className="text-4xl font-semibold leading-[1.05] tracking-tight text-white md:text-5xl"
+              data-scroll-hero
+            >
               Institutional-grade Infrastructure for Allocators
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-gray-400">
+            <p
+              className="mt-6 max-w-2xl text-lg leading-relaxed text-gray-400"
+              data-scroll-hero
+              data-scroll-delay="120"
+            >
               Create vaults, allocate capital across strategy adaptors, and run yield products
               from one stack.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+            <div
+              className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
+              data-scroll-hero
+              data-scroll-delay="240"
+            >
               <PrimaryButton href={DOCS.launch} external>
                 Launch a vault
               </PrimaryButton>
@@ -361,12 +386,19 @@ export default async function Home() {
         {/* Metrics */}
         <section id="metrics" className="border-t border-dashed border-white/15">
           <div className="grid grid-cols-2 md:grid-cols-4">
-            {metrics.map((metric) => (
+            {metrics.map((metric, index) => (
               <div
                 key={metric.label}
                 className="border-dashed border-white/15 px-6 py-8 [&:nth-child(n+3)]:border-t [&:nth-child(odd)]:border-r md:px-8 md:border-r md:last:border-r-0 md:[&:nth-child(n+3)]:border-t-0"
+                data-scroll-reveal
+                data-scroll-delay={index * 70}
               >
-                <div className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
+                <div
+                  className="text-3xl font-semibold tracking-tight text-white md:text-4xl"
+                  data-count-up={metric.value}
+                  data-scroll-delay={index * 70}
+                  aria-label={metric.value}
+                >
                   {metric.value}
                 </div>
                 <div className="mt-2 text-sm text-gray-400">{metric.label}</div>
@@ -383,6 +415,7 @@ export default async function Home() {
             title="Everything you need"
             titleMuted="to operate a vault"
             copy="Voltr separates vault accounting, strategy execution, and operations so teams can ship yield products without rebuilding core infrastructure."
+            revealAfterHero
           />
           <FeatureGrid items={coreFeatureCards} />
         </section>
@@ -392,7 +425,10 @@ export default async function Home() {
           id="agent-skills"
           className="grid grid-cols-1 border-t border-dashed border-white/15 lg:grid-cols-2"
         >
-          <div className="flex flex-col justify-center border-b border-dashed border-white/15 p-8 md:p-12 lg:border-b-0 lg:border-r lg:p-16">
+          <div
+            className="flex flex-col justify-center border-b border-dashed border-white/15 p-8 md:p-12 lg:border-b-0 lg:border-r lg:p-16"
+            data-scroll-reveal="left"
+          >
             <span className="mb-8 inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.15em] text-gray-300">
               <BoltIcon className="h-3.5 w-3.5 text-indigo-400" />
               Agent Skills
@@ -415,7 +451,13 @@ export default async function Home() {
 
           <div className="relative flex items-center justify-center overflow-hidden p-8 md:p-12 lg:p-16">
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600/15 blur-[100px]" />
-            <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-white/10 bg-[#0a0e18]/80 shadow-2xl backdrop-blur-md">
+            <div
+              className="relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-white/10 bg-[#0a0e18]/80 shadow-2xl backdrop-blur-md"
+              data-scroll-reveal="right"
+              data-scroll-delay="120"
+              data-scroll-parallax
+              data-scroll-speed="20"
+            >
               <div className="flex h-10 items-center gap-2 border-b border-white/10 bg-white/[0.02] px-4">
                 <div className="h-2.5 w-2.5 rounded-full bg-white/20" />
                 <div className="h-2.5 w-2.5 rounded-full bg-white/20" />
@@ -450,10 +492,12 @@ export default async function Home() {
             copy="On-chain accounting, role-separated control, and adaptor-isolated execution, so managers and depositors can verify exactly what happens to capital."
           />
           <div className="grid grid-cols-1 border-t border-dashed border-white/15 lg:grid-cols-4">
-            {controlledOps.map((item) => (
+            {controlledOps.map((item, index) => (
               <div
                 key={item.title}
                 className="group relative flex min-h-[240px] flex-col justify-between overflow-hidden border-b border-dashed border-white/15 p-8 transition-colors last:border-b-0 hover:bg-white/[0.03] lg:border-b-0 lg:border-r lg:last:border-r-0"
+                data-scroll-reveal
+                data-scroll-delay={index * 80}
               >
                 <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:6px_6px] opacity-50" />
                 <div className="relative z-10 flex items-start justify-between">
@@ -497,7 +541,12 @@ export default async function Home() {
           />
           <div className="relative overflow-hidden border-t border-dashed border-white/15 px-6 py-16 md:px-12">
           <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:6px_6px] opacity-50" />
-          <div className="relative z-10 mx-auto max-w-4xl">
+          <div
+            className="relative z-10 mx-auto max-w-4xl"
+            data-scroll-reveal
+            data-scroll-parallax
+            data-scroll-speed="18"
+          >
             {protocols.map((protocol, i) => (
               <div
                 key={protocol.name}
@@ -552,6 +601,7 @@ export default async function Home() {
                       filter="url(#connGlow)"
                     >
                       <animate
+                        className="landing-connector-motion"
                         attributeName="stroke-dashoffset"
                         values="1;0"
                         dur="3s"
@@ -560,8 +610,15 @@ export default async function Home() {
                         calcMode="linear"
                       />
                     </path>
-                    <circle cx={x} cy={86} r="3" fill="#a5b4fc" filter="url(#connGlow)">
+                    <circle
+                      cx={x}
+                      cy={86}
+                      r="3"
+                      fill="#a5b4fc"
+                      filter="url(#connGlow)"
+                    >
                       <animate
+                        className="landing-connector-motion"
                         attributeName="opacity"
                         values="0.3;1;0.3"
                         dur="3s"
@@ -609,7 +666,7 @@ export default async function Home() {
                   (getManagerStats(vaults, b.matcher).tvl ?? -1) -
                   (getManagerStats(vaults, a.matcher).tvl ?? -1)
               )
-              .map((manager) => {
+              .map((manager, index) => {
               const stats = getManagerStats(vaults, manager.matcher);
 
               return (
@@ -619,6 +676,8 @@ export default async function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative flex flex-col gap-6 overflow-hidden border-b border-dashed border-white/15 p-8 transition-colors last:border-b-0 hover:bg-white/[0.02] md:border-b-0 md:border-r md:p-12 md:last:border-r-0"
+                  data-scroll-reveal
+                  data-scroll-delay={index * 90}
                 >
                   <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:6px_6px] opacity-50" />
                   <div className="relative z-10 flex items-center gap-4">
@@ -666,7 +725,10 @@ export default async function Home() {
         {/* Final CTA */}
         <section className="relative overflow-hidden border-t border-dashed border-white/15 px-6 py-28 text-center md:py-32">
           <div className="pointer-events-none absolute bottom-0 left-1/2 h-1/2 w-3/4 -translate-x-1/2 rounded-t-full bg-indigo-500/10 blur-[120px]" />
-          <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center">
+          <div
+            className="relative z-10 mx-auto flex max-w-2xl flex-col items-center"
+            data-scroll-reveal
+          >
             <h2 className="text-3xl font-semibold leading-[1.1] tracking-tight text-white md:text-5xl">
               Ready to launch your vault?
             </h2>
@@ -684,6 +746,6 @@ export default async function Home() {
       </div>
       </main>
       <LandingFooter />
-    </>
+    </LandingScrollExperience>
   );
 }

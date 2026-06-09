@@ -42,3 +42,94 @@
 @keyframes voltrDraw {
   to { stroke-dashoffset: 0; }
 }
+
+/* Landing-only scroll experience */
+.landing-scroll {
+  display: contents;
+}
+
+.landing-scroll-ready [data-scroll-hero] {
+  --scroll-delay: 0ms;
+  animation: landingHeroEnter 900ms cubic-bezier(0.22, 1, 0.36, 1)
+    var(--scroll-delay) both;
+}
+
+@keyframes landingHeroEnter {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.landing-scroll [data-scroll-after-hero="true"] {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(0, 36px, 0);
+}
+
+.landing-scroll-ready [data-scroll-reveal] {
+  --scroll-delay: 0ms;
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(0, 36px, 0);
+  transition:
+    opacity 800ms cubic-bezier(0.22, 1, 0.36, 1) var(--scroll-delay),
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1) var(--scroll-delay),
+    filter 800ms ease var(--scroll-delay);
+}
+
+.landing-scroll-ready [data-scroll-reveal="left"] {
+  transform: translate3d(-38px, 12px, 0);
+}
+
+.landing-scroll-ready [data-scroll-reveal="right"] {
+  transform: translate3d(38px, 12px, 0);
+}
+
+.landing-scroll-ready [data-scroll-reveal].is-visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0);
+}
+
+.landing-scroll [data-scroll-parallax] {
+  transform: translate3d(0, var(--scroll-parallax, 0), 0);
+  will-change: transform;
+}
+
+.landing-scroll-ready [data-scroll-reveal][data-scroll-parallax] {
+  transform: translate3d(0, calc(36px + var(--scroll-parallax, 0px)), 0);
+}
+
+.landing-scroll-ready [data-scroll-reveal][data-scroll-parallax].is-visible {
+  transform: translate3d(0, var(--scroll-parallax, 0px), 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-scroll *,
+  .landing-scroll *::before,
+  .landing-scroll *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .landing-scroll [data-scroll-reveal],
+  .landing-scroll [data-scroll-hero],
+  .landing-scroll [data-scroll-parallax] {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .landing-scroll .landing-connector-motion {
+    display: none;
+  }
+}
