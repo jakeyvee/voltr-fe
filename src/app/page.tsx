@@ -604,7 +604,13 @@ export default async function Home() {
             copy="Strategy teams use Voltr as their infrastructure layer to package, operate, and distribute vault-based yield products on Solana."
           />
           <div className="grid grid-cols-1 border-t border-dotted border-white/15 md:grid-cols-3">
-            {managers.map((manager) => {
+            {[...managers]
+              .sort(
+                (a, b) =>
+                  (getManagerStats(vaults, b.matcher).tvl ?? -1) -
+                  (getManagerStats(vaults, a.matcher).tvl ?? -1)
+              )
+              .map((manager) => {
               const stats = getManagerStats(vaults, manager.matcher);
 
               return (
