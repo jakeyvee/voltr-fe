@@ -246,11 +246,11 @@ function SectionIntro({
 
 function FeatureGrid({ items }: { items: typeof coreFeatureCards }) {
   return (
-    <div className="grid grid-cols-1 border-t border-dotted border-white/15 md:grid-cols-3">
+    <div className="grid grid-cols-1 border-t border-dashed border-white/15 md:grid-cols-3">
       {items.map((feature) => (
         <div
           key={feature.title}
-          className="border-b border-dotted border-white/15 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+          className="border-b border-dashed border-white/15 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
         >
           <FeatureCard {...feature} />
         </div>
@@ -337,7 +337,7 @@ export default async function Home() {
     <>
       <LandingHeader />
       <main className="bg-[#0c111d]">
-      <div className="mx-auto max-w-7xl border-x border-dotted border-white/15">
+      <div className="mx-auto max-w-7xl border-x border-dashed border-white/15">
         {/* Hero */}
         <section className="relative overflow-hidden px-6 py-24 text-center md:py-32">
           <div className="pointer-events-none absolute inset-0" style={gridBg} />
@@ -359,12 +359,12 @@ export default async function Home() {
         </section>
 
         {/* Metrics */}
-        <section id="metrics" className="border-t border-dotted border-white/15">
+        <section id="metrics" className="border-t border-dashed border-white/15">
           <div className="grid grid-cols-2 md:grid-cols-4">
             {metrics.map((metric) => (
               <div
                 key={metric.label}
-                className="border-dotted border-white/15 px-6 py-8 [&:nth-child(n+3)]:border-t [&:nth-child(odd)]:border-r md:px-8 md:border-r md:last:border-r-0 md:[&:nth-child(n+3)]:border-t-0"
+                className="border-dashed border-white/15 px-6 py-8 [&:nth-child(n+3)]:border-t [&:nth-child(odd)]:border-r md:px-8 md:border-r md:last:border-r-0 md:[&:nth-child(n+3)]:border-t-0"
               >
                 <div className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
                   {metric.value}
@@ -376,7 +376,7 @@ export default async function Home() {
         </section>
 
         {/* Core features */}
-        <section id="features" className="border-t border-dotted border-white/15">
+        <section id="features" className="border-t border-dashed border-white/15">
           <SectionIntro
             num="01"
             eyebrow="Manager toolkit"
@@ -390,9 +390,9 @@ export default async function Home() {
         {/* Agent Skills (split section) */}
         <section
           id="agent-skills"
-          className="grid grid-cols-1 border-t border-dotted border-white/15 lg:grid-cols-2"
+          className="grid grid-cols-1 border-t border-dashed border-white/15 lg:grid-cols-2"
         >
-          <div className="flex flex-col justify-center border-b border-dotted border-white/15 p-8 md:p-12 lg:border-b-0 lg:border-r lg:p-16">
+          <div className="flex flex-col justify-center border-b border-dashed border-white/15 p-8 md:p-12 lg:border-b-0 lg:border-r lg:p-16">
             <span className="mb-8 inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.15em] text-gray-300">
               <BoltIcon className="h-3.5 w-3.5 text-indigo-400" />
               Agent Skills
@@ -441,7 +441,7 @@ export default async function Home() {
         </section>
 
         {/* Controlled operations */}
-        <section id="security" className="border-t border-dotted border-white/15">
+        <section id="security" className="border-t border-dashed border-white/15">
           <SectionIntro
             num="02"
             eyebrow="Controlled operations"
@@ -449,11 +449,11 @@ export default async function Home() {
             titleMuted="by design"
             copy="On-chain accounting, role-separated control, and adaptor-isolated execution, so managers and depositors can verify exactly what happens to capital."
           />
-          <div className="grid grid-cols-1 border-t border-dotted border-white/15 lg:grid-cols-4">
+          <div className="grid grid-cols-1 border-t border-dashed border-white/15 lg:grid-cols-4">
             {controlledOps.map((item) => (
               <div
                 key={item.title}
-                className="group relative flex min-h-[240px] flex-col justify-between overflow-hidden border-b border-dotted border-white/15 p-8 transition-colors last:border-b-0 hover:bg-white/[0.03] lg:border-b-0 lg:border-r lg:last:border-r-0"
+                className="group relative flex min-h-[240px] flex-col justify-between overflow-hidden border-b border-dashed border-white/15 p-8 transition-colors last:border-b-0 hover:bg-white/[0.03] lg:border-b-0 lg:border-r lg:last:border-r-0"
               >
                 <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:6px_6px] opacity-50" />
                 <div className="relative z-10 flex items-start justify-between">
@@ -487,7 +487,7 @@ export default async function Home() {
         </section>
 
         {/* Integrations (connected diagram) */}
-        <section id="integrations" className="border-t border-dotted border-white/15">
+        <section id="integrations" className="border-t border-dashed border-white/15">
           <SectionIntro
             num="03"
             eyebrow="Adaptor ecosystem"
@@ -495,7 +495,7 @@ export default async function Home() {
             titleMuted="major venues"
             copy="Adaptors route capital to leading on-chain protocols and centralised venues while preserving a single, standardized vault interface."
           />
-          <div className="relative overflow-hidden border-t border-dotted border-white/15 px-6 py-16 md:px-12">
+          <div className="relative overflow-hidden border-t border-dashed border-white/15 px-6 py-16 md:px-12">
           <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:6px_6px] opacity-50" />
           <div className="relative z-10 mx-auto max-w-4xl">
             {protocols.map((protocol, i) => (
@@ -594,7 +594,7 @@ export default async function Home() {
         </section>
 
         {/* Managers */}
-        <section id="managers" className="border-t border-dotted border-white/15">
+        <section id="managers" className="border-t border-dashed border-white/15">
           <SectionIntro
             num="04"
             eyebrow="Built on Voltr"
@@ -602,7 +602,7 @@ export default async function Home() {
             titleMuted="leading teams"
             copy="Strategy teams use Voltr as their infrastructure layer to package, operate, and distribute vault-based yield products on Solana."
           />
-          <div className="grid grid-cols-1 border-t border-dotted border-white/15 md:grid-cols-3">
+          <div className="grid grid-cols-1 border-t border-dashed border-white/15 md:grid-cols-3">
             {[...managers]
               .sort(
                 (a, b) =>
@@ -618,7 +618,7 @@ export default async function Home() {
                   href={manager.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex flex-col gap-6 overflow-hidden border-b border-dotted border-white/15 p-8 transition-colors last:border-b-0 hover:bg-white/[0.02] md:border-b-0 md:border-r md:p-12 md:last:border-r-0"
+                  className="group relative flex flex-col gap-6 overflow-hidden border-b border-dashed border-white/15 p-8 transition-colors last:border-b-0 hover:bg-white/[0.02] md:border-b-0 md:border-r md:p-12 md:last:border-r-0"
                 >
                   <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:6px_6px] opacity-50" />
                   <div className="relative z-10 flex items-center gap-4">
@@ -664,7 +664,7 @@ export default async function Home() {
         </section>
 
         {/* Final CTA */}
-        <section className="relative overflow-hidden border-t border-dotted border-white/15 px-6 py-28 text-center md:py-32">
+        <section className="relative overflow-hidden border-t border-dashed border-white/15 px-6 py-28 text-center md:py-32">
           <div className="pointer-events-none absolute bottom-0 left-1/2 h-1/2 w-3/4 -translate-x-1/2 rounded-t-full bg-indigo-500/10 blur-[120px]" />
           <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center">
             <h2 className="text-3xl font-semibold leading-[1.1] tracking-tight text-white md:text-5xl">

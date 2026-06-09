@@ -83,7 +83,7 @@ export default function LandingFooter() {
 
   return (
     <footer className="bg-[#0c111d]">
-      <div className="mx-auto max-w-7xl border-x border-t border-dotted border-white/15">
+      <div className="mx-auto max-w-7xl border-x border-t border-dashed border-white/15">
         <div className="grid grid-cols-2 gap-10 px-6 py-16 md:grid-cols-5 md:gap-8 md:px-12">
           <div className="col-span-2 flex flex-col gap-6">
             <Logo />
@@ -140,7 +140,7 @@ export default function LandingFooter() {
           ))}
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-6 border-t border-dotted border-white/15 px-6 py-8 md:flex-row md:px-12">
+        <div className="flex flex-col items-center justify-between gap-6 border-t border-dashed border-white/15 px-6 py-8 md:flex-row md:px-12">
           <p className="text-xs text-gray-600">
             © {year} Voltr. All rights reserved.
           </p>

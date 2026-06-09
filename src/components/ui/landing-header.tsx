@@ -14,7 +14,7 @@ export default function LandingHeader() {
 
   return (
     <header className="z-30 w-full bg-[#0c111d]">
-      <div className="mx-auto max-w-7xl border-x border-b border-dotted border-white/15">
+      <div className="mx-auto max-w-7xl border-x border-b border-dashed border-white/15">
         <div className="flex h-16 items-center justify-between gap-4 px-6 md:px-8">
           <div className="flex flex-1 items-center gap-8">
             <Logo />
