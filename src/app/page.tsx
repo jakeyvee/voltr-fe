@@ -85,6 +85,13 @@ const managers = [
     matcher: "vectis",
     type: "Automated strategies",
   },
+  {
+    name: "Syntropia",
+    href: "https://syntropia.ai/",
+    icon: "https://syntropia.ai/tokens/synusd.png",
+    matcher: "syntropia",
+    type: "Market making",
+  },
 ];
 
 const controlledOps = [
@@ -659,7 +666,7 @@ export default async function Home() {
             titleMuted="leading teams"
             copy="Strategy teams use Voltr as their infrastructure layer to package, operate, and distribute vault-based yield products on Solana."
           />
-          <div className="grid grid-cols-1 border-t border-dashed border-white/15 md:grid-cols-3">
+          <div className="grid grid-cols-1 border-t border-dashed border-white/15 md:grid-cols-2 lg:grid-cols-4">
             {[...managers]
               .sort(
                 (a, b) =>
@@ -675,7 +682,7 @@ export default async function Home() {
                   href={manager.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex flex-col gap-6 overflow-hidden border-b border-dashed border-white/15 p-8 transition-colors last:border-b-0 hover:bg-white/[0.02] md:border-b-0 md:border-r md:p-12 md:last:border-r-0"
+                  className="group relative flex flex-col gap-6 overflow-hidden border-b border-dashed border-white/15 p-8 transition-colors last:border-b-0 hover:bg-white/[0.02] md:p-12 md:[&:nth-child(odd)]:border-r md:[&:nth-child(n+3)]:border-b-0 lg:border-b-0 lg:border-r lg:p-8 lg:last:border-r-0"
                   data-scroll-reveal
                   data-scroll-delay={index * 90}
                 >
