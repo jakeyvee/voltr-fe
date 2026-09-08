@@ -54,3 +54,10 @@ pnpm build
 `pnpm test` runs the suite with both `NODE_ENV=development` and `NODE_ENV=production`, so production error messages are checked with Kit's message table disabled. Tests use Node's test runner with the `tsx` loader. They build and sign transaction fixtures with Kit and mock wallet features and HTTP RPC responses. Coverage includes payloads larger than 1232 bytes, legacy/v0 compatibility, wallet capability/account checks, wallet rejection, wallet-refreshed transactions, missing signatures, size limits, RPC retry/backoff and timeout behavior, and network mismatches before signing. They submit no transactions to a network.
 
 The production build may need network access for fonts and API requests. A real v1-capable wallet must also be tested against a cluster supporting v1 before enabling v1 responses in production.
+
+## Neutral Trade bundles
+
+Vault admins can add or remove the Neutral Trade Bundles adaptor from **Manage Adaptors**.
+Registration enables the adaptor for that vault; initialize a bundle strategy and allocate assets with
+the [Neutral operator guide](https://docs.voltr.xyz/vault-owners/strategies/neutral).
+Redemptions require a keeper settlement between the manager's request and claim.

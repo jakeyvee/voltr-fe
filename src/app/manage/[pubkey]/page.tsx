@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 
 const AVAILABLE_ADAPTORS = [
+  { name: "Neutral Trade Bundles", pid: "WpFotU6LNA9Rdk9rm1ZYNcaPCRXHZGRLVwxHXqcaRJG" },
   { name: "Drift", pid: "EBN93eXs5fHGBABuajQqdsKRkCgaqtJa8vEFD6vKXiP" },
   { name: "Jupiter", pid: "EW35URAx3LiM13fFK3QxAXfGemHso9HWPixrv7YDY4AM" },
   { name: "Kamino", pid: "to6Eti9CsC5FGkAtqiPphvKD2hiQiLsS8zWiDBqBPKR" },
