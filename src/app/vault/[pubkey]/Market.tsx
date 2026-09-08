@@ -3,14 +3,15 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@jup-ag/wallet-adapter";
 import { BN } from "@coral-xyz/anchor";
+import { createSolanaRpc } from "@solana/kit";
 import {
-  ComputeBudgetProgram,
   PublicKey,
-  TransactionConfirmationStrategy,
-  TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
 import { createConnection } from "@/lib/publicConnection";
+import { submitApiTransaction } from "@/lib/apiTransaction";
+import { getSolanaChain } from "@/lib/solanaChain";
+import { getTransactionErrorMessage } from "@/lib/transactionError";
 import { getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { toast } from "react-toastify";
 import ChartCard from "./chart/chart-card";
@@ -20,7 +21,6 @@ import AllocationsCard from "./allocation/allocations-card";
 import { DailyStats } from "./chart/RealTimeChartJs";
 import { Breadcrumb } from "./breadcrumb/Breadcrumb";
 import SwapCard, { RequestWithdrawal } from "./swap/SwapCard";
-import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { SEEDS, VAULT_PROGRAM_ID } from "@voltr/vault-sdk";
 
 export interface VaultInformation {
@@ -397,25 +397,21 @@ export default function MarketClientPage(initialVault: VaultInformation) {
       }
       const { transaction: serializedTx } = await res.json();
 
-      // Deserialize, sign, and send the transaction
-      const txBuffer = bs58.decode(serializedTx);
-      const transaction = VersionedTransaction.deserialize(txBuffer);
-
-      const txSig = await wallet.sendTransaction(transaction, conn);
-      const { lastValidBlockHeight, blockhash } =
-        await conn.getLatestBlockhash();
-      const strategy: TransactionConfirmationStrategy = {
-        signature: txSig,
-        lastValidBlockHeight,
-        blockhash,
-      };
-      await conn.confirmTransaction(strategy, "confirmed");
+      await submitApiTransaction({
+        serializedTransaction: serializedTx,
+        walletAddress: user.toBase58(),
+        adapter: wallet.wallet?.adapter,
+        rpc: createSolanaRpc(conn.rpcEndpoint),
+        chain: getSolanaChain(),
+        sendLegacyTransaction: (bytes) =>
+          wallet.sendTransaction(VersionedTransaction.deserialize(bytes), conn),
+      });
 
       toast.success(`Successfully ${msg}!`);
       setInputAmount(""); // Clear input on success
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error:", error);
-      toast.error(`Error: ${error.message || error}`);
+      toast.error(getTransactionErrorMessage(error));
     } finally {
       setIsButtonLoading(false);
     }

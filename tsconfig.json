@@ -1,5 +1,8 @@
+// Next.js needs this configuration for app-router types and the @/* alias.
 {
   "compilerOptions": {
+    // Match the modern browser wallet APIs and native-module tests on Node 22+.
+    "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,

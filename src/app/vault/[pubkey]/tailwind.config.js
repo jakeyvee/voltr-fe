@@ -1,5 +1,6 @@
+// The chart components import this configuration from an ES module package.
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
@@ -38,3 +39,5 @@ module.exports = {
     themes: ["dark"], // You can customize this as needed
   },
 };
+
+export default config;

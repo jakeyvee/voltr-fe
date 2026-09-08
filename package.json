@@ -2,11 +2,19 @@
   "name": "voltr-fe",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit --incremental false",
+    "test": "pnpm test:development && pnpm test:production",
+    "test:development": "NODE_ENV=development node --import tsx --test tests/*.test.ts",
+    "test:production": "NODE_ENV=production node --import tsx --test tests/*.test.ts",
     "ngrok": "ngrok http --region ap 3000"
   },
   "dependencies": {
@@ -14,10 +22,14 @@
     "@headlessui/react": "^2.1.9",
     "@heroicons/react": "^2.2.0",
     "@jup-ag/wallet-adapter": "^0.2.1",
+    "@solana/kit": "^8.2.0",
     "@solana/spl-token": "^0.4.8",
+    "@solana/wallet-standard-features": "^1.4.0",
     "@solana/web3.js": "^1.95.3",
     "@supabase/supabase-js": "^2.48.1",
     "@voltr/vault-sdk": "^1.0.17",
+    "@wallet-standard/base": "^1.1.1",
+    "@wallet-standard/errors": "^0.1.1",
     "bn.js": "^5.2.2",
     "chart.js": "^4.4.7",
     "chartjs-adapter-moment": "^1.0.1",
@@ -41,6 +53,7 @@
     "ngrok": "5.0.0-beta.2",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   },
   "overrides": {

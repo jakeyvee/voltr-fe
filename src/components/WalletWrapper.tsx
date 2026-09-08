@@ -1,6 +1,7 @@
 "use client"; // Keep this as it's a client component
 
 import { UnifiedWalletProvider } from "@jup-ag/wallet-adapter";
+import { getSolanaChain, getWalletAdapterNetwork } from "@/lib/solanaChain";
 
 const WalletWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -8,7 +9,7 @@ const WalletWrapper = ({ children }: { children: React.ReactNode }) => {
       wallets={[]}
       config={{
         autoConnect: false,
-        env: "mainnet-beta",
+        env: getWalletAdapterNetwork(getSolanaChain()),
         metadata: {
           name: "UnifiedWallet",
           description: "UnifiedWallet",
