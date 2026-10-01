@@ -72,10 +72,10 @@ const managers = [
     type: "Agentic lending",
   },
   {
-    name: "Elemental Fund",
-    href: "https://elemental.fund",
-    icon: "https://lh0wrlblwpfflwdq.public.blob.vercel-storage.com/elemental-clear.png",
-    matcher: "elemental",
+    name: "Vega Finance",
+    href: "https://vega-finance.tech/",
+    icon: "https://lh0wrlblwpfflwdq.public.blob.vercel-storage.com/vega-mark-white.webp",
+    matcher: "vega",
     type: "DeFi yield",
   },
   {
